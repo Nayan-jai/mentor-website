@@ -1,0 +1,138 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String    @id @default(cuid())
+  name              String?
+  email             String    @unique
+  password          String
+  role              String    @default("STUDENT") // Can be "STUDENT" or "MENTOR"
+  emailVerified     DateTime?
+  image             String?
+  resetToken        String?   @unique
+  resetTokenExpiry  DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  accounts          Account[]
+  sessions          Session[]
+  discussions       Discussion[] @relation("UserDiscussions")
+  comments          Comment[]   @relation("UserComments")
+  mentorSlots       MentorSlot[]
+  bookings          Booking[] @relation("MenteeBookings")
+  replies           Reply[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  booking      Booking?
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model MentorSlot {
+  id          String    @id @default(cuid())
+  mentorId    String
+  mentor      User      @relation(fields: [mentorId], references: [id])
+  title       String
+  description String
+  startTime   DateTime
+  endTime     DateTime
+  isAvailable Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  booking     Booking?
+}
+
+model Booking {
+  id          String    @id @default(cuid())
+  menteeId    String
+  mentee      User      @relation("MenteeBookings", fields: [menteeId], references: [id])
+  slotId      String    @unique
+  sessionId   String    @unique
+  slot        MentorSlot @relation(fields: [slotId], references: [id])
+  session     Session   @relation(fields: [sessionId], references: [id])
+  status      String   @default("PENDING")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Discussion {
+  id          String    @id @default(cuid())
+  title       String
+  content     String
+  isPrivate   Boolean   @default(false)
+  isArchived  Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  authorId    String
+  author      User      @relation("UserDiscussions", fields: [authorId], references: [id])
+  comments    Comment[]
+  replies     Reply[]
+  tags        String[]
+  category    String    @default("GENERAL")
+  views       Int       @default(0)
+  isResolved  Boolean   @default(false)
+}
+
+model Comment {
+  id            String     @id @default(cuid())
+  content       String
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  authorId      String
+  author        User       @relation("UserComments", fields: [authorId], references: [id])
+  discussionId  String
+  discussion    Discussion @relation(fields: [discussionId], references: [id], onDelete: Cascade)
+  isAnswer      Boolean    @default(false)
+  upvotes       Int        @default(0)
+  downvotes     Int        @default(0)
+}
+
+model Reply {
+  id            String    @id @default(cuid())
+  content       String
+  discussionId  String
+  discussion    Discussion @relation(fields: [discussionId], references: [id])
+  authorId      String
+  author        User      @relation(fields: [authorId], references: [id])
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+} 
