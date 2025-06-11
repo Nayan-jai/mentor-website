@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { randomBytes } from "crypto";
 import { hash } from "bcryptjs";
@@ -14,7 +14,9 @@ type ForgotPasswordResponse = {
   resetToken?: string;
 };
 
-export async function POST(request: Request): Promise<NextResponse<ForgotPasswordResponse>> {
+export async function POST(
+  request: NextRequest
+): Promise<NextResponse<ForgotPasswordResponse>> {
   try {
     const body = await request.json();
     const { email } = body as ForgotPasswordRequest;

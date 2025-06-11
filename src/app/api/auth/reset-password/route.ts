@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { hash, compare } from "bcryptjs";
 import { Prisma } from "@prisma/client";
@@ -14,7 +14,9 @@ type ResetPasswordResponse = {
   message: string;
 };
 
-export async function POST(request: Request): Promise<NextResponse<ResetPasswordResponse>> {
+export async function POST(
+  request: NextRequest
+): Promise<NextResponse<ResetPasswordResponse>> {
   try {
     const body = await request.json();
     const { token, password } = body as ResetPasswordRequest;
