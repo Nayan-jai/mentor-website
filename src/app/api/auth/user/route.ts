@@ -1,8 +1,18 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(request: Request) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     const { searchParams } = new URL(request.url);
     const email = searchParams.get("email");
 
@@ -13,6 +23,14 @@ export async function GET(request: Request) {
       );
     }
 
+    // Only allow users to fetch their own data or mentors to fetch any data
+    if (session.user.email !== email && session.user.role !== "MENTOR") {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 403 }
+      );
+    }
+
     const user = await prisma.user.findUnique({
       where: { email },
       select: {
@@ -20,6 +38,8 @@ export async function GET(request: Request) {
         name: true,
         email: true,
         role: true,
+        image: true,
+        createdAt: true,
       },
     });
 
