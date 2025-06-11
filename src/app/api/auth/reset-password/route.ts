@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { hash } from "bcryptjs";
+import { hash, compare } from "bcryptjs";
 import { Prisma } from "@prisma/client";
 
 type ResetPasswordData = {
@@ -35,11 +35,24 @@ export async function POST(request: Request) {
           gt: new Date(), // Token hasn't expired
         },
       },
+      select: {
+        id: true,
+        password: true,
+      },
     });
 
     if (!user) {
       return NextResponse.json(
         { error: "Invalid or expired reset token" },
+        { status: 400 }
+      );
+    }
+
+    // Check if the new password is the same as the old one
+    const isSamePassword = await compare(password, user.password);
+    if (isSamePassword) {
+      return NextResponse.json(
+        { error: "New password must be different from the old password" },
         { status: 400 }
       );
     }

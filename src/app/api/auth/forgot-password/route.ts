@@ -17,6 +17,10 @@ export async function POST(request: Request) {
     // Find the user
     const user = await prisma.user.findUnique({
       where: { email },
+      select: {
+        id: true,
+        email: true,
+      },
     });
 
     if (!user) {
@@ -40,12 +44,12 @@ export async function POST(request: Request) {
       },
     });
 
-    // In a real application, you would send an email here
-    // For development, we'll just return the token
+    // For development, return the token
+    // In production, you would send an email with the token
     return NextResponse.json(
       { 
-        message: "If an account exists with this email, you will receive a password reset link.",
-        // Remove this in production
+        message: "Password reset link has been generated.",
+        // In production, remove this and send the token via email
         resetToken: resetToken,
       },
       { status: 200 }
