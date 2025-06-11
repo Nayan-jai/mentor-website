@@ -2,7 +2,6 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  output: 'export',
   images: {
     unoptimized: true,
     remotePatterns: [
@@ -11,6 +10,7 @@ const nextConfig = {
         hostname: 'images.unsplash.com',
       },
     ],
+    domains: ['images.unsplash.com'],
   },
   experimental: {
     optimizeCss: false,

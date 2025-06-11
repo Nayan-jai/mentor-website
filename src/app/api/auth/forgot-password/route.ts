@@ -14,9 +14,9 @@ type ForgotPasswordResponse = {
   resetToken?: string;
 };
 
-export async function POST(
+export const POST = async (
   request: NextRequest
-): Promise<NextResponse<ForgotPasswordResponse>> {
+): Promise<NextResponse<ForgotPasswordResponse>> => {
   try {
     const body = await request.json();
     const { email } = body as ForgotPasswordRequest;
@@ -75,4 +75,4 @@ export async function POST(
       { status: 500 }
     );
   }
-} 
+}; 
