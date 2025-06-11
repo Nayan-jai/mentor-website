@@ -16,15 +16,11 @@ export async function POST(
 ) {
   try {
     const session = await getServerSession(authOptions);
-
-    if (!session?.user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Check if the session exists and is available
+    // Get the session slot
     const mentorSlot = await prisma.mentorSlot.findUnique({
       where: { id: params.id },
       include: {
@@ -39,29 +35,22 @@ export async function POST(
 
     if (!mentorSlot) {
       return NextResponse.json(
-        { error: "Session not found" },
+        { error: "Session slot not found" },
         { status: 404 }
       );
     }
 
-    if (!mentorSlot.isAvailable) {
-      return NextResponse.json(
-        { error: "Session is no longer available" },
-        { status: 400 }
-      );
-    }
-
-    // Check if user already has a booking for this slot
+    // Check if the slot is already booked
     const existingBooking = await prisma.booking.findFirst({
       where: {
         slotId: params.id,
-        menteeId: session.user.id,
+        status: "CONFIRMED",
       },
     });
 
     if (existingBooking) {
       return NextResponse.json(
-        { error: "You have already booked this session" },
+        { error: "This slot is already booked" },
         { status: 400 }
       );
     }
@@ -70,8 +59,16 @@ export async function POST(
     const booking = await prisma.booking.create({
       data: {
         slotId: params.id,
+        sessionId: mentorSlot.id,
         menteeId: session.user.id,
         status: "CONFIRMED",
+      },
+      include: {
+        slot: {
+          include: {
+            mentor: true,
+          },
+        },
       },
     });
 
@@ -84,14 +81,14 @@ export async function POST(
     // Generate Google Meet link
     const meetLink = generateMeetLink();
 
-    // Send email notifications
-    if (mentorSlot.mentor) {
+    // Send email notifications if mentor exists
+    if (mentorSlot.mentor?.name && mentorSlot.mentor?.email && session.user.name && session.user.email) {
       await sendSessionBookingEmails({
         mentorName: mentorSlot.mentor.name,
         mentorEmail: mentorSlot.mentor.email,
         studentName: session.user.name,
         studentEmail: session.user.email,
-        sessionTitle: mentorSlot.title,
+        sessionTitle: mentorSlot.title || "Mentoring Session",
         startTime: mentorSlot.startTime,
         endTime: mentorSlot.endTime,
         meetLink: meetLink,
