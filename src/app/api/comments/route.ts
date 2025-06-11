@@ -4,11 +4,19 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(request: NextRequest) {
-  const id = request.url.split('/discussions/')[1].split('/comments')[0];
-  
+  const { searchParams } = new URL(request.url);
+  const discussionId = searchParams.get("discussionId");
+
+  if (!discussionId) {
+    return NextResponse.json(
+      { message: "Discussion ID is required" },
+      { status: 400 }
+    );
+  }
+
   const comments = await prisma.comment.findMany({
     where: {
-      discussionId: id,
+      discussionId,
     },
     include: {
       author: {
@@ -28,8 +36,6 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const id = request.url.split('/discussions/')[1].split('/comments')[0];
-  
   const session = await getServerSession(authOptions);
   if (!session?.user) {
     return NextResponse.json(
@@ -39,18 +45,18 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json();
-  const { content } = body;
+  const { content, discussionId } = body;
 
-  if (!content) {
+  if (!content || !discussionId) {
     return NextResponse.json(
-      { message: "Content is required" },
+      { message: "Content and discussion ID are required" },
       { status: 400 }
     );
   }
 
   const discussion = await prisma.discussion.findUnique({
     where: {
-      id: id,
+      id: discussionId,
       ...(session.user.role !== "MENTOR" ? { isPrivate: false } : {}),
     },
   });
@@ -66,7 +72,7 @@ export async function POST(request: NextRequest) {
     data: {
       content,
       authorId: session.user.id,
-      discussionId: id,
+      discussionId,
     },
     include: {
       author: {
@@ -83,8 +89,6 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
-  const id = request.url.split('/discussions/')[1].split('/comments')[0];
-  
   const session = await getServerSession(authOptions);
   if (!session?.user) {
     return NextResponse.json(
@@ -94,11 +98,11 @@ export async function PATCH(request: NextRequest) {
   }
 
   const body = await request.json();
-  const { commentId, isAnswer } = body;
+  const { commentId, discussionId, isAnswer } = body;
 
-  if (!commentId) {
+  if (!commentId || !discussionId) {
     return NextResponse.json(
-      { message: "Comment ID is required" },
+      { message: "Comment ID and discussion ID are required" },
       { status: 400 }
     );
   }
@@ -113,7 +117,7 @@ export async function PATCH(request: NextRequest) {
   const comment = await prisma.comment.update({
     where: {
       id: commentId,
-      discussionId: id,
+      discussionId,
     },
     data: {
       isAnswer,
