@@ -2,8 +2,13 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
+  output: 'standalone',
+  images: {
+    domains: ['images.unsplash.com'],
+  },
   experimental: {
     optimizeCss: false,
+    serverActions: true,
   },
   typescript: {
     ignoreBuildErrors: false,
