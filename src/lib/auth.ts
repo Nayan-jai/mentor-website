@@ -3,24 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "./prisma";
 import { compare } from "bcryptjs";
 
-if (!process.env.NEXTAUTH_SECRET) {
-  throw new Error('NEXTAUTH_SECRET is not set');
-}
-
-if (!process.env.NEXTAUTH_URL) {
-  throw new Error('NEXTAUTH_URL is not set');
-}
-
 export const authOptions: NextAuthOptions = {
-  adapter: undefined,
-  session: {
-    strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 days
-  },
-  pages: {
-    signIn: "/auth/login",
-    error: "/auth/error",
-  },
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -70,6 +53,13 @@ export const authOptions: NextAuthOptions = {
       },
     }),
   ],
+  session: {
+    strategy: "jwt",
+  },
+  pages: {
+    signIn: "/auth/login",
+    error: "/auth/error",
+  },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
@@ -87,16 +77,4 @@ export const authOptions: NextAuthOptions = {
     },
   },
   secret: process.env.NEXTAUTH_SECRET,
-  debug: process.env.NODE_ENV === "development",
-  logger: {
-    error(code, metadata) {
-      console.error(code, metadata);
-    },
-    warn(code) {
-      console.warn(code);
-    },
-    debug(code, metadata) {
-      console.debug(code, metadata);
-    },
-  },
 }; 
