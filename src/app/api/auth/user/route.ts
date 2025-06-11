@@ -1,14 +1,14 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-export async function GET(request: Request) {
+export const GET = async (request: NextRequest) => {
   try {
     const session = await getServerSession(authOptions);
     if (!session) {
       return NextResponse.json(
-        { error: "Unauthorized" },
+        { message: "Unauthorized" },
         { status: 401 }
       );
     }
@@ -18,7 +18,7 @@ export async function GET(request: Request) {
 
     if (!email) {
       return NextResponse.json(
-        { error: "Email is required" },
+        { message: "Email is required" },
         { status: 400 }
       );
     }
@@ -26,7 +26,7 @@ export async function GET(request: Request) {
     // Only allow users to fetch their own data or mentors to fetch any data
     if (session.user.email !== email && session.user.role !== "MENTOR") {
       return NextResponse.json(
-        { error: "Unauthorized" },
+        { message: "Unauthorized" },
         { status: 403 }
       );
     }
@@ -45,7 +45,7 @@ export async function GET(request: Request) {
 
     if (!user) {
       return NextResponse.json(
-        { error: "User not found" },
+        { message: "User not found" },
         { status: 404 }
       );
     }
@@ -54,8 +54,8 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error("Error fetching user:", error);
     return NextResponse.json(
-      { error: "Failed to fetch user data" },
+      { message: "Failed to fetch user data" },
       { status: 500 }
     );
   }
-} 
+}; 

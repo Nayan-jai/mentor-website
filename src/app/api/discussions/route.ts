@@ -1,14 +1,14 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 
-export async function POST(req: Request) {
+export const POST = async (req: NextRequest) => {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
-      return new NextResponse("Unauthorized", { status: 401 });
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
     const body = await req.json();
@@ -28,15 +28,15 @@ export async function POST(req: Request) {
     return NextResponse.json(discussion);
   } catch (error) {
     console.error("[DISCUSSIONS_POST]", error);
-    return new NextResponse("Internal Error", { status: 500 });
+    return NextResponse.json({ message: "Internal Error" }, { status: 500 });
   }
-}
+};
 
-export async function GET(request: Request) {
+export const GET = async (request: NextRequest) => {
   try {
     const session = await getServerSession(authOptions);
     if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -94,8 +94,8 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error("Error fetching discussions:", error);
     return NextResponse.json(
-      { error: "Failed to fetch discussions" },
+      { message: "Failed to fetch discussions" },
       { status: 500 }
     );
   }
-} 
+}; 

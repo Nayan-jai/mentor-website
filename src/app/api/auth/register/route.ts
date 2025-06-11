@@ -1,15 +1,15 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { hash } from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 
-export async function POST(request: Request) {
+export const POST = async (request: NextRequest) => {
   try {
     const { name, email, password, role } = await request.json();
 
     // Validate required fields
     if (!name || !email || !password || !role) {
       return NextResponse.json(
-        { error: "Missing required fields" },
+        { message: "Missing required fields" },
         { status: 400 }
       );
     }
@@ -17,7 +17,7 @@ export async function POST(request: Request) {
     // Validate role
     if (!["STUDENT", "MENTOR"].includes(role)) {
       return NextResponse.json(
-        { error: "Invalid role selected" },
+        { message: "Invalid role selected" },
         { status: 400 }
       );
     }
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
 
     if (existingUser) {
       return NextResponse.json(
-        { error: "User already exists" },
+        { message: "User already exists" },
         { status: 400 }
       );
     }
@@ -60,8 +60,8 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Registration error:", error);
     return NextResponse.json(
-      { error: "Failed to create user" },
+      { message: "Failed to create user" },
       { status: 500 }
     );
   }
-} 
+}; 

@@ -63,26 +63,26 @@ export const GET = async (
   }
 };
 
-export async function POST(request: Request) {
+export const POST = async (request: NextRequest) => {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json(
-        { error: "Unauthorized" },
+        { message: "Unauthorized" },
         { status: 401 }
       );
     }
 
     if (!session?.user?.id) {
       return NextResponse.json(
-        { error: "User ID not found" },
+        { message: "User ID not found" },
         { status: 401 }
       );
     }
 
     if (session.user.role !== "MENTOR") {
       return NextResponse.json(
-        { error: "Only mentors can create sessions" },
+        { message: "Only mentors can create sessions" },
         { status: 403 }
       );
     }
@@ -92,7 +92,7 @@ export async function POST(request: Request) {
 
     if (!title || !description || !startTime || !endTime) {
       return NextResponse.json(
-        { error: "Missing required fields" },
+        { message: "Missing required fields" },
         { status: 400 }
       );
     }
@@ -104,21 +104,21 @@ export async function POST(request: Request) {
 
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
       return NextResponse.json(
-        { error: "Invalid date format" },
+        { message: "Invalid date format" },
         { status: 400 }
       );
     }
 
     if (start < now) {
       return NextResponse.json(
-        { error: "Start time must be in the future" },
+        { message: "Start time must be in the future" },
         { status: 400 }
       );
     }
 
     if (end <= start) {
       return NextResponse.json(
-        { error: "End time must be after start time" },
+        { message: "End time must be after start time" },
         { status: 400 }
       );
     }
@@ -146,7 +146,7 @@ export async function POST(request: Request) {
 
     if (overlappingSession) {
       return NextResponse.json(
-        { error: "You have an overlapping session at this time" },
+        { message: "You have an overlapping session at this time" },
         { status: 400 }
       );
     }
@@ -174,8 +174,8 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Error creating session:", error);
     return NextResponse.json(
-      { error: `Failed to create session: ${error instanceof Error ? error.message : String(error)}` },
+      { message: `Failed to create session: ${error instanceof Error ? error.message : String(error)}` },
       { status: 500 }
     );
   }
-} 
+}; 
