@@ -3,13 +3,25 @@ import { prisma } from "@/lib/prisma";
 import { randomBytes } from "crypto";
 import { hash } from "bcryptjs";
 
-export async function POST(request: Request) {
+// Define the request body type
+type ForgotPasswordRequest = {
+  email: string;
+};
+
+// Define the response type
+type ForgotPasswordResponse = {
+  message: string;
+  resetToken?: string;
+};
+
+export async function POST(request: Request): Promise<NextResponse<ForgotPasswordResponse>> {
   try {
-    const { email } = await request.json();
+    const body = await request.json();
+    const { email } = body as ForgotPasswordRequest;
 
     if (!email) {
       return NextResponse.json(
-        { error: "Email is required" },
+        { message: "Email is required" },
         { status: 400 }
       );
     }
@@ -57,7 +69,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Forgot password error:", error);
     return NextResponse.json(
-      { error: "Failed to process request" },
+      { message: "Failed to process request" },
       { status: 500 }
     );
   }

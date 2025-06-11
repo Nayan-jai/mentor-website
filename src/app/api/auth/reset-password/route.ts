@@ -3,26 +3,32 @@ import { prisma } from "@/lib/prisma";
 import { hash, compare } from "bcryptjs";
 import { Prisma } from "@prisma/client";
 
-type ResetPasswordData = {
+// Define the request body type
+type ResetPasswordRequest = {
   token: string;
   password: string;
 };
 
-export async function POST(request: Request) {
+// Define the response type
+type ResetPasswordResponse = {
+  message: string;
+};
+
+export async function POST(request: Request): Promise<NextResponse<ResetPasswordResponse>> {
   try {
     const body = await request.json();
-    const { token, password } = body as ResetPasswordData;
+    const { token, password } = body as ResetPasswordRequest;
 
     if (!token || !password) {
       return NextResponse.json(
-        { error: "Token and password are required" },
+        { message: "Token and password are required" },
         { status: 400 }
       );
     }
 
     if (password.length < 8) {
       return NextResponse.json(
-        { error: "Password must be at least 8 characters long" },
+        { message: "Password must be at least 8 characters long" },
         { status: 400 }
       );
     }
@@ -43,7 +49,7 @@ export async function POST(request: Request) {
 
     if (!user) {
       return NextResponse.json(
-        { error: "Invalid or expired reset token" },
+        { message: "Invalid or expired reset token" },
         { status: 400 }
       );
     }
@@ -52,7 +58,7 @@ export async function POST(request: Request) {
     const isSamePassword = await compare(password, user.password);
     if (isSamePassword) {
       return NextResponse.json(
-        { error: "New password must be different from the old password" },
+        { message: "New password must be different from the old password" },
         { status: 400 }
       );
     }
@@ -79,7 +85,7 @@ export async function POST(request: Request) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         console.error("Database error:", error);
         return NextResponse.json(
-          { error: "Failed to update password" },
+          { message: "Failed to update password" },
           { status: 500 }
         );
       }
@@ -88,7 +94,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Reset password error:", error);
     return NextResponse.json(
-      { error: "Failed to reset password" },
+      { message: "Failed to reset password" },
       { status: 500 }
     );
   }
