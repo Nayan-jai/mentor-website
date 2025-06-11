@@ -26,11 +26,9 @@ export const GET = async (
             email: true,
           },
         },
-        student: {
+        booking: {
           select: {
-            id: true,
-            name: true,
-            email: true,
+            menteeId: true,
           },
         },
       },
@@ -46,7 +44,7 @@ export const GET = async (
     // Only allow access to the session if the user is the mentor or the student
     if (
       session.user.role !== "MENTOR" &&
-      mentorSlot.studentId !== session.user.id
+      mentorSlot.booking?.menteeId !== session.user.id
     ) {
       return NextResponse.json(
         { message: "Unauthorized" },
@@ -176,13 +174,7 @@ export const PUT = async (
             email: true,
           },
         },
-        student: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
+        
       },
     });
 

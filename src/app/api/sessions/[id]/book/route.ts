@@ -3,10 +3,10 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-export const POST = async (
+export async function POST(
   request: NextRequest,
-  context: { params: { id: string } }
-) => {
+  { params }: { params: { id: string } }
+) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
@@ -24,7 +24,7 @@ export const POST = async (
     }
 
     const mentorSlot = await prisma.mentorSlot.findUnique({
-      where: { id: context.params.id },
+      where: { id: params.id },
     });
 
     if (!mentorSlot) {
@@ -48,31 +48,54 @@ export const POST = async (
       );
     }
 
-    const updatedSession = await prisma.mentorSlot.update({
-      where: { id: context.params.id },
+    // Create a new session for the booking
+    const newSession = await prisma.session.create({
       data: {
-        isAvailable: false,
-        studentId: session.user.id,
+        sessionToken: Math.random().toString(36).substring(7),
+        userId: session.user.id,
+        expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours from now
+      },
+    });
+
+    // Create the booking
+    const booking = await prisma.booking.create({
+      data: {
+        menteeId: session.user.id,
+        slotId: params.id,
+        sessionId: newSession.id,
+        status: "CONFIRMED",
       },
       include: {
-        mentor: {
+        mentee: {
           select: {
             id: true,
             name: true,
             email: true,
           },
         },
-        student: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
+        slot: {
+          include: {
+            mentor: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
           },
         },
       },
     });
 
-    return NextResponse.json(updatedSession);
+    // Update the mentor slot
+    const updatedSlot = await prisma.mentorSlot.update({
+      where: { id: params.id },
+      data: {
+        isAvailable: false,
+      },
+    });
+
+    return NextResponse.json(booking);
   } catch (error) {
     console.error("[SESSION_BOOK]", error);
     return NextResponse.json(
@@ -80,4 +103,4 @@ export const POST = async (
       { status: 500 }
     );
   }
-}; 
+} 
