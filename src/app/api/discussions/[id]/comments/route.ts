@@ -3,19 +3,12 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-type RouteParams = {
-  params: {
-    id: string;
-  };
-};
-
-export async function GET(
-  request: NextRequest,
-  { params }: RouteParams
-) {
+export async function GET(request: NextRequest) {
+  const id = request.url.split('/discussions/')[1].split('/comments')[0];
+  
   const comments = await prisma.comment.findMany({
     where: {
-      discussionId: params.id,
+      discussionId: id,
     },
     include: {
       author: {
@@ -34,10 +27,9 @@ export async function GET(
   return NextResponse.json(comments);
 }
 
-export async function POST(
-  request: NextRequest,
-  { params }: RouteParams
-) {
+export async function POST(request: NextRequest) {
+  const id = request.url.split('/discussions/')[1].split('/comments')[0];
+  
   const session = await getServerSession(authOptions);
   if (!session?.user) {
     return NextResponse.json(
@@ -58,7 +50,7 @@ export async function POST(
 
   const discussion = await prisma.discussion.findUnique({
     where: {
-      id: params.id,
+      id: id,
       ...(session.user.role !== "MENTOR" ? { isPrivate: false } : {}),
     },
   });
@@ -74,7 +66,7 @@ export async function POST(
     data: {
       content,
       authorId: session.user.id,
-      discussionId: params.id,
+      discussionId: id,
     },
     include: {
       author: {
@@ -90,10 +82,9 @@ export async function POST(
   return NextResponse.json(comment);
 }
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: RouteParams
-) {
+export async function PATCH(request: NextRequest) {
+  const id = request.url.split('/discussions/')[1].split('/comments')[0];
+  
   const session = await getServerSession(authOptions);
   if (!session?.user) {
     return NextResponse.json(
@@ -122,7 +113,7 @@ export async function PATCH(
   const comment = await prisma.comment.update({
     where: {
       id: commentId,
-      discussionId: params.id,
+      discussionId: id,
     },
     data: {
       isAnswer,
