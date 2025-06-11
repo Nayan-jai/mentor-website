@@ -8,26 +8,41 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await prisma.session.findUnique({
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const sessionData = await prisma.mentorSlot.findUnique({
       where: { id: params.id },
       include: {
         mentor: {
           select: {
             name: true,
-            email: true
-          }
-        }
-      }
+            email: true,
+          },
+        },
+        booking: {
+          include: {
+            mentee: {
+              select: {
+                name: true,
+                email: true,
+              },
+            },
+          },
+        },
+      },
     });
 
-    if (!session) {
+    if (!sessionData) {
       return NextResponse.json(
         { error: "Session not found" },
         { status: 404 }
       );
     }
 
-    return NextResponse.json(session);
+    return NextResponse.json(sessionData);
   } catch (error) {
     console.error("Error fetching session:", error);
     return NextResponse.json(
@@ -43,119 +58,40 @@ export async function PUT(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
-
-    if (session.user.role !== "MENTOR") {
-      return NextResponse.json(
-        { error: "Only mentors can update sessions" },
-        { status: 403 }
-      );
-    }
-
-    const existingSession = await prisma.session.findUnique({
-      where: { id: params.id }
-    });
-
-    if (!existingSession) {
-      return NextResponse.json(
-        { error: "Session not found" },
-        { status: 404 }
-      );
-    }
-
-    if (existingSession.mentorId !== session.user.id) {
-      return NextResponse.json(
-        { error: "You can only update your own sessions" },
-        { status: 403 }
-      );
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await request.json();
-    const { title, description, startTime, endTime } = body;
+    const { title, description, startTime, endTime, isAvailable } = body;
 
-    if (!title || !description || !startTime || !endTime) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
-    }
-
-    // Validate dates
-    const start = new Date(startTime);
-    const end = new Date(endTime);
-    const now = new Date();
-
-    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-      return NextResponse.json(
-        { error: "Invalid date format" },
-        { status: 400 }
-      );
-    }
-
-    if (start < now) {
-      return NextResponse.json(
-        { error: "Start time must be in the future" },
-        { status: 400 }
-      );
-    }
-
-    if (end <= start) {
-      return NextResponse.json(
-        { error: "End time must be after start time" },
-        { status: 400 }
-      );
-    }
-
-    // Check for overlapping sessions (excluding the current session)
-    const overlappingSession = await prisma.session.findFirst({
-      where: {
-        mentorId: session.user.id,
-        id: { not: params.id },
-        OR: [
-          {
-            AND: [
-              { startTime: { lte: start } },
-              { endTime: { gt: start } }
-            ]
-          },
-          {
-            AND: [
-              { startTime: { lt: end } },
-              { endTime: { gte: end } }
-            ]
-          }
-        ]
-      }
-    });
-
-    if (overlappingSession) {
-      return NextResponse.json(
-        { error: "You have an overlapping session at this time" },
-        { status: 400 }
-      );
-    }
-
-    const updatedSession = await prisma.session.update({
+    const updatedSession = await prisma.mentorSlot.update({
       where: { id: params.id },
       data: {
         title,
         description,
-        startTime: start,
-        endTime: end
+        startTime,
+        endTime,
+        isAvailable,
       },
       include: {
         mentor: {
           select: {
             name: true,
-            email: true
-          }
-        }
-      }
+            email: true,
+          },
+        },
+        booking: {
+          include: {
+            mentee: {
+              select: {
+                name: true,
+                email: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     return NextResponse.json(updatedSession);
@@ -163,6 +99,30 @@ export async function PUT(
     console.error("Error updating session:", error);
     return NextResponse.json(
       { error: "Failed to update session" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    await prisma.mentorSlot.delete({
+      where: { id: params.id },
+    });
+
+    return NextResponse.json({ message: "Session deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting session:", error);
+    return NextResponse.json(
+      { error: "Failed to delete session" },
       { status: 500 }
     );
   }
