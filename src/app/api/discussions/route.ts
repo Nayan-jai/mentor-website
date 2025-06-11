@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 
 export async function POST(req: Request) {
   try {
@@ -31,28 +32,41 @@ export async function POST(req: Request) {
   }
 }
 
-export async function GET(req: Request) {
+export async function GET(request: Request) {
   try {
     const session = await getServerSession(authOptions);
-    const { searchParams } = new URL(req.url);
-    
-    const category = searchParams.get("category");
-    const search = searchParams.get("search");
-    const filter = searchParams.get("filter");
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-    const where = {
-      ...(category && category !== "all" ? { category } : {}),
-      ...(search ? {
+    const { searchParams } = new URL(request.url);
+    const search = searchParams.get("search") || "";
+    const category = searchParams.get("category");
+    const isPrivate = searchParams.get("isPrivate") === "true";
+    const isArchived = searchParams.get("isArchived") === "true";
+    const isResolved = searchParams.get("isResolved") === "true";
+
+    const where: Prisma.DiscussionWhereInput = {
+      isPrivate,
+      isArchived,
+      isResolved,
+      ...(search && {
         OR: [
-          { title: { contains: search, mode: "insensitive" } },
-          { content: { contains: search, mode: "insensitive" } },
-        ],
-      } : {}),
-      ...(filter === "resolved" ? { isResolved: true } : {}),
-      ...(filter === "unresolved" ? { isResolved: false } : {}),
-      ...(filter === "archived" ? { isArchived: true } : {}),
-      ...(filter !== "archived" ? { isArchived: false } : {}),
-      ...(session?.user?.role !== "MENTOR" ? { isPrivate: false } : {}),
+          {
+            title: {
+              contains: search,
+              mode: Prisma.QueryMode.insensitive,
+            },
+          },
+          {
+            content: {
+              contains: search,
+              mode: Prisma.QueryMode.insensitive,
+            },
+          },
+        ] as Prisma.DiscussionWhereInput[],
+      }),
+      ...(category && { category }),
     };
 
     const discussions = await prisma.discussion.findMany({
@@ -62,11 +76,12 @@ export async function GET(req: Request) {
           select: {
             id: true,
             name: true,
+            email: true,
           },
         },
-        _count: {
+        comments: {
           select: {
-            comments: true,
+            id: true,
           },
         },
       },
@@ -77,7 +92,10 @@ export async function GET(req: Request) {
 
     return NextResponse.json(discussions);
   } catch (error) {
-    console.error("[DISCUSSIONS_GET]", error);
-    return new NextResponse("Internal Error", { status: 500 });
+    console.error("Error fetching discussions:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch discussions" },
+      { status: 500 }
+    );
   }
 } 
