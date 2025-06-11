@@ -1,20 +1,30 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(
-  req: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
-      return new NextResponse("Unauthorized", { status: 401 });
+      return NextResponse.json(
+        { message: "Unauthorized" },
+        { status: 401 }
+      );
     }
 
-    const body = await req.json();
+    const body = await request.json();
     const { content } = body;
+
+    if (!content) {
+      return NextResponse.json(
+        { message: "Content is required" },
+        { status: 400 }
+      );
+    }
 
     // Check if discussion exists and is accessible
     const discussion = await prisma.discussion.findUnique({
@@ -25,7 +35,10 @@ export async function POST(
     });
 
     if (!discussion) {
-      return new NextResponse("Discussion not found", { status: 404 });
+      return NextResponse.json(
+        { message: "Discussion not found" },
+        { status: 404 }
+      );
     }
 
     const comment = await prisma.comment.create({
@@ -39,6 +52,7 @@ export async function POST(
           select: {
             id: true,
             name: true,
+            email: true,
           },
         },
       },
@@ -47,26 +61,42 @@ export async function POST(
     return NextResponse.json(comment);
   } catch (error) {
     console.error("[COMMENTS_POST]", error);
-    return new NextResponse("Internal Error", { status: 500 });
+    return NextResponse.json(
+      { message: "Internal server error" },
+      { status: 500 }
+    );
   }
 }
 
 export async function PATCH(
-  req: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
-      return new NextResponse("Unauthorized", { status: 401 });
+      return NextResponse.json(
+        { message: "Unauthorized" },
+        { status: 401 }
+      );
     }
 
-    const body = await req.json();
+    const body = await request.json();
     const { commentId, isAnswer } = body;
+
+    if (!commentId) {
+      return NextResponse.json(
+        { message: "Comment ID is required" },
+        { status: 400 }
+      );
+    }
 
     // Only mentors can mark comments as answers
     if (isAnswer && session.user.role !== "MENTOR") {
-      return new NextResponse("Unauthorized", { status: 401 });
+      return NextResponse.json(
+        { message: "Only mentors can mark comments as answers" },
+        { status: 403 }
+      );
     }
 
     const comment = await prisma.comment.update({
@@ -77,11 +107,23 @@ export async function PATCH(
       data: {
         isAnswer,
       },
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
     });
 
     return NextResponse.json(comment);
   } catch (error) {
     console.error("[COMMENTS_PATCH]", error);
-    return new NextResponse("Internal Error", { status: 500 });
+    return NextResponse.json(
+      { message: "Internal server error" },
+      { status: 500 }
+    );
   }
 } 
