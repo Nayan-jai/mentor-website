@@ -1,47 +1,67 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 
-export async function GET() {
+// Define the response type
+type SessionsResponse = {
+  message: string;
+  sessions?: Array<{
+    id: string;
+    title: string;
+    description: string;
+    startTime: Date;
+    endTime: Date;
+    mentorId: string;
+    mentor: {
+      id: string;
+      name: string | null;
+      email: string;
+    };
+  }>;
+};
+
+export const GET = async (
+  request: NextRequest
+): Promise<NextResponse<SessionsResponse>> => {
   try {
     const sessions = await prisma.mentorSlot.findMany({
       where: {
         isAvailable: true,
+        startTime: {
+          gte: new Date(),
+        },
       },
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        startTime: true,
-        endTime: true,
+      include: {
         mentor: {
           select: {
+            id: true,
             name: true,
+            email: true,
           },
         },
       },
+      orderBy: {
+        startTime: 'asc',
+      },
     });
 
-    // Transform the data to match our simplified interface
-    const formattedSessions = sessions.map(session => ({
-      id: session.id,
-      title: session.title || "Untitled Session",
-      description: session.description || "No description available",
-      date: new Date(session.startTime).toLocaleDateString(),
-      time: `${new Date(session.startTime).toLocaleTimeString()} - ${new Date(session.endTime).toLocaleTimeString()}`,
-      mentorName: session.mentor?.name || "Anonymous Mentor",
-    }));
-
-    return NextResponse.json(formattedSessions);
+    return NextResponse.json(
+      {
+        message: "Sessions retrieved successfully",
+        sessions,
+      },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Error fetching sessions:", error);
     return NextResponse.json(
-      { error: "Failed to fetch sessions" },
+      { message: "Failed to fetch sessions" },
       { status: 500 }
     );
   }
-}
+};
 
 export async function POST(request: Request) {
   try {
