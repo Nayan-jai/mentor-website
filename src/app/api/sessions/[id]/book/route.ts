@@ -1,24 +1,70 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-export async function POST(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export const POST = async (
+  request: NextRequest,
+  context: { params: { id: string } }
+) => {
   try {
     const session = await getServerSession(authOptions);
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!session?.user) {
+      return NextResponse.json(
+        { message: "Unauthorized" },
+        { status: 401 }
+      );
     }
 
-    // Get the session slot
+    if (session.user.role !== "STUDENT") {
+      return NextResponse.json(
+        { message: "Only students can book sessions" },
+        { status: 403 }
+      );
+    }
+
     const mentorSlot = await prisma.mentorSlot.findUnique({
-      where: { id: params.id },
+      where: { id: context.params.id },
+    });
+
+    if (!mentorSlot) {
+      return NextResponse.json(
+        { message: "Session not found" },
+        { status: 404 }
+      );
+    }
+
+    if (!mentorSlot.isAvailable) {
+      return NextResponse.json(
+        { message: "This session is no longer available" },
+        { status: 400 }
+      );
+    }
+
+    if (mentorSlot.startTime < new Date()) {
+      return NextResponse.json(
+        { message: "Cannot book a session that has already started" },
+        { status: 400 }
+      );
+    }
+
+    const updatedSession = await prisma.mentorSlot.update({
+      where: { id: context.params.id },
+      data: {
+        isAvailable: false,
+        studentId: session.user.id,
+      },
       include: {
         mentor: {
           select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+        student: {
+          select: {
+            id: true,
             name: true,
             email: true,
           },
@@ -26,51 +72,12 @@ export async function POST(
       },
     });
 
-    if (!mentorSlot) {
-      return NextResponse.json(
-        { error: "Session slot not found" },
-        { status: 404 }
-      );
-    }
-
-    // Check if the slot is already booked
-    const existingBooking = await prisma.booking.findFirst({
-      where: {
-        slotId: params.id,
-        status: "CONFIRMED",
-      },
-    });
-
-    if (existingBooking) {
-      return NextResponse.json(
-        { error: "This slot is already booked" },
-        { status: 400 }
-      );
-    }
-
-    // Create the booking
-    const booking = await prisma.booking.create({
-      data: {
-        slotId: params.id,
-        sessionId: mentorSlot.id,
-        menteeId: session.user.id,
-        status: "CONFIRMED",
-      },
-      include: {
-        slot: {
-          include: {
-            mentor: true,
-          },
-        },
-      },
-    });
-
-    return NextResponse.json(booking);
+    return NextResponse.json(updatedSession);
   } catch (error) {
-    console.error("Error booking session:", error);
+    console.error("[SESSION_BOOK]", error);
     return NextResponse.json(
-      { error: "Failed to book session" },
+      { message: "Internal server error" },
       { status: 500 }
     );
   }
-} 
+}; 

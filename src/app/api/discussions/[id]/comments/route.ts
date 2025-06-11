@@ -3,10 +3,10 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-export async function POST(
+export const POST = async (
   request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+  context: { params: { id: string } }
+) => {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
@@ -29,7 +29,7 @@ export async function POST(
     // Check if discussion exists and is accessible
     const discussion = await prisma.discussion.findUnique({
       where: {
-        id: params.id,
+        id: context.params.id,
         ...(session.user.role !== "MENTOR" ? { isPrivate: false } : {}),
       },
     });
@@ -45,7 +45,7 @@ export async function POST(
       data: {
         content,
         authorId: session.user.id,
-        discussionId: params.id,
+        discussionId: context.params.id,
       },
       include: {
         author: {
@@ -66,12 +66,12 @@ export async function POST(
       { status: 500 }
     );
   }
-}
+};
 
-export async function PATCH(
+export const PATCH = async (
   request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+  context: { params: { id: string } }
+) => {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
@@ -102,7 +102,7 @@ export async function PATCH(
     const comment = await prisma.comment.update({
       where: {
         id: commentId,
-        discussionId: params.id,
+        discussionId: context.params.id,
       },
       data: {
         isAnswer,
@@ -126,4 +126,4 @@ export async function PATCH(
       { status: 500 }
     );
   }
-} 
+}; 

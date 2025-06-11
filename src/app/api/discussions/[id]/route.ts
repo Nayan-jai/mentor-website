@@ -1,17 +1,17 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export const GET = async (
+  request: NextRequest,
+  context: { params: { id: string } }
+) => {
   try {
     const session = await getServerSession(authOptions);
     const discussion = await prisma.discussion.findUnique({
       where: {
-        id: params.id,
+        id: context.params.id,
         ...(session?.user?.role !== "MENTOR" ? { isPrivate: false } : {}),
       },
       include: {
@@ -19,6 +19,7 @@ export async function GET(
           select: {
             id: true,
             name: true,
+            email: true,
           },
         },
         comments: {
@@ -27,6 +28,7 @@ export async function GET(
               select: {
                 id: true,
                 name: true,
+                email: true,
               },
             },
           },
@@ -38,46 +40,67 @@ export async function GET(
     });
 
     if (!discussion) {
-      return new NextResponse("Discussion not found", { status: 404 });
+      return NextResponse.json(
+        { message: "Discussion not found" },
+        { status: 404 }
+      );
     }
 
     // Increment view count
     await prisma.discussion.update({
-      where: { id: params.id },
+      where: { id: context.params.id },
       data: { views: { increment: 1 } },
     });
 
     return NextResponse.json(discussion);
   } catch (error) {
     console.error("[DISCUSSION_GET]", error);
-    return new NextResponse("Internal Error", { status: 500 });
+    return NextResponse.json(
+      { message: "Internal server error" },
+      { status: 500 }
+    );
   }
-}
+};
 
-export async function PATCH(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export const PATCH = async (
+  request: NextRequest,
+  context: { params: { id: string } }
+) => {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user || session.user.role !== "MENTOR") {
-      return new NextResponse("Unauthorized", { status: 401 });
+      return NextResponse.json(
+        { message: "Unauthorized" },
+        { status: 401 }
+      );
     }
 
-    const body = await req.json();
+    const body = await request.json();
     const { isResolved, isArchived } = body;
 
     const discussion = await prisma.discussion.update({
-      where: { id: params.id },
+      where: { id: context.params.id },
       data: {
         ...(isResolved !== undefined ? { isResolved } : {}),
         ...(isArchived !== undefined ? { isArchived } : {}),
+      },
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
       },
     });
 
     return NextResponse.json(discussion);
   } catch (error) {
     console.error("[DISCUSSION_PATCH]", error);
-    return new NextResponse("Internal Error", { status: 500 });
+    return NextResponse.json(
+      { message: "Internal server error" },
+      { status: 500 }
+    );
   }
-} 
+}; 
