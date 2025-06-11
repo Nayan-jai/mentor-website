@@ -2,13 +2,6 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { sendSessionBookingEmails } from "@/lib/email";
-
-function generateMeetLink() {
-  // Generate a random string for the meeting ID
-  const meetingId = Math.random().toString(36).substring(2, 15);
-  return `https://meet.google.com/${meetingId}`;
-}
 
 export async function POST(
   request: Request,
@@ -72,30 +65,7 @@ export async function POST(
       },
     });
 
-    // Update the session availability
-    await prisma.mentorSlot.update({
-      where: { id: params.id },
-      data: { isAvailable: false },
-    });
-
-    // Generate Google Meet link
-    const meetLink = generateMeetLink();
-
-    // Send email notifications if mentor exists
-    if (mentorSlot.mentor?.name && mentorSlot.mentor?.email && session.user.name && session.user.email) {
-      await sendSessionBookingEmails({
-        mentorName: mentorSlot.mentor.name,
-        mentorEmail: mentorSlot.mentor.email,
-        studentName: session.user.name,
-        studentEmail: session.user.email,
-        sessionTitle: mentorSlot.title || "Mentoring Session",
-        startTime: mentorSlot.startTime,
-        endTime: mentorSlot.endTime,
-        meetLink: meetLink,
-      });
-    }
-
-    return NextResponse.json({ success: true, booking, meetLink });
+    return NextResponse.json(booking);
   } catch (error) {
     console.error("Error booking session:", error);
     return NextResponse.json(
