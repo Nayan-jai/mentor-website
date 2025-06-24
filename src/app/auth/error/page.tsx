@@ -1,11 +1,20 @@
 'use client';
 
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
-export default function AuthError() {
+export default function AuthErrorWrapper() {
+  return (
+    <Suspense>
+      <AuthError />
+    </Suspense>
+  );
+}
+
+function AuthError() {
   const searchParams = useSearchParams();
-  const error = searchParams.get("error");
+  const error = searchParams ? searchParams.get("error") : null;
 
   const errorMessages: Record<string, string> = {
     Configuration: "There is a problem with the server configuration.",

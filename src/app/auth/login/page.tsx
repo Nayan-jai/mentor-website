@@ -1,10 +1,11 @@
-export const dynamic = "force-dynamic";
-
 "use client";
+
+export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import { signIn, useSession } from "next-auth/react";
-import { useState, useEffect, Suspense } from "react";
+import { Suspense } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useRouter, useSearchParams } from "next/navigation";
