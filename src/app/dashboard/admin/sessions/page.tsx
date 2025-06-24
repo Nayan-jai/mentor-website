@@ -47,10 +47,10 @@ export default function AdminSessionsPage() {
   };
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-8">
       <h1 className="text-2xl font-bold mb-6">Manage Sessions & Bookings</h1>
       <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border">
+        <table className="min-w-full bg-white border text-xs sm:text-sm">
           <thead>
             <tr>
               <th className="border px-4 py-2">Title</th>
@@ -79,18 +79,18 @@ export default function AdminSessionsPage() {
       </div>
       <h2 className="text-xl font-bold mt-10 mb-4">Bookings</h2>
       {sessions.map((session) => (
-        <Card key={session.id} className="mb-6 p-4">
-          <div className="font-semibold mb-2">{session.title} ({session.bookings.length} bookings)</div>
+        <Card key={session.id} className="mb-6 p-2 sm:p-4">
+          <div className="font-semibold mb-2 text-sm sm:text-base">{session.title} ({session.bookings.length} bookings)</div>
           <ul>
             {session.bookings.map((booking) => (
-              <li key={booking.id} className="flex justify-between items-center border-b py-2">
-                <span>{booking.mentee.name} ({booking.mentee.email})</span>
+              <li key={booking.id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b py-2 gap-2">
+                <span className="text-xs sm:text-base">{booking.mentee.name} ({booking.mentee.email})</span>
                 <Button size="sm" variant="destructive" onClick={() => handleCancelBooking(booking.id)}>
                   Cancel Booking
                 </Button>
               </li>
             ))}
-            {session.bookings.length === 0 && <li className="text-gray-500">No bookings</li>}
+            {session.bookings.length === 0 && <li className="text-gray-500 text-xs sm:text-base">No bookings</li>}
           </ul>
         </Card>
       ))}

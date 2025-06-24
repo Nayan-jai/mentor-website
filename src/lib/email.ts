@@ -27,4 +27,21 @@ export async function sendPasswordResetEmail(email: string, token: string) {
   };
 
   await transporter.sendMail(mailOptions);
+}
+
+export async function sendSessionReminderEmail(email: string, sessionTitle: string, sessionTime: string, mentorName: string, meetingLink?: string) {
+  const mailOptions = {
+    from: process.env.SMTP_FROM,
+    to: email,
+    subject: `Reminder: Your session '${sessionTitle}' starts in 10 minutes!`,
+    html: `
+      <h1>Session Reminder</h1>
+      <p>Hi,</p>
+      <p>This is a reminder that your session <strong>${sessionTitle}</strong> with mentor <strong>${mentorName}</strong> will start at <strong>${sessionTime}</strong> (in 10 minutes).</p>
+      ${meetingLink ? `<p>Join your session: <a href="${meetingLink}">${meetingLink}</a></p>` : ""}
+      <p>Good luck and have a great session!</p>
+      <p style="color: #888; font-size: 0.9em;">If you did not book this session, you can ignore this email.</p>
+    `,
+  };
+  await transporter.sendMail(mailOptions);
 } 

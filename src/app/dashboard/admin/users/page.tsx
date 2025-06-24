@@ -77,19 +77,19 @@ export default function AdminUsersPage() {
   );
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-8">
       <h1 className="text-2xl font-bold mb-6">Manage Users</h1>
-      <div className="flex gap-4 mb-4">
+      <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mb-4 w-full">
         <Input
           placeholder="Search by name or email"
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="w-64"
+          className="w-full sm:w-64"
         />
         <select
           value={roleFilter}
           onChange={e => setRoleFilter(e.target.value)}
-          className="border rounded px-2 py-1"
+          className="border rounded px-2 py-1 w-full sm:w-auto"
         >
           <option value="">All Roles</option>
           <option value="ADMIN">Admin</option>
@@ -98,7 +98,7 @@ export default function AdminUsersPage() {
         </select>
       </div>
       <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border">
+        <table className="min-w-full bg-white border text-xs sm:text-sm">
           <thead>
             <tr>
               <th className="border px-4 py-2">Name</th>
