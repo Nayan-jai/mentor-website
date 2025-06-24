@@ -26,7 +26,7 @@ export const GET = async (
             email: true,
           },
         },
-        booking: {
+        bookings: {
           select: {
             menteeId: true,
           },
@@ -41,11 +41,10 @@ export const GET = async (
       );
     }
 
-    // Only allow access to the session if the user is the mentor or the student
-    if (
-      session.user.role !== "MENTOR" &&
-      mentorSlot.booking?.menteeId !== session.user.id
-    ) {
+    // Only allow access to the session if the user is the mentor or has a booking
+    const isMentor = session.user.role === "MENTOR" && mentorSlot.mentor.id === session.user.id;
+    const isBooked = mentorSlot.bookings.some(b => b.menteeId === session.user.id);
+    if (!isMentor && !isBooked) {
       return NextResponse.json(
         { message: "Unauthorized" },
         { status: 403 }
@@ -76,7 +75,7 @@ export const PUT = async (
     }
 
     const body = await request.json();
-    const { title, description, startTime, endTime } = body;
+    const { title, description, startTime, endTime, meetingLink } = body;
 
     if (!title || !description || !startTime || !endTime) {
       return NextResponse.json(
@@ -165,6 +164,7 @@ export const PUT = async (
         description,
         startTime: start,
         endTime: end,
+        meetingLink: meetingLink || null,
       },
       include: {
         mentor: {
@@ -174,7 +174,11 @@ export const PUT = async (
             email: true,
           },
         },
-        
+        bookings: {
+          select: {
+            menteeId: true,
+          },
+        },
       },
     });
 
@@ -192,8 +196,9 @@ export const DELETE = async (
   request: NextRequest,
   context: { params: { id: string } }
 ) => {
+  let session;
   try {
-    const session = await getServerSession(authOptions);
+    session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json(
         { message: "Unauthorized" },
@@ -201,11 +206,15 @@ export const DELETE = async (
       );
     }
 
+    console.log(`[DELETE] Attempting to delete session ${context.params.id} for user ${session.user.id}`);
+
+    // Check if the session exists and user has permission
     const mentorSlot = await prisma.mentorSlot.findUnique({
       where: { id: context.params.id },
     });
 
     if (!mentorSlot) {
+      console.log(`[DELETE] Session ${context.params.id} not found`);
       return NextResponse.json(
         { message: "Session not found" },
         { status: 404 }
@@ -213,22 +222,60 @@ export const DELETE = async (
     }
 
     if (mentorSlot.mentorId !== session.user.id) {
+      console.log(`[DELETE] Unauthorized: User ${session.user.id} trying to delete session owned by ${mentorSlot.mentorId}`);
       return NextResponse.json(
         { message: "Unauthorized" },
         { status: 403 }
       );
     }
 
-    await prisma.mentorSlot.delete({
+    console.log(`[DELETE] Found mentor slot:`, mentorSlot);
+
+    // Try to delete the mentor slot directly
+    // If there are foreign key constraints, the database will handle them
+    console.log(`[DELETE] Attempting to delete mentor slot ${context.params.id}`);
+    
+    const deletedSlot = await prisma.mentorSlot.delete({
       where: { id: context.params.id },
     });
 
+    console.log(`[DELETE] Successfully deleted mentor slot:`, deletedSlot);
+    
     return NextResponse.json(
       { message: "Session deleted successfully" },
       { status: 200 }
     );
   } catch (error) {
-    console.error("[SESSION_DELETE]", error);
+    console.error("[SESSION_DELETE] Error details:", {
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      sessionId: context.params.id,
+      userId: session?.user?.id,
+      errorType: error?.constructor?.name
+    });
+    
+    // Return specific error messages based on the error type
+    if (error instanceof Error) {
+      if (error.message.includes('foreign key constraint')) {
+        return NextResponse.json(
+          { message: "Cannot delete session because it has been booked by a student. Please cancel the booking first." },
+          { status: 400 }
+        );
+      }
+      if (error.message.includes('not found') || error.message.includes('Record to delete does not exist')) {
+        return NextResponse.json(
+          { message: "Session not found or already deleted" },
+          { status: 404 }
+        );
+      }
+      if (error.message.includes('Unique constraint failed')) {
+        return NextResponse.json(
+          { message: "Session has conflicting relationships" },
+          { status: 400 }
+        );
+      }
+    }
+    
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }

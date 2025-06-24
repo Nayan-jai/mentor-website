@@ -26,26 +26,80 @@ export const GET = async (
   request: NextRequest
 ): Promise<NextResponse<SessionsResponse>> => {
   try {
-    const sessions = await prisma.mentorSlot.findMany({
-      where: {
-        isAvailable: true,
-        startTime: {
-          gte: new Date(),
-        },
-      },
-      include: {
-        mentor: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
+    const session = await getServerSession(authOptions);
+    let sessions;
+    if (!session) {
+      // Unauthenticated: show all sessions with a future start time (even if booked)
+      sessions = await prisma.mentorSlot.findMany({
+        where: {
+          startTime: {
+            gte: new Date(),
           },
         },
-      },
-      orderBy: {
-        startTime: 'asc',
-      },
-    });
+        include: {
+          mentor: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+          bookings: {
+            select: {
+              menteeId: true,
+            },
+          },
+        },
+        orderBy: {
+          startTime: 'asc',
+        },
+      });
+    } else if (session.user.role === "STUDENT") {
+      // Student: show all sessions, include all bookings
+      sessions = await prisma.mentorSlot.findMany({
+        include: {
+          mentor: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+          bookings: {
+            select: {
+              menteeId: true,
+            },
+          },
+        },
+        orderBy: {
+          startTime: 'asc',
+        },
+      });
+    } else if (session.user.role === "MENTOR") {
+      // Mentor: show only their own sessions (all, not just future), include all bookings
+      sessions = await prisma.mentorSlot.findMany({
+        where: {
+          mentorId: session.user.id,
+        },
+        include: {
+          mentor: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+          bookings: {
+            select: {
+              menteeId: true,
+            },
+          },
+        },
+        orderBy: {
+          startTime: 'asc',
+        },
+      });
+    }
 
     return NextResponse.json(
       {
@@ -88,7 +142,7 @@ export const POST = async (request: NextRequest) => {
     }
 
     const body = await request.json();
-    const { title, description, startTime, endTime } = body;
+    const { title, description, startTime, endTime, meetingLink } = body;
 
     if (!title || !description || !startTime || !endTime) {
       return NextResponse.json(
@@ -158,7 +212,8 @@ export const POST = async (request: NextRequest) => {
         startTime: start,
         endTime: end,
         mentorId: session.user.id,
-        isAvailable: true
+        isAvailable: true,
+        meetingLink: meetingLink || null,
       },
       include: {
         mentor: {

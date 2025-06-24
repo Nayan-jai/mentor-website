@@ -2,12 +2,65 @@
 
 import Link from "next/link";
 import { useSession } from "next-auth/react";
+import { useState, useEffect } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 export default function HomePage() {
   const { data: session } = useSession();
+  const [sessions, setSessions] = useState<any[]>([]);
+  const [loadingSessions, setLoadingSessions] = useState(false);
+  const [discussions, setDiscussions] = useState<any[]>([]);
+  const [loadingDiscussions, setLoadingDiscussions] = useState(false);
+
+  useEffect(() => {
+    if (!session) {
+      setLoadingSessions(true);
+      fetch("/api/sessions")
+        .then((res) => res.json())
+        .then((data) => {
+          const sessionsArray = Array.isArray(data) ? data : data.sessions || [];
+          const now = new Date();
+          const mapped = sessionsArray
+            .filter((s: any) => new Date(s.startTime) > now)
+            .sort((a: any, b: any) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
+            .slice(0, 6)
+            .map((s: any) => ({
+              id: s.id,
+              title: s.title,
+              description: s.description,
+              date: s.startTime ? new Date(s.startTime).toLocaleDateString() : '',
+              time: s.startTime && s.endTime
+                ? `${new Date(s.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${new Date(s.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+                : '',
+              mentorName: s.mentor?.name || '',
+            }));
+          setSessions(mapped);
+        })
+        .finally(() => setLoadingSessions(false));
+
+      setLoadingDiscussions(true);
+      fetch("/api/discussions")
+        .then((res) => res.json())
+        .then((data) => {
+          const discussionsArray =
+            Array.isArray(data)
+              ? data
+              : Array.isArray(data?.discussions)
+              ? data.discussions
+              : [];
+          const mapped = discussionsArray
+            .filter((d: any) => !d.isPrivate)
+            .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+            .slice(0, 6);
+          setDiscussions(mapped);
+        })
+        .finally(() => setLoadingDiscussions(false));
+    }
+  }, [session]);
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-12 pt-24">
       {/* Hero Section */}
       <section className="hero">
         <div className="container mx-auto px-4">
@@ -22,7 +75,7 @@ export default function HomePage() {
             {!session ? (
               <div className="space-x-4">
                 <Link
-                  href="/auth/signup"
+                  href="/auth/register"
                   className="btn-get-started"
                 >
                   Get Started
@@ -132,7 +185,7 @@ export default function HomePage() {
           <p>Join our community of aspirants and mentors today</p>
           {!session ? (
             <Link
-              href="/auth/signup"
+              href="/auth/register"
               className="btn-get-started"
             >
               Get Started Now
@@ -147,6 +200,103 @@ export default function HomePage() {
           )}
         </div>
       </section>
+
+      {/* Upcoming Sessions Section for Unauthenticated Users */}
+      {!session && (
+        <section className="upcoming-sessions mt-16">
+          <div className="container mx-auto px-4">
+            <h2 className="text-2xl font-bold mb-6 text-blue-900 text-center">Upcoming Sessions</h2>
+            {loadingSessions ? (
+              <div className="text-center text-gray-500">Loading sessions...</div>
+            ) : sessions.length === 0 ? (
+              <div className="text-center text-gray-500">No upcoming sessions</div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {sessions.map((s) => (
+                  <div key={s.id} className="w-full h-full p-4 sm:p-6 rounded-xl hover:shadow-xl transition-shadow duration-200 border-l-4 border-blue-400 bg-white flex flex-col">
+                    <div className="flex items-center gap-3 mb-2">
+                      <Avatar className="w-10 h-10">
+                        <AvatarFallback>{s.mentorName?.[0] || "M"}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <span className="text-lg sm:text-xl font-semibold text-gray-900 truncate">{s.title}</span>
+                        <div className="text-gray-600 text-sm truncate">{s.description}</div>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-2 mb-2 text-xs text-gray-500">
+                      <Badge variant="secondary" className="bg-blue-100 text-blue-800 whitespace-nowrap">{s.date}</Badge>
+                      <Badge variant="secondary" className="bg-gray-100 text-gray-700 whitespace-nowrap">{s.time}</Badge>
+                      <Badge variant="secondary" className="bg-green-100 text-green-800 whitespace-nowrap">Mentor: {s.mentorName}</Badge>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className="text-center mt-6">
+              <Link href="/sessions" className="text-blue-700 hover:underline font-medium">See all sessions</Link>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Recent Forum Discussions Section for Unauthenticated Users */}
+      {!session && (
+        <section className="recent-forum-discussions mt-16">
+          <div className="container mx-auto px-4">
+            <h2 className="text-2xl font-bold mb-6 text-blue-900 text-center">Recent Forum Discussions</h2>
+            {loadingDiscussions ? (
+              <div className="text-center text-gray-500">Loading discussions...</div>
+            ) : discussions.length === 0 ? (
+              <div className="text-center text-gray-500">No discussions found</div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {discussions.map((d: any) => (
+                  <div key={d.id} className="w-full h-full p-4 sm:p-6 rounded-xl hover:shadow-xl transition-shadow duration-200 border-l-4 border-blue-400 bg-white flex flex-col">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 flex-1 min-w-0 mb-2">
+                      <span className="text-lg sm:text-xl font-semibold text-gray-900 truncate">{d.title}</span>
+                      <Badge variant="secondary" className="bg-blue-100 text-blue-800 whitespace-nowrap">{d.category}</Badge>
+                      {d.isArchived && (
+                        <Badge variant="secondary" className="bg-gray-200 text-gray-700 ml-2 whitespace-nowrap">Archived</Badge>
+                      )}
+                    </div>
+                    <div className="block text-gray-700 hover:text-blue-600 transition-colors duration-200 mb-2 text-sm sm:text-base line-clamp-2">
+                      {d.content?.slice(0, 120)}{d.content?.length > 120 ? "..." : ""}
+                    </div>
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {d.tags && d.tags.map((tag: string) => (
+                        <Badge key={tag} variant="outline" className="bg-gray-100 text-gray-600">#{tag}</Badge>
+                      ))}
+                    </div>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs text-gray-500 mt-2 gap-1 mt-auto">
+                      <div className="flex items-center gap-2">
+                        <i className="fas fa-user mr-1"></i>
+                        {d.author?.name || "Unknown"}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <i className="fas fa-clock mr-1"></i>
+                        {d.createdAt ? new Date(d.createdAt).toLocaleDateString() : ""}
+                      </div>
+                      <div className="flex items-center gap-4 mt-2 sm:mt-0">
+                        <span>
+                          <i className="fas fa-comments mr-1"></i>
+                          {d.comments?.length || 0}
+                        </span>
+                        <span>
+                          <i className="fas fa-eye mr-1"></i>
+                          {d.views || 0}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className="text-center mt-6">
+              <Link href="/forum" className="text-blue-700 hover:underline font-medium">See all discussions</Link>
+            </div>
+          </div>
+        </section>
+      )}
     </div>
   );
 } 

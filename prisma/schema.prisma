@@ -29,6 +29,7 @@ model User {
   mentorSlots       MentorSlot[]
   bookings          Booking[] @relation("MenteeBookings")
   replies           Reply[]
+  deleted           Boolean   @default(false)
 }
 
 model Account {
@@ -78,17 +79,18 @@ model MentorSlot {
   isAvailable Boolean   @default(true)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  booking     Booking?
+  bookings    Booking[]
+  meetingLink String?
 }
 
 model Booking {
   id          String    @id @default(cuid())
   menteeId    String
   mentee      User      @relation("MenteeBookings", fields: [menteeId], references: [id])
-  slotId      String    @unique
+  slotId      String
   sessionId   String    @unique
-  slot        MentorSlot @relation(fields: [slotId], references: [id])
-  session     Session   @relation(fields: [sessionId], references: [id])
+  slot        MentorSlot @relation(fields: [slotId], references: [id], onDelete: Cascade)
+  session     Session   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   status      String   @default("PENDING")
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt

@@ -29,7 +29,6 @@ export async function POST(request: NextRequest) {
   const mentorSlot = await prisma.mentorSlot.findUnique({
     where: {
       id: slotId,
-      isAvailable: true,
     },
     include: {
       mentor: true,
@@ -38,8 +37,22 @@ export async function POST(request: NextRequest) {
 
   if (!mentorSlot) {
     return NextResponse.json(
-      { message: "Session slot not found or not available" },
+      { message: "Session slot not found" },
       { status: 404 }
+    );
+  }
+
+  // Prevent the same student from booking the same session multiple times
+  const existingBooking = await prisma.booking.findFirst({
+    where: {
+      menteeId: session.user.id,
+      slotId: slotId,
+    },
+  });
+  if (existingBooking) {
+    return NextResponse.json(
+      { message: "You have already booked this session." },
+      { status: 400 }
     );
   }
 
@@ -79,14 +92,6 @@ export async function POST(request: NextRequest) {
           },
         },
       },
-    },
-  });
-
-  // Update the mentor slot
-  await prisma.mentorSlot.update({
-    where: { id: slotId },
-    data: {
-      isAvailable: false,
     },
   });
 

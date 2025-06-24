@@ -18,9 +18,9 @@ export const POST = async (req: NextRequest) => {
       data: {
         title,
         content,
-        category,
-        isPrivate,
-        tags,
+        category: category || "GENERAL",
+        isPrivate: typeof isPrivate === "boolean" ? isPrivate : false,
+        tags: Array.isArray(tags) ? tags : [],
         authorId: session.user.id,
       },
     });
@@ -42,14 +42,16 @@ export const GET = async (request: NextRequest) => {
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search") || "";
     const category = searchParams.get("category");
-    const isPrivate = searchParams.get("isPrivate") === "true";
-    const isArchived = searchParams.get("isArchived") === "true";
-    const isResolved = searchParams.get("isResolved") === "true";
+    const isPrivate = searchParams.get("isPrivate");
+    const isArchived = searchParams.get("isArchived");
+    const isResolved = searchParams.get("isResolved");
+    const privateForMe = searchParams.get("privateForMe");
+    const privateForMentor = searchParams.get("privateForMentor");
 
-    const where: Prisma.DiscussionWhereInput = {
-      isPrivate,
-      isArchived,
-      isResolved,
+    let where: Prisma.DiscussionWhereInput = {
+      ...(isPrivate !== null ? { isPrivate: isPrivate === "true" } : {}),
+      ...(isArchived !== null ? { isArchived: isArchived === "true" } : {}),
+      ...(isResolved !== null ? { isResolved: isResolved === "true" } : {}),
       ...(search && {
         OR: [
           {
@@ -68,6 +70,22 @@ export const GET = async (request: NextRequest) => {
       }),
       ...(category && { category }),
     };
+
+    // If student requests their private queries
+    if (privateForMe && session?.user) {
+      where = {
+        ...where,
+        isPrivate: true,
+        authorId: session.user.id,
+      };
+    }
+    // If mentor requests all private queries
+    if (privateForMentor && session?.user?.role === "MENTOR") {
+      where = {
+        ...where,
+        isPrivate: true,
+      };
+    }
 
     const discussions = await prisma.discussion.findMany({
       where,

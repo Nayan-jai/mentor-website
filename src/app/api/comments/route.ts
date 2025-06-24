@@ -58,16 +58,25 @@ export async function POST(request: NextRequest) {
   }
 
   const discussion = await prisma.discussion.findUnique({
-    where: {
-      id: discussionId,
-      ...(session.user.role !== "MENTOR" ? { isPrivate: false } : {}),
-    },
+    where: { id: discussionId },
+    include: { author: true },
   });
 
   if (!discussion) {
     return NextResponse.json(
       { message: "Discussion not found" },
       { status: 404 }
+    );
+  }
+
+  // If private, only allow mentor or author to comment
+  if (
+    discussion.isPrivate &&
+    (session.user.role !== "MENTOR" && session.user.id !== discussion.author.id)
+  ) {
+    return NextResponse.json(
+      { message: "Unauthorized" },
+      { status: 403 }
     );
   }
 

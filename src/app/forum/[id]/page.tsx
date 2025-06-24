@@ -8,7 +8,8 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { formatDistanceToNow } from "date-fns";
-import { ThumbsUp, ThumbsDown, MessageSquare, Archive, CheckCircle } from "lucide-react";
+import { ThumbsUp, ThumbsDown, MessageSquare, Archive, CheckCircle, ArrowLeft, Lock } from "lucide-react";
+import Link from "next/link";
 
 interface Comment {
   id: string;
@@ -46,9 +47,10 @@ export default function DiscussionPage({ params }: { params: { id: string } }) {
   const [comment, setComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [accessDenied, setAccessDenied] = useState(false);
 
   useEffect(() => {
-    if (status === "authenticated" || status === "unauthenticated") {
+    if (status === "authenticated") {
       fetchDiscussion();
     }
   }, [params.id, status]);
@@ -59,9 +61,18 @@ export default function DiscussionPage({ params }: { params: { id: string } }) {
       if (response.ok) {
         const data = await response.json();
         setDiscussion(data);
+        setAccessDenied(false);
+      } else if (response.status === 403) {
+        setAccessDenied(true);
+        setDiscussion(null);
+      } else {
+        setDiscussion(null);
+        setAccessDenied(false);
       }
     } catch (error) {
       console.error("Error fetching discussion:", error);
+      setDiscussion(null);
+      setAccessDenied(false);
     } finally {
       setIsLoading(false);
     }
@@ -73,12 +84,12 @@ export default function DiscussionPage({ params }: { params: { id: string } }) {
 
     setIsSubmitting(true);
     try {
-      const response = await fetch(`/api/discussions/${params.id}/comments`, {
+      const response = await fetch(`/api/comments`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ content: comment }),
+        body: JSON.stringify({ content: comment, discussionId: params.id }),
       });
 
       if (response.ok) {
@@ -132,10 +143,19 @@ export default function DiscussionPage({ params }: { params: { id: string } }) {
     }
   };
 
-  if (isLoading) {
+  if (status === "loading") {
     return (
       <div className="container mx-auto py-8 flex justify-center items-center min-h-[400px]">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent-color"></div>
+      </div>
+    );
+  }
+
+  if (accessDenied) {
+    return (
+      <div className="container mx-auto py-8 text-center">
+        <h2 className="text-2xl font-bold text-gray-800">Access Denied</h2>
+        <p className="text-gray-600 mt-2">This private discussion is only visible to the student who asked and mentors.</p>
       </div>
     );
   }
@@ -149,12 +169,19 @@ export default function DiscussionPage({ params }: { params: { id: string } }) {
     );
   }
 
+  const isPrivate = discussion.isPrivate;
+
   return (
-    <div className="container mx-auto py-8">
-      <Card className="p-6 mb-8">
+    <div className="container mx-auto py-8 pt-24 px-4 sm:px-8 lg:px-24">
+      <Card className={`p-6 mb-8 ${isPrivate ? "border-l-8 border-pink-500 bg-pink-50" : ""}`}>
         <div className="flex justify-between items-start mb-4">
           <div>
-            <h1 className="text-3xl font-bold mb-2">{discussion.title}</h1>
+            <div className="flex items-center gap-2 mb-2">
+              <h1 className="text-3xl font-bold mb-0">{discussion.title}</h1>
+              {isPrivate && (
+                <Badge variant="destructive" className="flex items-center gap-1 bg-pink-100 text-pink-700 border-pink-400"><Lock className="w-4 h-4 mr-1" /> Private</Badge>
+              )}
+            </div>
             <div className="flex gap-2 mb-4">
               <Badge variant="secondary">{discussion.category}</Badge>
               {discussion.tags.map((tag) => (
@@ -163,6 +190,12 @@ export default function DiscussionPage({ params }: { params: { id: string } }) {
                 </Badge>
               ))}
             </div>
+            {isPrivate && (
+              <div className="mb-4 p-3 rounded bg-pink-100 border border-pink-200 text-pink-800 flex items-center gap-2">
+                <Lock className="w-4 h-4 mr-1" />
+                Only you and mentors can see this private query and its replies.
+              </div>
+            )}
           </div>
           {session?.user?.role === "MENTOR" && (
             <div className="flex gap-2">
@@ -189,61 +222,50 @@ export default function DiscussionPage({ params }: { params: { id: string } }) {
             </div>
           )}
         </div>
-
-        <div className="prose max-w-none mb-8">
-          {discussion.content}
-        </div>
-
-        <div className="flex items-center text-sm text-gray-500">
-          <Avatar className="h-8 w-8 mr-2">
-            <AvatarImage src={`https://avatar.vercel.sh/${discussion.author.id}`} alt={discussion.author.name} />
-            <AvatarFallback>{discussion.author.name?.[0] || '?'}</AvatarFallback>
-          </Avatar>
-          <span>Posted by {discussion.author.name}</span>
-          <span className="mx-2">•</span>
-          <span>{formatDistanceToNow(new Date(discussion.createdAt))} ago</span>
-        </div>
+        <div className="text-gray-800 text-lg mb-4 whitespace-pre-line">{discussion.content}</div>
+        <div className="text-sm text-gray-500 mb-2">Asked {formatDistanceToNow(new Date(discussion.createdAt), { addSuffix: true })} by {discussion.author.name}</div>
       </Card>
-
-      <div className="space-y-6">
-        <h2 className="text-2xl font-bold">Comments</h2>
-        
-        {session?.user && (
-          <form onSubmit={handleSubmitComment} className="space-y-4">
-            <Textarea
-              placeholder="Write your comment..."
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              className="min-h-[100px]"
-            />
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Posting..." : "Post Comment"}
-            </Button>
-          </form>
-        )}
-
-        <div className="space-y-4">
-          {discussion.comments.map((comment) => (
-            <Card key={comment.id} className="p-4">
-              <div className="flex items-start gap-4">
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src={`https://avatar.vercel.sh/${comment.author.id}`} alt={comment.author.name} />
-                  <AvatarFallback>{comment.author.name?.[0] || '?'}</AvatarFallback>
+      {/* Replies Section */}
+      <div className="mb-8">
+        <h2 className="text-xl font-semibold mb-4 flex items-center gap-2"><MessageSquare className="w-5 h-5" /> Replies</h2>
+        {discussion.comments.length === 0 ? (
+          <div className="text-gray-500 mb-4">No replies yet.</div>
+        ) : (
+          <div className="space-y-4">
+            {discussion.comments.map((c) => (
+              <Card key={c.id} className="p-4 flex gap-4 items-start bg-gray-50">
+                <Avatar className="w-10 h-10">
+                  <AvatarFallback>{c.author.name?.[0] || "U"}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="font-medium">{comment.author.name}</span>
-                    <span className="text-sm text-gray-500">
-                      {formatDistanceToNow(new Date(comment.createdAt))} ago
-                    </span>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="font-semibold text-gray-800">{c.author.name}</span>
+                    <span className="text-xs text-gray-500">{formatDistanceToNow(new Date(c.createdAt), { addSuffix: true })}</span>
                   </div>
-                  <p className="text-gray-700">{comment.content}</p>
+                  <div className="text-gray-700 whitespace-pre-line">{c.content}</div>
                 </div>
-              </div>
-            </Card>
-          ))}
-        </div>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
+      {/* Add Reply */}
+      {session && (
+        <form onSubmit={handleSubmitComment} className="bg-white rounded-lg shadow p-4">
+          <Textarea
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            placeholder="Write a reply..."
+            className="mb-2"
+            rows={3}
+          />
+          <div className="flex justify-end">
+            <Button type="submit" disabled={isSubmitting || !comment.trim()} className="bg-blue-600 hover:bg-blue-700 text-white">
+              {isSubmitting ? "Posting..." : "Post Reply"}
+            </Button>
+          </div>
+        </form>
+      )}
     </div>
   );
 } 
