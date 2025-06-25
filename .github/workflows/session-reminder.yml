@@ -20,6 +20,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Build jobs
+        run: npm run build:jobs
+
       - name: Run session reminder script
         env:
           SMTP_HOST: ${{ secrets.SMTP_HOST }}
@@ -29,4 +32,4 @@ jobs:
           SMTP_FROM: ${{ secrets.SMTP_FROM }}
           NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
           POSTGRES_PRISMA_URL: ${{ secrets.POSTGRES_PRISMA_URL }}
-        run: npx ts-node --loader ts-node/esm src/jobs/sendSessionReminders.ts 
+        run: node dist/jobs/sendSessionReminders.js 
