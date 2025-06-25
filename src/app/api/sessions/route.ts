@@ -227,23 +227,29 @@ export const POST = async (request: NextRequest) => {
       }
     });
 
-    // Notify all students about the new session
-    const students = await prisma.user.findMany({
-      where: { role: 'STUDENT', deleted: false },
-      select: { email: true }
-    });
-    const sessionTime = formatSessionTime(start);
-    await Promise.all(
-      students.map(student =>
-        student.email ? sendNewSessionNotificationEmail(
-          student.email,
-          title,
-          sessionTime,
-          newSession.mentor.name || 'Mentor',
-          meetingLink || undefined
-        ) : Promise.resolve()
-      )
-    );
+    // Notify all students about the new session (robust error handling)
+    try {
+      const students = await prisma.user.findMany({
+        where: { role: 'STUDENT', deleted: false },
+        select: { email: true }
+      });
+      const sessionTime = formatSessionTime(start);
+      await Promise.all(
+        students.map(student =>
+          student.email ? sendNewSessionNotificationEmail(
+            student.email,
+            title,
+            sessionTime,
+            newSession.mentor.name || 'Mentor',
+            meetingLink || undefined
+          ).catch(e => console.error(`Failed to send to ${student.email}:`, e))
+          : Promise.resolve()
+        )
+      );
+    } catch (e) {
+      console.error('Error sending new session notifications:', e);
+      // Do not throw, just log
+    }
 
     return NextResponse.json(newSession);
   } catch (error) {
