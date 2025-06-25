@@ -29,4 +29,4 @@ jobs:
           SMTP_FROM: ${{ secrets.SMTP_FROM }}
           NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
           POSTGRES_PRISMA_URL: ${{ secrets.POSTGRES_PRISMA_URL }}
-        run: npx ts-node src/jobs/sendSessionReminders.ts 
+        run: npx ts-node --loader ts-node/esm src/jobs/sendSessionReminders.ts 
