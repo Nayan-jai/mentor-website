@@ -1,8 +1,10 @@
 {
   "extends": "./tsconfig.json",
-  "include": ["src/jobs/sendSessionReminders.ts"],
+  "include": ["src/jobs/**/*.ts"],
   "compilerOptions": {
     "moduleResolution": "node",
+    "noEmit": false,
+    "outDir": "dist/jobs",
     "noEmit": false
   }
 } 
