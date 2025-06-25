@@ -44,4 +44,37 @@ export async function sendSessionReminderEmail(email: string, sessionTitle: stri
     `,
   };
   await transporter.sendMail(mailOptions);
+}
+
+export async function sendSessionBookingConfirmationEmail(email: string, sessionTitle: string, sessionTime: string, mentorName: string, meetingLink?: string) {
+  const mailOptions = {
+    from: process.env.SMTP_FROM,
+    to: email,
+    subject: `Session Booked: '${sessionTitle}' with ${mentorName}`,
+    html: `
+      <h1>Session Booked!</h1>
+      <p>Hi,</p>
+      <p>Your session <strong>${sessionTitle}</strong> with mentor <strong>${mentorName}</strong> is scheduled for <strong>${sessionTime}</strong>.</p>
+      ${meetingLink ? `<p>Join your session: <a href="${meetingLink}">${meetingLink}</a></p>` : ""}
+      <p>You'll also get a reminder 10 minutes before the session starts.</p>
+      <p>Good luck and have a great session!</p>
+    `,
+  };
+  await transporter.sendMail(mailOptions);
+}
+
+export async function sendNewSessionNotificationEmail(email: string, sessionTitle: string, sessionTime: string, mentorName: string, meetingLink?: string) {
+  const mailOptions = {
+    from: process.env.SMTP_FROM,
+    to: email,
+    subject: `New Session Scheduled: '${sessionTitle}' with ${mentorName}`,
+    html: `
+      <h1>New Session Scheduled!</h1>
+      <p>Hi,</p>
+      <p>A new session <strong>${sessionTitle}</strong> with mentor <strong>${mentorName}</strong> is scheduled for <strong>${sessionTime}</strong>.</p>
+      ${meetingLink ? `<p>Join the session: <a href="${meetingLink}">${meetingLink}</a></p>` : ""}
+      <p>Book your spot now if you're interested!</p>
+    `,
+  };
+  await transporter.sendMail(mailOptions);
 } 

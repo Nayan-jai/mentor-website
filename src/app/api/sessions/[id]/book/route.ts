@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { sendSessionBookingConfirmationEmail } from '@/lib/email';
+import { formatSessionTime } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -94,6 +96,18 @@ export async function POST(request: NextRequest) {
       },
     },
   });
+
+  // Send booking confirmation email to the student
+  if (booking.mentee?.email) {
+    const sessionTime = formatSessionTime(new Date(mentorSlot.startTime));
+    await sendSessionBookingConfirmationEmail(
+      booking.mentee.email,
+      mentorSlot.title,
+      sessionTime,
+      booking.slot.mentor.name || 'Mentor',
+      booking.slot.meetingLink || undefined
+    );
+  }
 
   return NextResponse.json(booking);
 } 

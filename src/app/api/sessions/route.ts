@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
+import { sendNewSessionNotificationEmail } from '@/lib/email';
+import { formatSessionTime } from '@/lib/utils';
 
 // Define the response type
 type SessionsResponse = {
@@ -224,6 +226,24 @@ export const POST = async (request: NextRequest) => {
         }
       }
     });
+
+    // Notify all students about the new session
+    const students = await prisma.user.findMany({
+      where: { role: 'STUDENT', deleted: false },
+      select: { email: true }
+    });
+    const sessionTime = formatSessionTime(start);
+    await Promise.all(
+      students.map(student =>
+        student.email ? sendNewSessionNotificationEmail(
+          student.email,
+          title,
+          sessionTime,
+          newSession.mentor.name || 'Mentor',
+          meetingLink || undefined
+        ) : Promise.resolve()
+      )
+    );
 
     return NextResponse.json(newSession);
   } catch (error) {
