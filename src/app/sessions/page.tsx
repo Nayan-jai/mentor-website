@@ -94,8 +94,16 @@ export default function SessionsPage() {
         // Refresh sessions after booking
         fetchSessions();
       } else {
-        const data = await response.json();
-        if (data.message === "You have already booked this session.") {
+        let data;
+        try {
+          data = await response.json();
+        } catch (e) {
+          // If response is empty or not JSON
+          console.error("Failed to parse error response as JSON", e);
+          setBookingStatus(prev => ({ ...prev, [sessionId]: "error" }));
+          return;
+        }
+        if (data && data.message === "You have already booked this session.") {
           setBookingStatus(prev => ({ ...prev, [sessionId]: "already-booked" }));
         } else {
           setBookingStatus(prev => ({ ...prev, [sessionId]: "error" }));
