@@ -14,7 +14,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "build:jobs": "tsc src/jobs/sendSessionReminders.ts --outDir dist/jobs --esModuleInterop --module commonjs"
+    "build:jobs": "tsc --project tsconfig.jobs.json --outDir dist/jobs --esModuleInterop --module commonjs"
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"

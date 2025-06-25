@@ -112,7 +112,7 @@ export function SessionCard({ session }: { session: Session }) {
         </div>
         <div className="flex items-center text-gray-600">
           <i className="fas fa-user w-5"></i>
-          <span>{session.mentor.name || 'Anonymous Mentor'}</span>
+          <span>{session.mentor.name || 'Anonymous jsoMentor'}</span>
         </div>
       </div>
 
