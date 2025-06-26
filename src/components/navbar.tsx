@@ -46,40 +46,40 @@ export default function Navbar() {
           </button>
 
           {/* Navigation - Desktop */}
-          <nav className="hidden md:flex items-center space-x-6 lg:space-x-8">
-            <Link href="/" className="nav-link flex items-center gap-2">
+          <nav className="hidden md:flex items-center space-x-4 md:space-x-2 lg:space-x-8 overflow-x-auto max-w-full">
+            <Link href="/" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base">
               <Home className="w-5 h-5" /> Home
             </Link>
-            <Link href="/sessions" className="nav-link flex items-center gap-2">
+            <Link href="/sessions" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base">
               <Calendar className="w-5 h-5" /> Sessions
             </Link>
-            <Link href="/forum" className="nav-link flex items-center gap-2">
+            <Link href="/forum" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base">
               <MessageCircle className="w-5 h-5" /> Forum
             </Link>
             {session?.user?.role === "STUDENT" && (
               <>
-                <Link href="/ask-mentor" className="nav-link flex items-center gap-2">
+                <Link href="/ask-mentor" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base">
                   <HelpCircle className="w-5 h-5" /> Ask Mentor
                 </Link>
-                <Link href="/my-queries" className="nav-link flex items-center gap-2">
+                <Link href="/my-queries" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base">
                   <Inbox className="w-5 h-5" /> My Queries
                 </Link>
               </>
             )}
             {session?.user?.role === "MENTOR" && (
-              <Link href="/mentor/private-queries" className="nav-link flex items-center gap-2">
+              <Link href="/mentor/private-queries" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base">
                 <Lock className="w-5 h-5" /> Private Queries
               </Link>
             )}
             {session?.user?.role === "ADMIN" && (
               <>
-                <Link href="/dashboard/admin/users" className="nav-link flex items-center gap-2">
+                <Link href="/dashboard/admin/users" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base">
                   <Users className="w-5 h-5" /> Manage Users
                 </Link>
-                <Link href="/dashboard/admin/sessions" className="nav-link flex items-center gap-2">
+                <Link href="/dashboard/admin/sessions" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base">
                   <CalendarCheck className="w-5 h-5" /> Manage Sessions & Bookings
                 </Link>
-                <Link href="/dashboard/admin/analytics" className="nav-link flex items-center gap-2">
+                <Link href="/dashboard/admin/analytics" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base">
                   <LineChart className="w-5 h-5" /> View Analytics
                 </Link>
               </>
@@ -87,28 +87,28 @@ export default function Navbar() {
             {session ? (
               <>
                 {session.user?.role === "STUDENT" && (
-                  <Link href="/dashboard/student" className="nav-link flex items-center gap-2">
+                  <Link href="/dashboard/student" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base">
                     <Gauge className="w-5 h-5" /> Dashboard
                   </Link>
                 )}
                 {session.user?.role === "MENTOR" && (
-                  <Link href="/dashboard/mentor" className="nav-link flex items-center gap-2">
+                  <Link href="/dashboard/mentor" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base">
                     <BookOpen className="w-5 h-5" /> Mentor Dashboard
                   </Link>
                 )}
                 <button
                   onClick={() => signOut({ callbackUrl: "/" })}
-                  className="btn-get-started flex items-center gap-2"
+                  className="btn-get-started flex items-center gap-2 px-4 md:px-3 py-2 md:py-1 rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition text-base md:text-sm lg:text-base"
                 >
                   <LogOut className="w-5 h-5" /> Sign Out
                 </button>
               </>
             ) : (
               <>
-                <Link href="/auth/login" className="nav-link flex items-center gap-2">
+                <Link href="/auth/login" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base whitespace-nowrap" >
                   <LogIn className="w-5 h-5" /> Sign In
                 </Link>
-                <Link href="/auth/register" className="btn-get-started flex items-center gap-2">
+                <Link href="/auth/register" className="btn-get-started flex items-center gap-2 px-4 md:px-3 py-2 md:py-1 rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition text-base md:text-sm lg:text-base" >
                   <UserPlus className="w-5 h-5" /> Get Started
                 </Link>
               </>
@@ -118,39 +118,39 @@ export default function Navbar() {
         {/* Mobile Menu */}
         {mobileMenuOpen && (
           <nav className="md:hidden flex flex-col bg-white shadow-lg rounded-b-lg px-4 pt-2 pb-4 space-y-2 animate-fade-in">
-            <Link href="/" className="nav-link flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
+            <Link href="/" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base" onClick={() => setMobileMenuOpen(false)}>
               <Home className="w-5 h-5" /> Home
             </Link>
-            <Link href="/sessions" className="nav-link flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
+            <Link href="/sessions" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base" onClick={() => setMobileMenuOpen(false)}>
               <Calendar className="w-5 h-5" /> Sessions
             </Link>
-            <Link href="/forum" className="nav-link flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
+            <Link href="/forum" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base" onClick={() => setMobileMenuOpen(false)}>
               <MessageCircle className="w-5 h-5" /> Forum
             </Link>
             {session?.user?.role === "STUDENT" && (
               <>
-                <Link href="/ask-mentor" className="nav-link flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
+                <Link href="/ask-mentor" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base" onClick={() => setMobileMenuOpen(false)}>
                   <HelpCircle className="w-5 h-5" /> Ask Mentor
                 </Link>
-                <Link href="/my-queries" className="nav-link flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
+                <Link href="/my-queries" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base" onClick={() => setMobileMenuOpen(false)}>
                   <Inbox className="w-5 h-5" /> My Queries
                 </Link>
               </>
             )}
             {session?.user?.role === "MENTOR" && (
-              <Link href="/mentor/private-queries" className="nav-link flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
+              <Link href="/mentor/private-queries" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base" onClick={() => setMobileMenuOpen(false)}>
                 <Lock className="w-5 h-5" /> Private Queries
               </Link>
             )}
             {session?.user?.role === "ADMIN" && (
               <>
-                <Link href="/dashboard/admin/users" className="nav-link flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
+                <Link href="/dashboard/admin/users" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base" onClick={() => setMobileMenuOpen(false)}>
                   <Users className="w-5 h-5" /> Manage Users
                 </Link>
-                <Link href="/dashboard/admin/sessions" className="nav-link flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
+                <Link href="/dashboard/admin/sessions" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base" onClick={() => setMobileMenuOpen(false)}>
                   <CalendarCheck className="w-5 h-5" /> Manage Sessions & Bookings
                 </Link>
-                <Link href="/dashboard/admin/analytics" className="nav-link flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
+                <Link href="/dashboard/admin/analytics" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base" onClick={() => setMobileMenuOpen(false)}>
                   <LineChart className="w-5 h-5" /> View Analytics
                 </Link>
               </>
@@ -158,28 +158,28 @@ export default function Navbar() {
             {session ? (
               <>
                 {session.user?.role === "STUDENT" && (
-                  <Link href="/dashboard/student" className="nav-link flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
+                  <Link href="/dashboard/student" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base" onClick={() => setMobileMenuOpen(false)}>
                     <Gauge className="w-5 h-5" /> Dashboard
                   </Link>
                 )}
                 {session.user?.role === "MENTOR" && (
-                  <Link href="/dashboard/mentor" className="nav-link flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
+                  <Link href="/dashboard/mentor" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base" onClick={() => setMobileMenuOpen(false)}>
                     <BookOpen className="w-5 h-5" /> Mentor Dashboard
                   </Link>
                 )}
                 <button
                   onClick={() => { setMobileMenuOpen(false); signOut({ callbackUrl: "/" }); }}
-                  className="btn-get-started flex items-center gap-2 w-full text-left"
+                  className="btn-get-started flex items-center gap-2 w-full text-left px-4 md:px-3 py-2 md:py-1"
                 >
                   <LogOut className="w-5 h-5" /> Sign Out
                 </button>
               </>
             ) : (
               <>
-                <Link href="/auth/login" className="nav-link flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
+                <Link href="/auth/login" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base whitespace-nowrap" onClick={() => setMobileMenuOpen(false)}>
                   <LogIn className="w-5 h-5" /> Sign In
                 </Link>
-                <Link href="/auth/register" className="btn-get-started flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
+                <Link href="/auth/register" className="btn-get-started flex items-center gap-2 w-full max-w-xs mx-auto justify-center px-4 md:px-3 py-2 md:py-1 text-base md:text-sm lg:text-base" onClick={() => setMobileMenuOpen(false)}>
                   <UserPlus className="w-5 h-5" /> Get Started
                 </Link>
               </>

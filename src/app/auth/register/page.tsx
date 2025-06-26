@@ -10,6 +10,7 @@ export default function RegisterPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -20,7 +21,19 @@ export default function RegisterPage() {
     const name = formData.get("name") as string;
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
+    const confirmPassword = formData.get("confirmPassword") as string;
     const role = formData.get("role") as string;
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      setLoading(false);
+      return;
+    }
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters long");
+      setLoading(false);
+      return;
+    }
 
     try {
       const response = await fetch("/api/auth/register", {
@@ -109,6 +122,21 @@ export default function RegisterPage() {
                   required
                   className="mt-1"
                   placeholder="••••••••"
+                />
+                <p className="text-xs text-gray-500 mt-1">Password must be at least 8 characters.</p>
+              </div>
+
+              <div>
+                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <Input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type="password"
+                  required
+                  className="mt-1"
+                  placeholder="Re-enter your password"
+                  value={confirmPassword}
+                  onChange={e => setConfirmPassword(e.target.value)}
                 />
               </div>
 

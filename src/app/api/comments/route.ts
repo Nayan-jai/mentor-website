@@ -110,30 +110,54 @@ export async function PATCH(request: NextRequest) {
   }
 
   const body = await request.json();
-  const { commentId, discussionId, isAnswer } = body;
+  const { commentId, discussionId, isAnswer, content } = body;
 
-  if (!commentId || !discussionId) {
+  if (!commentId) {
     return NextResponse.json(
-      { message: "Comment ID and discussion ID are required" },
+      { message: "Comment ID is required" },
       { status: 400 }
     );
   }
 
-  if (isAnswer && session.user.role !== "MENTOR") {
+  // Only mentors can mark as answer
+  if (isAnswer !== undefined && isAnswer !== null && session.user.role !== "MENTOR") {
     return NextResponse.json(
       { message: "Only mentors can mark comments as answers" },
       { status: 403 }
     );
   }
 
-  const comment = await prisma.comment.update({
+  // Only author or mentor can edit content
+  if (content !== undefined) {
+    const comment = await prisma.comment.findUnique({
+      where: { id: commentId },
+      include: { author: true },
+    });
+    if (!comment) {
+      return NextResponse.json(
+        { message: "Comment not found" },
+        { status: 404 }
+      );
+    }
+    if (session.user.id !== comment.author.id && session.user.role !== "MENTOR") {
+      return NextResponse.json(
+        { message: "Only the author or a mentor can edit this comment" },
+        { status: 403 }
+      );
+    }
+  }
+
+  // Update comment
+  const updateData: any = {};
+  if (isAnswer !== undefined) updateData.isAnswer = isAnswer;
+  if (content !== undefined) updateData.content = content;
+
+  const updated = await prisma.comment.update({
     where: {
       id: commentId,
-      discussionId,
+      ...(discussionId ? { discussionId } : {}),
     },
-    data: {
-      isAnswer,
-    },
+    data: updateData,
     include: {
       author: {
         select: {
@@ -145,5 +169,41 @@ export async function PATCH(request: NextRequest) {
     },
   });
 
-  return NextResponse.json(comment);
+  return NextResponse.json(updated);
+}
+
+export async function DELETE(request: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) {
+    return NextResponse.json(
+      { message: "Unauthorized" },
+      { status: 401 }
+    );
+  }
+  const body = await request.json();
+  const { commentId } = body;
+  if (!commentId) {
+    return NextResponse.json(
+      { message: "Comment ID is required" },
+      { status: 400 }
+    );
+  }
+  const comment = await prisma.comment.findUnique({
+    where: { id: commentId },
+    include: { author: true },
+  });
+  if (!comment) {
+    return NextResponse.json(
+      { message: "Comment not found" },
+      { status: 404 }
+    );
+  }
+  if (session.user.id !== comment.author.id) {
+    return NextResponse.json(
+      { message: "Only the author can delete this comment" },
+      { status: 403 }
+    );
+  }
+  await prisma.comment.delete({ where: { id: commentId } });
+  return NextResponse.json({ message: "Comment deleted" });
 } 

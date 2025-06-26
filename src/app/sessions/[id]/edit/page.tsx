@@ -350,6 +350,40 @@ export default function EditSessionPage({ params }: { params: { id: string } }) 
                             onChange={handleChange}
                             className="h-12 text-lg border-2 border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 transition-all duration-200"
                         />
+                        <div className="flex items-center gap-4 mt-2">
+                          <a
+                            href="https://meet.google.com/new"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="Create a new Google Meet meeting"
+                            className="hover:scale-110 transition-transform"
+                          >
+                            <img
+                              src="/res/meet.png"
+                              alt="Google Meet"
+                              className="h-10 w-10 rounded-md shadow"
+                            />
+                          </a>
+                          <a
+                            href="https://zoom.us/start/videomeeting"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="Create a new Zoom meeting"
+                            className="hover:scale-110 transition-transform"
+                          >
+                            <img
+                              src="/res/zoom.png"
+                              alt="Zoom"
+                              className="h-10 w-10 rounded-full shadow"
+                            />
+                          </a>
+                        </div>
+                        <p className="text-sm text-gray-500 flex items-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          Paste the meeting link (Google Meet, Zoom, etc.)
+                        </p>
                     </div>
                      <CardFooter className="px-0 pt-8">
                         <div className="w-full space-y-4">
@@ -367,7 +401,7 @@ export default function EditSessionPage({ params }: { params: { id: string } }) 
                             </Button>
                             <Button 
                               type="submit" 
-                              className="flex-1 h-12 text-lg font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all duration-200" 
+                              className="flex-1 h-12 text-lg font-semibold bg-white text-blue-700 border border-blue-600 hover:bg-blue-50 hover:text-blue-900 shadow-lg hover:shadow-xl transition-all duration-200" 
                               disabled={saving}
                             >
                               {saving ? (
@@ -394,7 +428,7 @@ export default function EditSessionPage({ params }: { params: { id: string } }) 
                               type="button" 
                               variant="destructive"
                               onClick={() => setShowDeleteConfirm(true)}
-                              className="w-full h-12 text-lg font-semibold bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 shadow-lg hover:shadow-xl transition-all duration-200"
+                              className="w-full h-12 text-lg font-semibold bg-white text-red-700 border border-red-600 hover:bg-red-50 hover:text-red-900 shadow-lg hover:shadow-xl transition-all duration-200"
                             >
                               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />

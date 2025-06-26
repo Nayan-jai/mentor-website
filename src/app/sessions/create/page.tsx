@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
@@ -9,36 +9,53 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import * as React from 'react';
+import dayjs, { Dayjs } from 'dayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { TimePicker } from '@mui/x-date-pickers/TimePicker';
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 
 export default function CreateSessionPage() {
   const router = useRouter();
   const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showError, setShowError] = useState(false);
+  const [startTime, setStartTime] = React.useState<Dayjs | null>(null);
+  const [endTime, setEndTime] = React.useState<Dayjs | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError("");
+    setShowError(false);
 
     const formData = new FormData(e.currentTarget);
     const date = formData.get("date") as string;
-    const startTime = formData.get("startTime") as string;
-    const endTime = formData.get("endTime") as string;
 
-    // Validate date and time
-    const startDateTime = new Date(`${date}T${startTime}`);
-    const endDateTime = new Date(`${date}T${endTime}`);
-    const now = new Date();
-
-    if (startDateTime < now) {
-      setError("Start time must be in the future");
+    if (!startTime || !endTime) {
+      setError("Please select both start and end times.");
+      setShowError(true);
       setLoading(false);
       return;
     }
 
-    if (endDateTime <= startDateTime) {
+    // Combine date and time
+    const startDateTime = dayjs(date).set('hour', startTime.hour()).set('minute', startTime.minute()).set('second', 0).set('millisecond', 0);
+    const endDateTime = dayjs(date).set('hour', endTime.hour()).set('minute', endTime.minute()).set('second', 0).set('millisecond', 0);
+    const now = dayjs();
+
+    if (startDateTime.isBefore(now)) {
+      setError("Start time must be in the future");
+      setShowError(true);
+      setLoading(false);
+      return;
+    }
+
+    if (!endDateTime.isAfter(startDateTime)) {
       setError("End time must be after start time");
+      setShowError(true);
       setLoading(false);
       return;
     }
@@ -65,12 +82,15 @@ export default function CreateSessionPage() {
       const responseData = await response.json();
 
       if (!response.ok) {
+        setError(responseData.error || "Failed to create session");
+        setShowError(true);
         throw new Error(responseData.error || "Failed to create session");
       }
 
       router.push("/sessions");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create session. Please try again.");
+      setShowError(true);
     } finally {
       setLoading(false);
     }
@@ -109,17 +129,16 @@ export default function CreateSessionPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="px-8">
-          {error && (
-            <div className="bg-gradient-to-r from-red-50 to-red-100 border-l-4 border-red-500 text-red-700 p-6 rounded-lg mb-8 shadow-md" role="alert">
-              <div className="flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-                <div>
-                  <p className="font-bold text-lg">Error</p>
-                  <p className="text-base">{error}</p>
-                </div>
+          {showError && error && (
+            <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 bg-gradient-to-r from-red-50 to-red-100 border-l-4 border-red-500 text-red-700 p-6 rounded-lg shadow-lg flex items-center gap-4 min-w-[300px] max-w-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <div className="flex-1">
+                <p className="font-bold text-lg">Error</p>
+                <p className="text-base">{error}</p>
               </div>
+              <button onClick={() => setShowError(false)} className="ml-2 text-red-700 hover:text-red-900 text-xl font-bold">&times;</button>
             </div>
           )}
           <form onSubmit={handleSubmit} className="space-y-8">
@@ -158,11 +177,11 @@ export default function CreateSessionPage() {
                 id="description"
                 name="description"
                 required
-                rows={4}
+                rows={2}
                 placeholder="Describe the session in detail..."
                 minLength={10}
                 maxLength={500}
-                className="text-lg border-2 border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 transition-all duration-200 resize-none"
+                className="text-lg border-2 border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 transition-all duration-200 resize-none min-h-[48px]"
               />
               <p className="text-sm text-gray-500 flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -244,50 +263,52 @@ export default function CreateSessionPage() {
                 </p>
               </div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-              <div className="space-y-3">
-                <Label htmlFor="startTime" className="text-lg font-semibold text-gray-700 flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3" />
-                  </svg>
-                  Start Time
-                </Label>
-                <Input
-                  type="time"
-                  id="startTime"
-                  name="startTime"
-                  required
-                  className="h-12 text-lg border-2 border-gray-200 focus:border-yellow-500 focus:ring-4 focus:ring-yellow-100 transition-all duration-200"
-                />
-                <p className="text-sm text-gray-500 flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  Set the session start time
-                </p>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                <div className="space-y-3">
+                  <Label className="text-lg font-semibold text-gray-700 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3" />
+                    </svg>
+                    Start Time
+                  </Label>
+                  <TimePicker
+                    label="Start Time"
+                    value={startTime}
+                    onChange={setStartTime}
+                    ampm={true}
+                    slotProps={{ textField: { fullWidth: false, required: true, size: 'small' } }}
+                  />
+                  <p className="text-sm text-gray-500 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Set the session start time
+                  </p>
+                </div>
+                <div className="space-y-3">
+                  <Label className="text-lg font-semibold text-gray-700 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3" />
+                    </svg>
+                    End Time
+                  </Label>
+                  <TimePicker
+                    label="End Time"
+                    value={endTime}
+                    onChange={setEndTime}
+                    ampm={true}
+                    slotProps={{ textField: { fullWidth: false, required: true, size: 'small' } }}
+                  />
+                  <p className="text-sm text-gray-500 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Set the session end time
+                  </p>
+                </div>
               </div>
-              <div className="space-y-3">
-                <Label htmlFor="endTime" className="text-lg font-semibold text-gray-700 flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3" />
-                  </svg>
-                  End Time
-                </Label>
-                <Input
-                  type="time"
-                  id="endTime"
-                  name="endTime"
-                  required
-                  className="h-12 text-lg border-2 border-gray-200 focus:border-pink-500 focus:ring-4 focus:ring-pink-100 transition-all duration-200"
-                />
-                <p className="text-sm text-gray-500 flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  Set the session end time
-                </p>
-              </div>
-            </div>
+            </LocalizationProvider>
             <CardFooter className="px-0 pt-8">
               <div className="w-full flex flex-col sm:flex-row gap-4">
                 <Button

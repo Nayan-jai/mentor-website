@@ -42,17 +42,35 @@ export default function StudentDashboard() {
             
             {/* Add your student dashboard content here */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div className="bg-blue-50 p-6 rounded-lg">
+              <div
+                className="bg-blue-50 p-6 rounded-lg cursor-pointer hover:shadow-lg transition"
+                onClick={() => router.push('/ask-mentor')}
+                tabIndex={0}
+                role="button"
+                aria-label="Go to Ask Mentor"
+              >
                 <h3 className="text-lg font-medium text-blue-900 mb-2">My Mentors</h3>
                 <p className="text-blue-700">Connect with your mentors</p>
               </div>
               
-              <div className="bg-green-50 p-6 rounded-lg">
+              <div
+                className="bg-green-50 p-6 rounded-lg cursor-pointer hover:shadow-lg transition"
+                onClick={() => router.push('/sessions')}
+                tabIndex={0}
+                role="button"
+                aria-label="Go to Sessions"
+              >
                 <h3 className="text-lg font-medium text-green-900 mb-2">Schedule</h3>
                 <p className="text-green-700">View your upcoming sessions</p>
               </div>
               
-              <div className="bg-purple-50 p-6 rounded-lg">
+              <div
+                className="bg-purple-50 p-6 rounded-lg cursor-pointer hover:shadow-lg transition"
+                onClick={() => router.push('/resources')}
+                tabIndex={0}
+                role="button"
+                aria-label="Go to Resources"
+              >
                 <h3 className="text-lg font-medium text-purple-900 mb-2">Resources</h3>
                 <p className="text-purple-700">Access learning materials</p>
               </div>

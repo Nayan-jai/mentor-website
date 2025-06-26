@@ -10,6 +10,7 @@ export default function MentorDashboard() {
   const router = useRouter();
   const [sessions, setSessions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [allStudents, setAllStudents] = useState<any[]>([]);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -18,6 +19,7 @@ export default function MentorDashboard() {
       router.replace("/auth/login");
     } else if (status === "authenticated") {
       fetchMentorSessions();
+      fetchAllStudents();
     }
   }, [status, session, router]);
 
@@ -30,6 +32,16 @@ export default function MentorDashboard() {
       setSessions([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAllStudents = async () => {
+    try {
+      const res = await fetch("/api/admin/users");
+      const data = await res.json();
+      setAllStudents((data.users || []).filter((u: any) => u.role === "STUDENT" && !u.deleted));
+    } catch (err) {
+      setAllStudents([]);
     }
   };
 
@@ -66,13 +78,14 @@ export default function MentorDashboard() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {sessions.map((s) => (
-                    <div key={s.id} className="w-full h-full p-4 sm:p-6 rounded-xl hover:shadow-xl transition-shadow duration-200 border-l-4 border-blue-400 bg-white flex flex-col">
+                    <div key={s.id} className="w-full h-full p-4 sm:p-6 rounded-xl hover:shadow-xl transition-shadow duration-200 border-l-4 border-blue-400" style={{ background: '#F7DBF0' }}>
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex flex-col gap-1 min-w-0">
                           <span className="text-lg sm:text-xl font-semibold text-gray-900 truncate">{s.title}</span>
                           <span className="text-gray-600 text-sm truncate">{s.description}</span>
                           <span className="text-gray-500 text-sm">
-                            {new Date(s.startTime).toLocaleDateString()} | {new Date(s.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {new Date(s.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            {new Date(s.startTime).toLocaleDateString()}<br />
+                            {new Date(s.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {new Date(s.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </span>
                         </div>
                         <Badge className="bg-blue-100 text-blue-800 whitespace-nowrap ml-2">
@@ -94,6 +107,29 @@ export default function MentorDashboard() {
                 </div>
               )}
             </div>
+            {allStudents.length > 0 && (
+              <div className="mt-10">
+                <h2 className="text-xl font-semibold mb-2">All Students</h2>
+                <div className="overflow-x-auto">
+                  <table className="min-w-[300px] w-full border text-left text-sm">
+                    <thead>
+                      <tr className="bg-gray-100">
+                        <th className="py-2 px-4 font-semibold">Name</th>
+                        <th className="py-2 px-4 font-semibold">Email</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {allStudents.map((stu: any) => (
+                        <tr key={stu.id} className="border-t">
+                          <td className="py-2 px-4">{stu.name}</td>
+                          <td className="py-2 px-4">{stu.email}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
