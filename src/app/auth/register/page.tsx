@@ -65,7 +65,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="w-screen h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50 m-0 pb-6 pt-28">
+    <div className="w-screen h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50 m-0 pb-1 pt-20">
       <div className="w-full h-full flex items-center justify-center">
         <div className="bg-white rounded-2xl shadow-xl w-full h-full p-8 sm:p-16 flex flex-col lg:flex-row min-h-[480px] max-w-6xl mx-auto">
           {/* Left: Form */}
@@ -173,7 +173,7 @@ export default function RegisterPage() {
               </button>
             </form>
 
-            <p className="mt-8 text-center text-sm text-gray-600">
+            <p className="mt-4 text-center text-sm text-gray-600">
               Already have an account?{" "}
               <Link
                 href="/auth/login"
