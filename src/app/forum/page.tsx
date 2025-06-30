@@ -93,10 +93,10 @@ export default function ForumPage() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-12 mt-8 pt-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl font-bold text-gray-100 mb-4">
             Community Forum
           </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-300 max-w-2xl mx-auto">
             Join the conversation, share your knowledge, and learn from others in
             our vibrant community.
           </p>
@@ -174,7 +174,7 @@ export default function ForumPage() {
                       style={{ textDecoration: 'none' }}
                     >
                       <Card
-                        className={`cursor-pointer w-full h-full p-4 sm:p-6 rounded-xl group-hover:shadow-2xl hover:shadow-xl transition-shadow duration-200 border-l-4 ${isNew ? "border-blue-500 bg-blue-50" : "border-blue-400 bg-white"} flex flex-col relative`}
+                        className={`cursor-pointer w-full h-full p-4 sm:p-6 rounded-xl group-hover:shadow-2xl hover:shadow-xl transition-shadow duration-200 border-l-4 ${isNew ? "border-blue-500 bg-blue-50 text-gray-900" : "border-blue-400 bg-white text-gray-900"} flex flex-col relative`}
                       >
                         {isNew ? (
                           <span className="absolute top-2 right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded">New</span>

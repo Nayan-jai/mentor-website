@@ -61,20 +61,20 @@ export default function HomePage() {
   }, [session]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-indigo-900">
+    <div className="min-h-screen bg-gray-950 text-gray-100 pb-8">
       <div className="relative">
         {/* Hero Section */}
-        <section className="hero relative overflow-hidden min-h-screen flex flex-col justify-center">
+        <section className="hero relative overflow-hidden min-h-screen flex flex-col justify-center bg-gradient-to-br from-gray-950 to-gray-900">
           {/* Animated floating text background */}
           <div className="absolute top-14 bottom-0 left-0 right-0 pointer-events-none z-0">
             <AnimatedBackground />
           </div>
           <div className="container mx-auto px-4 relative z-10 pt-14">
             <div className="max-w-3xl mx-auto text-center">
-              <h2 className="text-4xl md:text-6xl font-bold mb-6 text-white">
+              <h2 className="hero-title text-4xl md:text-6xl font-bold mb-6 text-white drop-shadow-lg">
                 Your Journey to UPSC Success Starts Here
               </h2>
-              <p className="text-xl md:text-2xl mb-8 text-gray-300">
+              <p className="hero-subtitle text-xl md:text-2xl mb-8 text-gray-200">
                 Connect with experienced mentors, get personalized guidance, and
                 accelerate your UPSC preparation
               </p>
@@ -82,13 +82,13 @@ export default function HomePage() {
                 <div className="space-x-4">
                   <Link
                     href="/auth/register"
-                    className="inline-block px-8 py-3 text-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+                    className="btn-get-started bg-blue-700 text-white border-blue-700 hover:bg-blue-800 hover:text-white"
                   >
                     Get Started
                   </Link>
                   <Link
                     href="/auth/login"
-                    className="inline-block px-8 py-3 text-lg font-semibold text-white border-2 border-white hover:bg-white/10 rounded-lg transition-colors"
+                    className="inline-block px-8 py-3 text-lg font-semibold text-gray-200 border-2 border-gray-400 hover:bg-gray-800 hover:text-white rounded-full transition-all"
                   >
                     Sign In
                   </Link>
@@ -96,7 +96,7 @@ export default function HomePage() {
               ) : (
                 <Link
                   href="/dashboard"
-                  className="inline-block px-8 py-3 text-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+                  className="btn-get-started bg-blue-700 text-white border-blue-700 hover:bg-blue-800 hover:text-white"
                 >
                   Go to Dashboard
                 </Link>
@@ -106,41 +106,41 @@ export default function HomePage() {
         </section>
 
         {/* Features Section */}
-        <section className="features mt-20">
+        <section className="features py-16 bg-gray-900">
           <div className="container mx-auto px-4">
-            <div className="section-title">
-              <h2>Features</h2>
-              <p>Why Choose Our Platform?</p>
+            <div className="section-title pb-16">
+              <h2 className="text-sm font-medium tracking-wider uppercase text-white">Features</h2>
+              <p className="text-4xl font-bold uppercase text-white">Why Choose Our Platform?</p>
             </div>
             <div className="grid md:grid-cols-3 gap-8">
-              <div className="features-item">
+              <div className="features-item bg-[#181C23] border border-gray-700 text-gray-100">
                 <i className="fas fa-users"></i>
-                <h3>
-                  <a href="#">Expert Mentors</a>
+                <h3 className="text-gray-100">
+                  <a href="#" className="text-gray-100">Expert Mentors</a>
                 </h3>
-                <p>
+                <p className="text-gray-300">
                   Connect with experienced UPSC mentors who have successfully cleared
                   the examination
                 </p>
               </div>
 
-              <div className="features-item">
+              <div className="features-item bg-[#181C23] border border-gray-700 text-gray-100">
                 <i className="fas fa-book"></i>
-                <h3>
-                  <a href="#">Personalized Guidance</a>
+                <h3 className="text-gray-100">
+                  <a href="#" className="text-gray-100">Personalized Guidance</a>
                 </h3>
-                <p>
+                <p className="text-gray-300">
                   Get customized study plans and strategies tailored to your
                   strengths and weaknesses
                 </p>
               </div>
 
-              <div className="features-item">
+              <div className="features-item bg-[#181C23] border border-gray-700 text-gray-100">
                 <i className="fas fa-comments"></i>
-                <h3>
-                  <a href="#">Interactive Sessions</a>
+                <h3 className="text-gray-100">
+                  <a href="#" className="text-gray-100">Interactive Sessions</a>
                 </h3>
-                <p>
+                <p className="text-gray-300">
                   Engage in one-on-one sessions with mentors to clarify doubts and
                   get real-time feedback
                 </p>
@@ -150,56 +150,55 @@ export default function HomePage() {
         </section>
 
         {/* How It Works Section */}
-        <section className="why-us mt-20">
+        <section className="why-us py-16 bg-gray-950 text-gray-100">
           <div className="container mx-auto px-4">
-            <div className="section-title">
-              <h2>How It Works</h2>
-              <p>Your Path to Success</p>
+            <div className="section-title pb-16">
+              <h2 className="text-sm font-medium tracking-wider uppercase text-white">How It Works</h2>
+              <p className="text-4xl font-bold uppercase text-white">Your Path to Success</p>
             </div>
             <div className="grid md:grid-cols-4 gap-8">
-              <div className="icon-box">
-                <i className="fas fa-user-plus"></i>
-                <h4>Sign Up</h4>
-                <p>Create your account as a student or mentor</p>
+              <div className="icon-box bg-[#181C23] border border-gray-700 text-gray-100">
+                <i className="fas fa-user-plus text-gray-700"></i>
+                <h4 className="text-gray-100">Sign Up</h4>
+                <p className="text-gray-300">Create your account as a student or mentor</p>
               </div>
 
-              <div className="icon-box">
-                <i className="fas fa-search"></i>
-                <h4>Find a Mentor</h4>
-                <p>Browse through experienced mentors and their expertise</p>
+              <div className="icon-box bg-[#181C23] border border-gray-700 text-gray-100">
+                <i className="fas fa-search text-gray-700"></i>
+                <h4 className="text-gray-100">Find a Mentor</h4>
+                <p className="text-gray-300">Browse through experienced mentors and their expertise</p>
               </div>
 
-              <div className="icon-box">
-                <i className="fas fa-calendar-check"></i>
-                <h4>Book Sessions</h4>
-                <p>Schedule one-on-one mentoring sessions</p>
+              <div className="icon-box bg-[#181C23] border border-gray-700 text-gray-100">
+                <i className="fas fa-calendar-check text-gray-700"></i>
+                <h4 className="text-gray-100">Book Sessions</h4>
+                <p className="text-gray-300">Schedule one-on-one mentoring sessions</p>
               </div>
 
-              <div className="icon-box">
-                <i className="fas fa-graduation-cap"></i>
-                <h4>Get Guidance</h4>
-                <p>Receive personalized guidance and support</p>
+              <div className="icon-box bg-[#181C23] border border-gray-700 text-gray-100">
+                <i className="fas fa-graduation-cap text-gray-700"></i>
+                <h4 className="text-gray-100">Get Guidance</h4>
+                <p className="text-gray-300">Receive personalized guidance and support</p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* CTA Section */}
-        <section className="cta mt-20">
+        {/* CTA Section */}hancemen        <section className="cta bg-gray-900 py-20 text-center text-white">
           <div className="container mx-auto px-4 text-center">
-            <h3>Ready to Start Your UPSC Journey?</h3>
-            <p>Join our community of aspirants and mentors today</p>
+            <h3 className="text-3xl font-bold mb-4">Ready to Start Your UPSC Journey?</h3>
+            <p className="text-xl mb-8">Join our community of aspirants and mentors today</p>
             {!session ? (
               <Link
                 href="/auth/register"
-                className="btn-get-started"
+                className="btn-get-started bg-blue-700 text-white border-blue-700 hover:bg-blue-800 hover:text-white"
               >
                 Get Started Now
               </Link>
             ) : (
               <Link
                 href="/dashboard"
-                className="btn-get-started"
+                className="btn-get-started bg-blue-700 text-white border-blue-700 hover:bg-blue-800 hover:text-white"
               >
                 Go to Dashboard
               </Link>
@@ -278,6 +277,13 @@ export default function HomePage() {
             </div>
           </section>
         )}
+      </div>
+      {/* Footer: Made with Love Arjeet Sir */}
+      <hr className="w-1/2 mx-auto border-t-2 border-gray-700 my-8" />
+      <div className="w-full flex justify-center items-center mt-4">
+        <span className="text-lg text-gray-300">
+          Made with <span className="inline-block animate-pulse text-red-500 text-3xl align-middle">❤</span> Arjeet Sir
+        </span>
       </div>
     </div>
   );

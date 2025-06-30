@@ -57,7 +57,7 @@ export default function MentorPrivateQueriesPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-12 mt-8 pt-24">
       <div className="max-w-screen-xl mx-auto px-2 sm:px-6 lg:px-8">
-        <h1 className="text-2xl font-bold mb-6 text-blue-900">All Student Private Queries</h1>
+        <h1 className="text-2xl font-bold mb-6 text-gray-100">All Student Private Queries</h1>
         {loading ? (
           <div className="text-center text-gray-500">Loading...</div>
         ) : queries.length === 0 ? (

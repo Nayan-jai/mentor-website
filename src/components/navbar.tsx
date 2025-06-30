@@ -98,7 +98,7 @@ export default function Navbar() {
                 )}
                 <button
                   onClick={() => signOut({ callbackUrl: "/" })}
-                  className="btn-get-started flex items-center gap-2 px-4 md:px-3 py-2 md:py-1 rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition text-base md:text-sm lg:text-base"
+                  className="btn-get-started flex items-center gap-2 px-4 md:px-3 py-2 md:py-1 rounded-lg text-black bg-white hover:bg-blue-700 hover:text-white transition text-base md:text-sm lg:text-base"
                 >
                   <LogOut className="w-5 h-5" /> Sign Out
                 </button>
@@ -108,7 +108,7 @@ export default function Navbar() {
                 <Link href="/auth/login" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base whitespace-nowrap" >
                   <LogIn className="w-5 h-5" /> Sign In
                 </Link>
-                <Link href="/auth/register" className="btn-get-started flex items-center gap-2 px-4 md:px-3 py-2 md:py-1 rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition text-base md:text-sm lg:text-base" >
+                <Link href="/auth/register" className="btn-get-started flex items-center gap-2 px-4 md:px-3 py-2 md:py-1 rounded-lg text-black bg-white hover:bg-blue-700 hover:text-white transition text-base md:text-sm lg:text-base whitespace-nowrap">
                   <UserPlus className="w-5 h-5" /> Get Started
                 </Link>
               </>
@@ -117,7 +117,7 @@ export default function Navbar() {
         </div>
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <nav className="md:hidden flex flex-col bg-white shadow-lg rounded-b-lg px-4 pt-2 pb-4 space-y-2 animate-fade-in">
+          <nav className="md:hidden flex flex-col bg-white text-black shadow-lg rounded-b-lg px-4 pt-2 pb-4 space-y-2 animate-fade-in">
             <Link href="/" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base" onClick={() => setMobileMenuOpen(false)}>
               <Home className="w-5 h-5" /> Home
             </Link>
@@ -169,7 +169,7 @@ export default function Navbar() {
                 )}
                 <button
                   onClick={() => { setMobileMenuOpen(false); signOut({ callbackUrl: "/" }); }}
-                  className="btn-get-started flex items-center gap-2 w-full text-left px-4 md:px-3 py-2 md:py-1"
+                  className="btn-get-started flex items-center gap-2 w-full text-left px-4 md:px-3 py-2 md:py-1 bg-white text-black rounded-lg hover:bg-blue-700 hover:text-white transition text-base md:text-sm lg:text-base"
                 >
                   <LogOut className="w-5 h-5" /> Sign Out
                 </button>
@@ -179,7 +179,7 @@ export default function Navbar() {
                 <Link href="/auth/login" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base whitespace-nowrap" onClick={() => setMobileMenuOpen(false)}>
                   <LogIn className="w-5 h-5" /> Sign In
                 </Link>
-                <Link href="/auth/register" className="btn-get-started flex items-center gap-2 w-full max-w-xs mx-auto justify-center px-4 md:px-3 py-2 md:py-1 text-base md:text-sm lg:text-base" onClick={() => setMobileMenuOpen(false)}>
+                <Link href="/auth/register" className="btn-get-started flex items-center gap-2 px-4 md:px-3 py-2 md:py-1 rounded-lg text-black bg-white hover:bg-blue-700 hover:text-white transition text-base md:text-sm lg:text-base whitespace-nowrap" onClick={() => setMobileMenuOpen(false)}>
                   <UserPlus className="w-5 h-5" /> Get Started
                 </Link>
               </>

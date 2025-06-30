@@ -55,13 +55,13 @@ export default function AskMentorPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-12 mt-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 py-12 mt-8">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Ask a Mentor Privately</h1>
-          <p className="text-gray-600">Submit a private question to mentors. Only you and mentors will see this query and its replies.</p>
+          <h1 className="text-3xl font-bold text-white mb-4">Ask a Mentor Privately</h1>
+          <p className="text-gray-200">Submit a private question to mentors. Only you and mentors will see this query and its replies.</p>
         </div>
-        <Card className="p-6">
+        <Card className="p-6 bg-gray-900">
           {error && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
               <div className="flex items-center text-red-600">
@@ -72,14 +72,15 @@ export default function AskMentorPage() {
           )}
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+              <label htmlFor="title" className="block text-sm font-medium text-gray-300 mb-1">Title</label>
               <Input id="title" name="title" placeholder="Enter a descriptive title" required className="w-full" />
             </div>
             <div>
-              <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+              <label htmlFor="category" className="block text-sm font-medium text-gray-300 mb-1">Category</label>
               <Input id="category" name="category" placeholder="e.g. GS Discussions, Prelims, Mains" required className="w-full" />
             </div>
             <div>
+              <label htmlFor="content" className="block text-sm font-medium text-gray-300 mb-1">Content</label>
               <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-1">Content</label>
               <Textarea id="content" name="content" placeholder="Write your question here..." required className="min-h-[120px] w-full" />
             </div>

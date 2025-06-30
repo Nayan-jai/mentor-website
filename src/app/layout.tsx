@@ -4,7 +4,6 @@ import "./globals.css";
 import { Providers } from "@/components/providers";
 import Navbar from "@/components/navbar";
 import { StagewiseWrapper } from "@/components/stagewise-wrapper";
-import { AnimatedBackground } from "@/components/animated-background";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -27,7 +26,6 @@ export default function RootLayout({
         />
       </head>
       <body className={`${inter.className} h-full relative`}>
-        <AnimatedBackground />
         <Providers>
           <div className="flex flex-col min-h-screen relative z-[1]">
             <Navbar />
@@ -35,7 +33,7 @@ export default function RootLayout({
               {children}
             </div>
           </div>
-          {/* <StagewiseWrapper /> */}
+          { <StagewiseWrapper /> }
         </Providers>
       </body>
     </html>

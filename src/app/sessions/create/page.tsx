@@ -122,7 +122,7 @@ export default function CreateSessionPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
             </div>
-            <CardTitle className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent">Create New Session</CardTitle>
+            <CardTitle className="text-4xl font-bold text-gray-900">Create New Session</CardTitle>
           </div>
           <CardDescription className="text-xl text-gray-600 max-w-2xl mx-auto">
             Fill in the details below to create a new mentoring session.
@@ -324,7 +324,7 @@ export default function CreateSessionPage() {
                 </Button>
                 <Button
                   type="submit"
-                  className="flex-1 h-12 text-lg font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all duration-200 text-white"
+                  className="inline-flex items-center justify-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background bg-gray-800 hover:bg-gray-900 py-2 px-4 flex-1 h-12 text-lg font-semibold text-gray-100 shadow-lg hover:shadow-xl transition-all duration-200"
                   disabled={loading}
                 >
                   {loading ? (
