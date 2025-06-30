@@ -300,7 +300,7 @@ export default function EditSessionPage({ params }: { params: { id: string } }) 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <div className="space-y-3">
                             <Label htmlFor="startTime" className="text-lg font-semibold text-gray-700 flex items-center">
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                               </svg>
                               Start Time
@@ -312,12 +312,12 @@ export default function EditSessionPage({ params }: { params: { id: string } }) 
                                 required
                                 value={sessionData.startTime}
                                 onChange={handleChange}
-                                className="h-12 text-lg border-2 border-gray-200 focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all duration-200"
+                                className="h-12 text-lg border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200"
                             />
                         </div>
                         <div className="space-y-3">
                             <Label htmlFor="endTime" className="text-lg font-semibold text-gray-700 flex items-center">
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                               </svg>
                               End Time
@@ -329,14 +329,14 @@ export default function EditSessionPage({ params }: { params: { id: string } }) 
                                 required
                                 value={sessionData.endTime}
                                 onChange={handleChange}
-                                className="h-12 text-lg border-2 border-gray-200 focus:border-red-500 focus:ring-4 focus:ring-red-100 transition-all duration-200"
+                                className="h-12 text-lg border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200"
                             />
                         </div>
                     </div>
 
                     <div className="space-y-3">
                         <Label htmlFor="meetingLink" className="text-lg font-semibold text-gray-700 flex items-center">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                           </svg>
                           Meeting Link
@@ -348,7 +348,7 @@ export default function EditSessionPage({ params }: { params: { id: string } }) 
                             placeholder="https://meet.google.com/xyz-abc-def or other meeting link"
                             value={sessionData.meetingLink}
                             onChange={handleChange}
-                            className="h-12 text-lg border-2 border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 transition-all duration-200"
+                            className="h-12 text-lg border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200"
                         />
                         <div className="flex items-center gap-4 mt-2">
                           <a

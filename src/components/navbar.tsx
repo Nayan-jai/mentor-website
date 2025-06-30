@@ -27,12 +27,12 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="fixed w-full top-0 left-0 z-50 bg-white shadow-md">
+    <nav className="w-full bg-gradient-to-br from-gray-900/80 to-indigo-900/80 text-white shadow-md border-b border-indigo-800 z-50 backdrop-blur-md">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-14">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <GraduationCap className="w-7 h-7 text-green-500" />
+            <GraduationCap className="w-7 h-7 text-blue-500" />
             <span className="text-xl font-bold text-heading-color">UPSC Mentor</span>
           </Link>
 
@@ -187,6 +187,6 @@ export default function Navbar() {
           </nav>
         )}
       </div>
-    </header>
+    </nav>
   );
 } 

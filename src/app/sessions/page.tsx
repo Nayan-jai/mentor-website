@@ -224,7 +224,7 @@ export default function SessionsPage() {
                       href={sessionItem.meetingLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="mt-4 w-full inline-block text-center py-2 rounded bg-green-500 text-white hover:bg-green-600 font-semibold"
+                      className="mt-4 w-full inline-block text-center py-2 rounded bg-blue-500 text-white hover:bg-blue-600 font-semibold"
                     >
                       Join Meeting
                     </a>

@@ -14,7 +14,6 @@ const nextConfig = {
   },
   experimental: {
     optimizeCss: false,
-    serverActions: true,
   },
   typescript: {
     ignoreBuildErrors: true,

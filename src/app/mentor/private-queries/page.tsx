@@ -76,10 +76,10 @@ export default function MentorPrivateQueriesPage() {
                   style={{ textDecoration: 'none' }}
                 >
                   <Card
-                    className={`w-full h-full p-4 sm:p-6 rounded-xl hover:shadow-xl transition-shadow duration-200 border-l-4 ${isNew ? "border-green-500 bg-green-50" : "border-pink-400 bg-white"} relative overflow-hidden flex flex-col group-hover:bg-blue-50 cursor-pointer`}
+                    className={`w-full h-full p-4 sm:p-6 rounded-xl hover:shadow-xl transition-shadow duration-200 border-l-4 ${isNew ? "border-blue-500 bg-blue-50" : "border-pink-400 bg-white"} relative overflow-hidden flex flex-col group-hover:bg-blue-50 cursor-pointer`}
                   >
                     {isNew ? (
-                      <span className="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded">New</span>
+                      <span className="absolute top-2 right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded">New</span>
                     ) : (
                       <span className="absolute top-2 right-2 bg-gray-300 text-gray-700 text-xs px-2 py-1 rounded">Viewed</span>
                     )}
