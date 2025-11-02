@@ -282,6 +282,7 @@ export default function TestPage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [savedTests, setSavedTests] = useState<any[]>([]);
+  const [omrSensitivity, setOmrSensitivity] = useState(0.5); // Default: medium sensitivity
 
   const printableRef = useRef<HTMLDivElement | null>(null);
 
@@ -713,8 +714,8 @@ export default function TestPage() {
     setSelectedOMRFile(file);
     
     try {
-      // Use actual OMR processing
-      const processor = new OMRProcessor();
+      // Use actual OMR processing with configurable sensitivity
+      const processor = new OMRProcessor(DEFAULT_OMR_TEMPLATE, omrSensitivity);
       const omrResult = await processor.processOMRSheet(file, currentTest.questions.length);
       
       // Convert test questions to the format expected by ResultAnalyzer
@@ -1517,6 +1518,29 @@ export default function TestPage() {
                     • Keep the sheet flat without shadows or glare
                   </AlertDescription>
                 </Alert>
+                
+                {/* Sensitivity Control */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">
+                    Detection Sensitivity: <span className="text-blue-600 font-semibold">{omrSensitivity === 0.1 ? 'Very High' : omrSensitivity === 0.3 ? 'High' : omrSensitivity === 0.5 ? 'Medium' : omrSensitivity === 0.7 ? 'Low' : 'Very Low'}</span>
+                  </label>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-gray-500">More Sensitive</span>
+                    <input
+                      type="range"
+                      min="0.1"
+                      max="0.9"
+                      step="0.2"
+                      value={omrSensitivity}
+                      onChange={(e) => setOmrSensitivity(parseFloat(e.target.value))}
+                      className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                    />
+                    <span className="text-xs text-gray-500">Less Sensitive</span>
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    💡 <strong>Tip:</strong> Use higher sensitivity for lightly filled bubbles, lower for very dark marks.
+                  </p>
+                </div>
                 
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
                   <FileImage className="mx-auto h-12 w-12 text-gray-400 mb-4" />

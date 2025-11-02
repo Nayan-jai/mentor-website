@@ -47,10 +47,16 @@ export default function AdminUsersPage() {
 
   const fetchUsers = async () => {
     setLoading(true);
-    const res = await fetch("/api/admin/users");
-    const data = await res.json();
-    setUsers(data.users);
-    setLoading(false);
+    try {
+      const res = await fetch("/api/admin/users");
+      const data = await res.json();
+      setUsers(data.users || []);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      setUsers([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleEdit = (user: User) => {
@@ -85,9 +91,9 @@ export default function AdminUsersPage() {
     fetchUsers();
   };
 
-  const filteredUsers = users.filter(u =>
+  const filteredUsers = (users || []).filter(u =>
     (u.name?.toLowerCase().includes(search.toLowerCase()) ||
-      u.email.toLowerCase().includes(search.toLowerCase())) &&
+      u.email?.toLowerCase().includes(search.toLowerCase())) &&
     (roleFilter ? u.role === roleFilter : true)
   );
 

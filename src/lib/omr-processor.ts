@@ -63,11 +63,13 @@ export class OMRProcessor {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
   private template: OMRTemplate;
+  private sensitivity: number; // Detection sensitivity (0.1 to 1.0)
 
-  constructor(template: OMRTemplate = DEFAULT_OMR_TEMPLATE) {
+  constructor(template: OMRTemplate = DEFAULT_OMR_TEMPLATE, sensitivity: number = 0.5) {
     this.canvas = document.createElement('canvas');
     this.ctx = this.canvas.getContext('2d')!;
     this.template = template;
+    this.sensitivity = Math.max(0.1, Math.min(1.0, sensitivity)); // Clamp between 0.1 and 1.0
   }
 
   /**
@@ -173,19 +175,106 @@ export class OMRProcessor {
     const imageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
     const data = imageData.data;
     
-    // Convert to grayscale and enhance contrast
+    // Step 1: Convert to grayscale
     for (let i = 0; i < data.length; i += 4) {
       const gray = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
-      
-      // Enhance contrast for better bubble detection
-      const enhanced = gray < 128 ? Math.max(0, gray - 30) : Math.min(255, gray + 30);
-      
-      data[i] = enhanced;     // Red
-      data[i + 1] = enhanced; // Green
-      data[i + 2] = enhanced; // Blue
-      // Alpha channel remains unchanged
+      data[i] = gray;
+      data[i + 1] = gray;
+      data[i + 2] = gray;
     }
     
+    this.ctx.putImageData(imageData, 0, 0);
+    
+    // Step 2: Apply adaptive thresholding using local mean
+    this.applyAdaptiveThreshold();
+    
+    // Step 3: Denoise
+    this.denoise();
+  }
+  
+  /**
+   * Apply adaptive thresholding for better bubble detection in varying lighting
+   */
+  private applyAdaptiveThreshold(): void {
+    const imageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+    const data = imageData.data;
+    const width = this.canvas.width;
+    const height = this.canvas.height;
+    const blockSize = 15; // Window size for local thresholding
+    const C = 10; // Constant subtracted from mean
+    
+    const newData = new Uint8ClampedArray(data.length);
+    
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        // Calculate local mean
+        let sum = 0;
+        let count = 0;
+        
+        for (let dy = -blockSize; dy <= blockSize; dy++) {
+          for (let dx = -blockSize; dx <= blockSize; dx++) {
+            const nx = x + dx;
+            const ny = y + dy;
+            
+            if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+              const idx = (ny * width + nx) * 4;
+              sum += data[idx];
+              count++;
+            }
+          }
+        }
+        
+        const mean = sum / count;
+        const threshold = mean - C;
+        
+        const idx = (y * width + x) * 4;
+        const pixelValue = data[idx];
+        const binaryValue = pixelValue < threshold ? 0 : 255;
+        
+        newData[idx] = binaryValue;
+        newData[idx + 1] = binaryValue;
+        newData[idx + 2] = binaryValue;
+        newData[idx + 3] = 255;
+      }
+    }
+    
+    imageData.data.set(newData);
+    this.ctx.putImageData(imageData, 0, 0);
+  }
+  
+  /**
+   * Denoise the image using median filter
+   */
+  private denoise(): void {
+    const imageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+    const data = imageData.data;
+    const width = this.canvas.width;
+    const height = this.canvas.height;
+    const newData = new Uint8ClampedArray(data.length);
+    
+    for (let y = 1; y < height - 1; y++) {
+      for (let x = 1; x < width - 1; x++) {
+        const neighbors: number[] = [];
+        
+        for (let dy = -1; dy <= 1; dy++) {
+          for (let dx = -1; dx <= 1; dx++) {
+            const idx = ((y + dy) * width + (x + dx)) * 4;
+            neighbors.push(data[idx]);
+          }
+        }
+        
+        neighbors.sort((a, b) => a - b);
+        const median = neighbors[Math.floor(neighbors.length / 2)];
+        
+        const idx = (y * width + x) * 4;
+        newData[idx] = median;
+        newData[idx + 1] = median;
+        newData[idx + 2] = median;
+        newData[idx + 3] = 255;
+      }
+    }
+    
+    imageData.data.set(newData);
     this.ctx.putImageData(imageData, 0, 0);
   }
   
@@ -276,59 +365,75 @@ export class OMRProcessor {
    */
   private analyzeBubble(x: number, y: number): { darkness: number; isFilled: boolean } {
     const radius = this.template.bubbleRadius;
-    const imageData = this.ctx.getImageData(
-      Math.max(0, x - radius),
-      Math.max(0, y - radius),
-      radius * 2,
-      radius * 2
-    );
+    const sampleRadius = Math.floor(radius * 0.7); // Sample inner 70% to avoid edge artifacts
     
-    let totalDarkness = 0;
-    let darkPixelCount = 0;
-    let totalPixelCount = 0;
-    const centerX = radius;
-    const centerY = radius;
-    
-    // Analyze pixels in a circular pattern
-    for (let py = 0; py < radius * 2; py++) {
-      for (let px = 0; px < radius * 2; px++) {
-        const distance = Math.sqrt((px - centerX) ** 2 + (py - centerY) ** 2);
-        
-        // Only analyze pixels within the bubble circle
-        if (distance <= radius) {
-          const pixelIndex = (py * radius * 2 + px) * 4;
+    try {
+      const imageData = this.ctx.getImageData(
+        Math.max(0, Math.floor(x - radius)),
+        Math.max(0, Math.floor(y - radius)),
+        radius * 2,
+        radius * 2
+      );
+      
+      let totalDarkness = 0;
+      let darkPixelCount = 0;
+      let totalPixelCount = 0;
+      const centerX = radius;
+      const centerY = radius;
+      
+      // Analyze pixels in a circular pattern (inner region only)
+      for (let py = 0; py < radius * 2; py++) {
+        for (let px = 0; px < radius * 2; px++) {
+          const distance = Math.sqrt((px - centerX) ** 2 + (py - centerY) ** 2);
           
-          if (pixelIndex + 2 < imageData.data.length) {
-            const r = imageData.data[pixelIndex];
-            const g = imageData.data[pixelIndex + 1];
-            const b = imageData.data[pixelIndex + 2];
+          // Only analyze pixels within the sample circle (inner region)
+          if (distance <= sampleRadius) {
+            const pixelIndex = (py * radius * 2 + px) * 4;
             
-            // Convert to grayscale
-            const grayscale = (r + g + b) / 3;
-            const darkness = 1 - (grayscale / 255);
-            
-            totalDarkness += darkness;
-            totalPixelCount++;
-            
-            // Count pixels that are significantly dark (likely filled)
-            if (darkness > 0.4) {
-              darkPixelCount++;
+            if (pixelIndex + 2 < imageData.data.length) {
+              const r = imageData.data[pixelIndex];
+              const g = imageData.data[pixelIndex + 1];
+              const b = imageData.data[pixelIndex + 2];
+              
+              // Convert to grayscale
+              const grayscale = (r + g + b) / 3;
+              const darkness = 1 - (grayscale / 255);
+              
+              totalDarkness += darkness;
+              totalPixelCount++;
+              
+              // Count pixels that are dark (filled bubble)
+              // After adaptive thresholding, dark pixels should be 0 or close to 0
+              if (grayscale < 128) {
+                darkPixelCount++;
+              }
             }
           }
         }
       }
+      
+      const averageDarkness = totalPixelCount > 0 ? totalDarkness / totalPixelCount : 0;
+      const darkPixelRatio = totalPixelCount > 0 ? darkPixelCount / totalPixelCount : 0;
+      
+      // Use dynamic threshold based on sensitivity
+      // sensitivity: 0.1 (most sensitive) to 1.0 (least sensitive)
+      // Lower sensitivity = easier to detect filled bubbles
+      const darknessThreshold = 0.15 + (this.sensitivity * 0.3); // Range: 0.15 to 0.45
+      const ratioThreshold = 0.15 + (this.sensitivity * 0.2); // Range: 0.15 to 0.35
+      
+      const isFilled = darkPixelRatio > ratioThreshold && averageDarkness > darknessThreshold;
+      
+      return {
+        darkness: averageDarkness,
+        isFilled,
+      };
+    } catch (error) {
+      console.warn(`Error analyzing bubble at (${x}, ${y}):`, error);
+      return {
+        darkness: 0,
+        isFilled: false,
+      };
     }
-    
-    const averageDarkness = totalPixelCount > 0 ? totalDarkness / totalPixelCount : 0;
-    const darkPixelRatio = totalPixelCount > 0 ? darkPixelCount / totalPixelCount : 0;
-    
-    // Determine if bubble is filled based on darkness and coverage
-    const isFilled = averageDarkness > 0.35 && darkPixelRatio > 0.3;
-    
-    return {
-      darkness: averageDarkness,
-      isFilled,
-    };
   }
 
   /**

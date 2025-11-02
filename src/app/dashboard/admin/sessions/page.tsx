@@ -46,9 +46,10 @@ export default function AdminSessionsPage() {
     try {
       const res = await fetch("/api/admin/sessions");
       const data = await res.json();
-      setSessions(data.sessions);
+      setSessions(data.sessions || []);
     } catch (error) {
       console.error("Error fetching sessions:", error);
+      setSessions([]);
     } finally {
       setLoading(false);
     }
@@ -133,7 +134,7 @@ export default function AdminSessionsPage() {
               </div>
               <div className="ml-3 min-w-0">
                 <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Total Sessions</p>
-                <p className="text-xl sm:text-2xl font-bold text-blue-600">{sessions.length}</p>
+                <p className="text-xl sm:text-2xl font-bold text-blue-600">{sessions?.length || 0}</p>
               </div>
             </div>
           </Card>
@@ -146,7 +147,7 @@ export default function AdminSessionsPage() {
               <div className="ml-3 min-w-0">
                 <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Total Bookings</p>
                 <p className="text-xl sm:text-2xl font-bold text-green-600">
-                  {sessions.reduce((total, session) => total + session.bookings.length, 0)}
+                  {sessions?.reduce((total, session) => total + (session.bookings?.length || 0), 0) || 0}
                 </p>
               </div>
             </div>
@@ -160,7 +161,7 @@ export default function AdminSessionsPage() {
               <div className="ml-3 min-w-0">
                 <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Active Mentors</p>
                 <p className="text-xl sm:text-2xl font-bold text-purple-600">
-                  {new Set(sessions.map(s => s.mentor.id)).size}
+                  {new Set(sessions?.map(s => s.mentor?.id).filter(Boolean) || []).size}
                 </p>
               </div>
             </div>
@@ -174,7 +175,7 @@ export default function AdminSessionsPage() {
               <div className="ml-3 min-w-0">
                 <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Upcoming</p>
                 <p className="text-xl sm:text-2xl font-bold text-orange-600">
-                  {sessions.filter(s => getSessionStatus(s.startTime, s.endTime).status === 'upcoming').length}
+                  {sessions?.filter(s => getSessionStatus(s.startTime, s.endTime).status === 'upcoming').length || 0}
                 </p>
               </div>
             </div>
@@ -183,7 +184,7 @@ export default function AdminSessionsPage() {
 
         {/* Sessions List */}
         <div className="space-y-6">
-          {sessions.length === 0 ? (
+          {!sessions || sessions.length === 0 ? (
             <Card className="p-8 text-center border-2 border-dashed border-gray-300">
               <div className="text-gray-400 mb-4">
                 <Calendar className="h-12 w-12 mx-auto" />
@@ -254,11 +255,11 @@ export default function AdminSessionsPage() {
                     <div className="flex items-center justify-between mb-4">
                       <h4 className="text-md font-semibold text-gray-900 flex items-center">
                         <Users className="h-4 w-4 mr-2 text-indigo-600" />
-                        Bookings ({session.bookings.length})
+                        Bookings ({session.bookings?.length || 0})
                       </h4>
                     </div>
                     
-                    {session.bookings.length === 0 ? (
+                    {!session.bookings || session.bookings.length === 0 ? (
                       <div className="text-center py-6 text-gray-500 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
                         <User className="h-8 w-8 mx-auto mb-2 text-gray-300" />
                         <p>No bookings for this session</p>
