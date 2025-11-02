@@ -198,7 +198,7 @@ function SortableQuestionItem({
                     placeholder="Enter prompt" 
                     rows={3} 
                   />
-                  {(question as StatementQuestion).statements.map((s, i) => (
+                  {(question as StatementQuestion).statements?.map((s, i) => (
                     <div key={s.id} className="flex items-center gap-2">
                       <span className="font-medium w-28">Statement {i + 1}</span>
                       <Input 
@@ -223,7 +223,7 @@ function SortableQuestionItem({
                   <div className="grid grid-cols-2 gap-2">
                     <div className="text-sm font-semibold">Left</div>
                     <div className="text-sm font-semibold">Right</div>
-                    {(question as TableQuestion).pairs.map((p) => (
+                    {(question as TableQuestion).pairs?.map((p) => (
                       <>
                         <Input key={p.id + "l"} value={p.left} onChange={(e) => updatePair(question.id, p.id, "left", e.target.value)} placeholder="Left" />
                         <Input key={p.id + "r"} value={p.right} onChange={(e) => updatePair(question.id, p.id, "right", e.target.value)} placeholder="Right" />
@@ -512,7 +512,7 @@ export default function TestPage() {
         q.id === qid
           ? ({
               ...(q as any),
-              options: (q as any).options.map((opt: MCQOption) => (opt.id === oid ? { ...opt, text } : opt)),
+              options: (q as any).options?.map((opt: MCQOption) => (opt.id === oid ? { ...opt, text } : opt)) || [],
             } as AnyQuestion)
           : q,
       ),
@@ -527,7 +527,7 @@ export default function TestPage() {
         q.id === qid
           ? ({
               ...(q as any),
-              options: (q as any).options.map((opt: MCQOption) => ({ ...opt, isCorrect: opt.id === oid })),
+              options: (q as any).options?.map((opt: MCQOption) => ({ ...opt, isCorrect: opt.id === oid })) || [],
             } as AnyQuestion)
           : q,
       ),
@@ -557,7 +557,7 @@ export default function TestPage() {
         q.id === qid && q.type === "STATEMENT"
           ? ({
               ...q,
-              statements: q.statements.map((s) => (s.id === sid ? { ...s, text } : s)),
+              statements: q.statements?.map((s) => (s.id === sid ? { ...s, text } : s)) || [],
             } as StatementQuestion)
           : q,
       ),
@@ -584,7 +584,7 @@ export default function TestPage() {
         q.id === qid && q.type === "TABLE"
           ? ({
               ...q,
-              pairs: q.pairs.map((p) => (p.id === pid ? { ...p, [side]: text } : p)),
+              pairs: q.pairs?.map((p) => (p.id === pid ? { ...p, [side]: text } : p)) || [],
             } as TableQuestion)
           : q,
       ),
@@ -979,13 +979,13 @@ export default function TestPage() {
       } else if (question.type === "STATEMENT") {
         const stmtQ = question as StatementQuestion;
         questionText = stmtQ.prompt + "\n\n";
-        stmtQ.statements.forEach((stmt, i) => {
+        stmtQ.statements?.forEach((stmt, i) => {
           questionText += `Statement ${i + 1}: ${stmt.text}\n`;
         });
       } else if (question.type === "TABLE") {
         const tableQ = question as TableQuestion;
         questionText = tableQ.prompt + "\n\n";
-        tableQ.pairs.forEach((pair, i) => {
+        tableQ.pairs?.forEach((pair, i) => {
           questionText += `${pair.left} - ${pair.right}\n`;
         });
       }
@@ -1002,7 +1002,7 @@ export default function TestPage() {
         pdf.text("Options:", x, currentY);
         currentY += 8;
 
-        (question as any).options.forEach((opt: MCQOption, optIndex: number) => {
+        (question as any).options?.forEach((opt: MCQOption, optIndex: number) => {
           pdf.setFontSize(10);
           pdf.setFont("helvetica", "normal");
           pdf.text(`${opt.id.toUpperCase()}. ${opt.text}`, x + 5, currentY);
@@ -1056,13 +1056,13 @@ export default function TestPage() {
                 <div className="mb-6">
                   <h3 className="text-lg font-semibold mb-4 whitespace-pre-line">{(q as MCQQuestion).question}</h3>
                   <div className="space-y-3">
-                    {(q as MCQQuestion).options.map((opt) => (
+                    {(q as MCQQuestion).options?.map((opt) => (
                       <label key={opt.id} className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors ${answers[q.id] === opt.id ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-gray-300"}`}>
                         <input type="radio" name={`q-${q.id}`} value={opt.id} checked={answers[q.id] === opt.id} onChange={() => submitAnswer(q.id, opt.id)} className="mr-3" />
                         <span className="font-medium mr-2">{opt.id.toUpperCase()}.</span>
                         <span>{opt.text}</span>
                       </label>
-                    ))}
+                    )) || <p className="text-red-600">No options available for this question</p>}
                   </div>
                 </div>
               )}
@@ -1071,18 +1071,18 @@ export default function TestPage() {
                 <div className="mb-6">
                   <h3 className="text-lg font-semibold mb-3 whitespace-pre-line">{(q as StatementQuestion).prompt}</h3>
                   <ul className="list-disc pl-6 mb-4 space-y-1">
-                    {(q as StatementQuestion).statements.map((s, i) => (
+                    {(q as StatementQuestion).statements?.map((s, i) => (
                       <li key={s.id}><span className="font-semibold">Statement-{i + 1}:</span> {s.text}</li>
-                    ))}
+                    )) || <li className="text-red-600">No statements available</li>}
                   </ul>
                   <div className="space-y-3">
-                    {(q as StatementQuestion).options.map((opt) => (
+                    {(q as StatementQuestion).options?.map((opt) => (
                       <label key={opt.id} className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors ${answers[q.id] === opt.id ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-gray-300"}`}>
                         <input type="radio" name={`q-${q.id}`} value={opt.id} checked={answers[q.id] === opt.id} onChange={() => submitAnswer(q.id, opt.id)} className="mr-3" />
                         <span className="font-medium mr-2">{opt.id.toUpperCase()}.</span>
                         <span>{opt.text}</span>
                       </label>
-                    ))}
+                    )) || <p className="text-red-600">No options available for this question</p>}
                   </div>
                 </div>
               )}
@@ -1093,21 +1093,25 @@ export default function TestPage() {
                   <div className="grid grid-cols-2 gap-2 border rounded overflow-hidden mb-4">
                     <div className="bg-gray-100 p-2 font-semibold">Left</div>
                     <div className="bg-gray-100 p-2 font-semibold">Right</div>
-                    {(q as TableQuestion).pairs.map((p) => (
+                    {(q as TableQuestion).pairs?.map((p) => (
                       <>
                         <div key={p.id + "l"} className="p-2 border-t">{p.left}</div>
                         <div key={p.id + "r"} className="p-2 border-t">{p.right}</div>
                       </>
-                    ))}
+                    )) || (
+                      <>
+                        <div className="col-span-2 p-2 text-red-600 text-center">No pairs available</div>
+                      </>
+                    )}
                   </div>
                   <div className="space-y-3">
-                    {(q as TableQuestion).options.map((opt) => (
+                    {(q as TableQuestion).options?.map((opt) => (
                       <label key={opt.id} className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors ${answers[q.id] === opt.id ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-gray-300"}`}>
                         <input type="radio" name={`q-${q.id}`} value={opt.id} checked={answers[q.id] === opt.id} onChange={() => submitAnswer(q.id, opt.id)} className="mr-3" />
                         <span className="font-medium mr-2">{opt.id.toUpperCase()}.</span>
                         <span>{opt.text}</span>
                       </label>
-                    ))}
+                    )) || <p className="text-red-600">No options available for this question</p>}
                   </div>
                 </div>
               )}
@@ -1177,13 +1181,13 @@ export default function TestPage() {
                       } else if (question.type === "STATEMENT") {
                         const stmtQ = question as StatementQuestion;
                         questionText = stmtQ.prompt + "\n\n";
-                        stmtQ.statements.forEach((stmt, i) => {
+                        stmtQ.statements?.forEach((stmt, i) => {
                           questionText += `Statement ${i + 1}: ${stmt.text}\n`;
                         });
                       } else if (question.type === "TABLE") {
                         const tableQ = question as TableQuestion;
                         questionText = tableQ.prompt + "\n\n";
-                        tableQ.pairs.forEach((pair, i) => {
+                        tableQ.pairs?.forEach((pair, i) => {
                           questionText += `${pair.left} - ${pair.right}\n`;
                         });
                       }
