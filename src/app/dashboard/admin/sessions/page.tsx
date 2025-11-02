@@ -116,7 +116,7 @@ export default function AdminSessionsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-24">
+    <div className="min-h-screen bg-gray-50 pt-20 sm:pt-24 pb-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
@@ -125,27 +125,27 @@ export default function AdminSessionsPage() {
         </div>
 
         {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <Card className="p-4 border-l-4 border-l-blue-500 bg-blue-50/50">
             <div className="flex items-center">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <Calendar className="h-5 w-5 text-blue-600" />
+              <div className="p-2 bg-blue-100 rounded-lg flex-shrink-0">
+                <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
               </div>
-              <div className="ml-3">
-                <p className="text-sm font-medium text-gray-600">Total Sessions</p>
-                <p className="text-2xl font-bold text-blue-600">{sessions.length}</p>
+              <div className="ml-3 min-w-0">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Total Sessions</p>
+                <p className="text-xl sm:text-2xl font-bold text-blue-600">{sessions.length}</p>
               </div>
             </div>
           </Card>
           
           <Card className="p-4 border-l-4 border-l-green-500 bg-green-50/50">
             <div className="flex items-center">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <Users className="h-5 w-5 text-green-600" />
+              <div className="p-2 bg-green-100 rounded-lg flex-shrink-0">
+                <Users className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
               </div>
-              <div className="ml-3">
-                <p className="text-sm font-medium text-gray-600">Total Bookings</p>
-                <p className="text-2xl font-bold text-green-600">
+              <div className="ml-3 min-w-0">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Total Bookings</p>
+                <p className="text-xl sm:text-2xl font-bold text-green-600">
                   {sessions.reduce((total, session) => total + session.bookings.length, 0)}
                 </p>
               </div>
@@ -154,12 +154,12 @@ export default function AdminSessionsPage() {
           
           <Card className="p-4 border-l-4 border-l-purple-500 bg-purple-50/50">
             <div className="flex items-center">
-              <div className="p-2 bg-purple-100 rounded-lg">
-                <User className="h-5 w-5 text-purple-600" />
+              <div className="p-2 bg-purple-100 rounded-lg flex-shrink-0">
+                <User className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600" />
               </div>
-              <div className="ml-3">
-                <p className="text-sm font-medium text-gray-600">Active Mentors</p>
-                <p className="text-2xl font-bold text-purple-600">
+              <div className="ml-3 min-w-0">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Active Mentors</p>
+                <p className="text-xl sm:text-2xl font-bold text-purple-600">
                   {new Set(sessions.map(s => s.mentor.id)).size}
                 </p>
               </div>
@@ -168,12 +168,12 @@ export default function AdminSessionsPage() {
           
           <Card className="p-4 border-l-4 border-l-orange-500 bg-orange-50/50">
             <div className="flex items-center">
-              <div className="p-2 bg-orange-100 rounded-lg">
-                <Clock className="h-5 w-5 text-orange-600" />
+              <div className="p-2 bg-orange-100 rounded-lg flex-shrink-0">
+                <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600" />
               </div>
-              <div className="ml-3">
-                <p className="text-sm font-medium text-gray-600">Upcoming</p>
-                <p className="text-2xl font-bold text-orange-600">
+              <div className="ml-3 min-w-0">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Upcoming</p>
+                <p className="text-xl sm:text-2xl font-bold text-orange-600">
                   {sessions.filter(s => getSessionStatus(s.startTime, s.endTime).status === 'upcoming').length}
                 </p>
               </div>
@@ -211,21 +211,21 @@ export default function AdminSessionsPage() {
                         </div>
                         <p className="text-gray-600 mb-3">{session.description}</p>
                         
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                          <div className="flex items-center space-x-2 p-2 bg-blue-50 rounded-lg">
-                            <User className="h-4 w-4 text-blue-500" />
-                            <span className="text-gray-600">Mentor:</span>
-                            <span className="font-medium text-blue-700">{session.mentor?.name || 'Unknown'}</span>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 text-xs sm:text-sm">
+                          <div className="flex items-center space-x-2 p-2 bg-blue-50 rounded-lg overflow-hidden">
+                            <User className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                            <span className="text-gray-600 flex-shrink-0">Mentor:</span>
+                            <span className="font-medium text-blue-700 truncate">{session.mentor?.name || 'Unknown'}</span>
                           </div>
-                          <div className="flex items-center space-x-2 p-2 bg-green-50 rounded-lg">
-                            <Calendar className="h-4 w-4 text-green-500" />
-                            <span className="text-gray-600">Date:</span>
-                            <span className="font-medium text-green-700">{startTime.date}</span>
+                          <div className="flex items-center space-x-2 p-2 bg-green-50 rounded-lg overflow-hidden">
+                            <Calendar className="h-4 w-4 text-green-500 flex-shrink-0" />
+                            <span className="text-gray-600 flex-shrink-0">Date:</span>
+                            <span className="font-medium text-green-700 truncate">{startTime.date}</span>
                           </div>
-                          <div className="flex items-center space-x-2 p-2 bg-purple-50 rounded-lg">
-                            <Clock className="h-4 w-4 text-purple-500" />
-                            <span className="text-gray-600">Time:</span>
-                            <span className="font-medium text-purple-700">{startTime.time} - {endTime.time}</span>
+                          <div className="flex items-center space-x-2 p-2 bg-purple-50 rounded-lg overflow-hidden sm:col-span-2 lg:col-span-1">
+                            <Clock className="h-4 w-4 text-purple-500 flex-shrink-0" />
+                            <span className="text-gray-600 flex-shrink-0">Time:</span>
+                            <span className="font-medium text-purple-700 truncate">{startTime.time} - {endTime.time}</span>
                           </div>
                         </div>
                       </div>

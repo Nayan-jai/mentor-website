@@ -117,7 +117,7 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-24">
+    <div className="min-h-screen bg-gray-50 pt-20 sm:pt-24 pb-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
@@ -292,9 +292,9 @@ export default function AdminUsersPage() {
                         <h3 className="text-sm font-medium text-gray-900">
                           {user.name || "No Name"}
                         </h3>
-                        <p className="text-sm text-gray-500 flex items-center">
-                          <Mail className="h-3 w-3 mr-1" />
-                          {user.email}
+                        <p className="text-xs sm:text-sm text-gray-500 flex items-center truncate max-w-[200px] sm:max-w-full">
+                          <Mail className="h-3 w-3 mr-1 flex-shrink-0" />
+                          <span className="truncate">{user.email}</span>
                         </p>
                       </div>
                     </div>
@@ -303,17 +303,17 @@ export default function AdminUsersPage() {
                     </Badge>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
+                  <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4 mb-4 text-xs sm:text-sm">
                     <div className="flex items-center text-gray-500">
-                      <Calendar className="h-3 w-3 mr-1" />
-                      <span>Registered: {new Date(user.createdAt).toLocaleDateString()}</span>
+                      <Calendar className="h-3 w-3 mr-1 flex-shrink-0" />
+                      <span className="truncate">Registered: {new Date(user.createdAt).toLocaleDateString()}</span>
                     </div>
                     <div className="flex items-center text-gray-500">
-                      <Clock className="h-3 w-3 mr-1" />
-                      <span>Last: {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : "-"}</span>
+                      <Clock className="h-3 w-3 mr-1 flex-shrink-0" />
+                      <span className="truncate">Last: {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : "-"}</span>
                     </div>
                     <div className="flex items-center text-gray-500">
-                      <BookOpen className="h-3 w-3 mr-1" />
+                      <BookOpen className="h-3 w-3 mr-1 flex-shrink-0" />
                       <span>Bookings: {user.bookingsCount ?? 0}</span>
                     </div>
                     <div className="flex items-center">

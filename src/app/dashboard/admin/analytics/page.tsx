@@ -100,7 +100,7 @@ export default function AdminAnalyticsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-24">
+    <div className="min-h-screen bg-gray-50 pt-20 sm:pt-24 pb-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
@@ -109,81 +109,81 @@ export default function AdminAnalyticsPage() {
         </div>
 
         {/* Key Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card className="p-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+          <Card className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Users</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.totalUsers}</p>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Total Users</p>
+                <p className="text-2xl sm:text-3xl font-bold text-gray-900">{stats.totalUsers}</p>
                 <div className="flex items-center mt-2">
-                  <Users className="h-4 w-4 text-blue-500 mr-1" />
-                  <span className="text-sm text-gray-500">All registered users</span>
+                  <Users className="h-3 w-3 sm:h-4 sm:w-4 text-blue-500 mr-1 flex-shrink-0" />
+                  <span className="text-xs sm:text-sm text-gray-500 truncate">All registered users</span>
                 </div>
               </div>
-              <div className="p-3 bg-blue-100 rounded-lg">
-                <Users className="h-6 w-6 text-blue-600" />
+              <div className="p-2 sm:p-3 bg-blue-100 rounded-lg flex-shrink-0 ml-2">
+                <Users className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
               </div>
             </div>
           </Card>
 
-          <Card className="p-6">
+          <Card className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Active Mentors</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.mentors}</p>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Active Mentors</p>
+                <p className="text-2xl sm:text-3xl font-bold text-gray-900">{stats.mentors}</p>
                 <div className="flex items-center mt-2">
-                  <UserCheck className="h-4 w-4 text-green-500 mr-1" />
-                  <span className="text-sm text-gray-500">
+                  <UserCheck className="h-3 w-3 sm:h-4 sm:w-4 text-green-500 mr-1 flex-shrink-0" />
+                  <span className="text-xs sm:text-sm text-gray-500 truncate">
                     {getPercentage(stats.mentors, stats.totalUsers)}% of total users
                   </span>
                 </div>
               </div>
-              <div className="p-3 bg-green-100 rounded-lg">
-                <UserCheck className="h-6 w-6 text-green-600" />
+              <div className="p-2 sm:p-3 bg-green-100 rounded-lg flex-shrink-0 ml-2">
+                <UserCheck className="h-5 w-5 sm:h-6 sm:w-6 text-green-600" />
               </div>
             </div>
           </Card>
 
-          <Card className="p-6">
+          <Card className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Sessions</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.totalSessions}</p>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Total Sessions</p>
+                <p className="text-2xl sm:text-3xl font-bold text-gray-900">{stats.totalSessions}</p>
                 <div className="flex items-center mt-2">
-                  <Calendar className="h-4 w-4 text-purple-500 mr-1" />
-                  <span className="text-sm text-gray-500">Scheduled sessions</span>
+                  <Calendar className="h-3 w-3 sm:h-4 sm:w-4 text-purple-500 mr-1 flex-shrink-0" />
+                  <span className="text-xs sm:text-sm text-gray-500 truncate">Scheduled sessions</span>
                 </div>
               </div>
-              <div className="p-3 bg-purple-100 rounded-lg">
-                <Calendar className="h-6 w-6 text-purple-600" />
+              <div className="p-2 sm:p-3 bg-purple-100 rounded-lg flex-shrink-0 ml-2">
+                <Calendar className="h-5 w-5 sm:h-6 sm:w-6 text-purple-600" />
               </div>
             </div>
           </Card>
 
-          <Card className="p-6">
+          <Card className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Bookings</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.totalBookings}</p>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Total Bookings</p>
+                <p className="text-2xl sm:text-3xl font-bold text-gray-900">{stats.totalBookings}</p>
                 <div className="flex items-center mt-2">
-                  <BookOpen className="h-4 w-4 text-orange-500 mr-1" />
-                  <span className="text-sm text-gray-500">Confirmed bookings</span>
+                  <BookOpen className="h-3 w-3 sm:h-4 sm:w-4 text-orange-500 mr-1 flex-shrink-0" />
+                  <span className="text-xs sm:text-sm text-gray-500 truncate">Confirmed bookings</span>
                 </div>
               </div>
-              <div className="p-3 bg-orange-100 rounded-lg">
-                <BookOpen className="h-6 w-6 text-orange-600" />
+              <div className="p-2 sm:p-3 bg-orange-100 rounded-lg flex-shrink-0 ml-2">
+                <BookOpen className="h-5 w-5 sm:h-6 sm:w-6 text-orange-600" />
               </div>
             </div>
           </Card>
         </div>
 
         {/* Detailed Analytics */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 mb-8">
           {/* User Distribution */}
-          <Card className="p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-gray-900">User Distribution</h3>
-              <BarChart3 className="h-5 w-5 text-gray-400" />
+          <Card className="p-4 sm:p-6">
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900">User Distribution</h3>
+              <BarChart3 className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
             </div>
             
             <div className="space-y-4">
@@ -229,10 +229,10 @@ export default function AdminAnalyticsPage() {
           </Card>
 
           {/* Session Statistics */}
-          <Card className="p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-gray-900">Session Overview</h3>
-              <PieChart className="h-5 w-5 text-gray-400" />
+          <Card className="p-4 sm:p-6">
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900">Session Overview</h3>
+              <PieChart className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
             </div>
             
             <div className="space-y-4">
@@ -267,13 +267,13 @@ export default function AdminAnalyticsPage() {
 
         {/* Growth Metrics */}
         {stats.recentGrowth && (
-          <Card className="p-6 mb-8">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-gray-900">Recent Growth</h3>
-              <TrendingUp className="h-5 w-5 text-gray-400" />
+          <Card className="p-4 sm:p-6 mb-8">
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900">Recent Growth</h3>
+              <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
               <div className="text-center">
                 <div className="flex items-center justify-center mb-2">
                   <Users className="h-5 w-5 text-blue-600 mr-2" />
@@ -315,10 +315,10 @@ export default function AdminAnalyticsPage() {
 
         {/* Top Mentors */}
         {stats.topMentors && stats.topMentors.length > 0 && (
-          <Card className="p-6 mb-8">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-gray-900">Top Performing Mentors</h3>
-              <Award className="h-5 w-5 text-gray-400" />
+          <Card className="p-4 sm:p-6 mb-8">
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900">Top Performing Mentors</h3>
+              <Award className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
             </div>
             
             <div className="space-y-4">
@@ -344,30 +344,30 @@ export default function AdminAnalyticsPage() {
         )}
 
         {/* Placeholder Charts */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <Card className="p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-gray-900">User Growth Trend</h3>
-              <Activity className="h-5 w-5 text-gray-400" />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
+          <Card className="p-4 sm:p-6">
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900">User Growth Trend</h3>
+              <Activity className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
             </div>
-            <div className="bg-gray-100 rounded-lg h-64 flex items-center justify-center">
-              <div className="text-center">
-                <BarChart3 className="h-12 w-12 mx-auto text-gray-400 mb-2" />
-                <p className="text-gray-500 text-sm">User Growth Chart</p>
+            <div className="bg-gray-100 rounded-lg h-48 sm:h-64 flex items-center justify-center">
+              <div className="text-center px-4">
+                <BarChart3 className="h-10 w-10 sm:h-12 sm:w-12 mx-auto text-gray-400 mb-2" />
+                <p className="text-gray-500 text-xs sm:text-sm">User Growth Chart</p>
                 <p className="text-gray-400 text-xs">Chart integration coming soon</p>
               </div>
             </div>
           </Card>
 
-          <Card className="p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-gray-900">Session Activity</h3>
-              <PieChart className="h-5 w-5 text-gray-400" />
+          <Card className="p-4 sm:p-6">
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900">Session Activity</h3>
+              <PieChart className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
             </div>
-            <div className="bg-gray-100 rounded-lg h-64 flex items-center justify-center">
-              <div className="text-center">
-                <PieChart className="h-12 w-12 mx-auto text-gray-400 mb-2" />
-                <p className="text-gray-500 text-sm">Session Activity Chart</p>
+            <div className="bg-gray-100 rounded-lg h-48 sm:h-64 flex items-center justify-center">
+              <div className="text-center px-4">
+                <PieChart className="h-10 w-10 sm:h-12 sm:w-12 mx-auto text-gray-400 mb-2" />
+                <p className="text-gray-500 text-xs sm:text-sm">Session Activity Chart</p>
                 <p className="text-gray-400 text-xs">Chart integration coming soon</p>
               </div>
             </div>
