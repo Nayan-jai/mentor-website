@@ -4,6 +4,20 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { 
+  Search, 
+  Filter, 
+  Edit, 
+  Trash2, 
+  User, 
+  Mail, 
+  Calendar, 
+  Clock,
+  BookOpen,
+  Shield,
+  X
+} from "lucide-react";
 
 interface User {
   id: string;
@@ -25,6 +39,7 @@ export default function AdminUsersPage() {
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [form, setForm] = useState({ name: "", email: "", password: "", role: "STUDENT" });
   const [loading, setLoading] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -76,93 +91,357 @@ export default function AdminUsersPage() {
     (roleFilter ? u.role === roleFilter : true)
   );
 
+  const getRoleBadgeColor = (role: string) => {
+    switch (role) {
+      case "ADMIN": return "bg-red-100 text-red-800";
+      case "MENTOR": return "bg-blue-100 text-blue-800";
+      case "STUDENT": return "bg-green-100 text-green-800";
+      default: return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const getStatusBadgeColor = (deleted: boolean) => {
+    return deleted ? "bg-gray-100 text-gray-600" : "bg-green-100 text-green-800";
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 pt-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="p-4 sm:p-8">
-      <h1 className="text-2xl font-bold mb-6">Manage Users</h1>
-      <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mb-4 w-full">
-        <Input
-          placeholder="Search by name or email"
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="w-full sm:w-64"
-        />
-        <select
-          value={roleFilter}
-          onChange={e => setRoleFilter(e.target.value)}
-          className="border rounded px-2 py-1 w-full sm:w-auto"
-        >
-          <option value="">All Roles</option>
-          <option value="ADMIN">Admin</option>
-          <option value="MENTOR">Mentor</option>
-          <option value="STUDENT">Student</option>
-        </select>
-      </div>
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border text-xs sm:text-sm">
-          <thead>
-            <tr>
-              <th className="border px-4 py-2">Name</th>
-              <th className="border px-4 py-2">Email</th>
-              <th className="border px-4 py-2">Role</th>
-              <th className="border px-4 py-2">Registered</th>
-              <th className="border px-4 py-2">Last Login</th>
-              <th className="border px-4 py-2">Bookings</th>
-              <th className="border px-4 py-2">Status</th>
-              <th className="border px-4 py-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredUsers.map((user) => (
-              <tr key={user.id} className={user.deleted ? "bg-gray-100 text-gray-400" : ""}>
-                <td className="border px-4 py-2">{user.name}</td>
-                <td className="border px-4 py-2">{user.email}</td>
-                <td className="border px-4 py-2">{user.role}</td>
-                <td className="border px-4 py-2">{new Date(user.createdAt).toLocaleDateString()}</td>
-                <td className="border px-4 py-2">{user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : "-"}</td>
-                <td className="border px-4 py-2">{user.bookingsCount ?? 0}</td>
-                <td className="border px-4 py-2">{user.deleted ? "Deactivated" : "Active"}</td>
-                <td className="border px-4 py-2 flex gap-2">
-                  <Button size="sm" onClick={() => handleEdit(user)} disabled={user.deleted}>
-                    Edit
-                  </Button>
-                  <Button size="sm" variant="destructive" onClick={() => handleDelete(user)} disabled={user.deleted}>
-                    Deactivate
-                  </Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      {editingUser && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-          <Card className="p-8 w-96 bg-white">
-            <h2 className="text-xl font-bold mb-4">Edit User</h2>
-            <div className="mb-4">
-              <Label>Name</Label>
-              <Input name="name" value={form.name} onChange={handleChange} />
+    <div className="min-h-screen bg-gray-50 pt-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Manage Users</h1>
+          <p className="text-gray-600">View and manage all platform users</p>
+        </div>
+
+        {/* Search and Filters */}
+        <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 mb-6">
+          <div className="flex flex-col lg:flex-row gap-4">
+            {/* Search */}
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Input
+                placeholder="Search by name or email..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="pl-10 w-full"
+              />
             </div>
-            <div className="mb-4">
-              <Label>Email</Label>
-              <Input name="email" value={form.email} onChange={handleChange} />
+
+            {/* Filter Toggle for Mobile */}
+            <div className="lg:hidden">
+              <Button
+                variant="outline"
+                onClick={() => setShowFilters(!showFilters)}
+                className="w-full"
+              >
+                <Filter className="h-4 w-4 mr-2" />
+                Filters
+              </Button>
             </div>
-            <div className="mb-4">
-              <Label>Password (leave blank to keep unchanged)</Label>
-              <Input name="password" type="password" value={form.password} onChange={handleChange} />
-            </div>
-            <div className="mb-4">
-              <Label>Role</Label>
-              <select name="role" value={form.role} onChange={handleChange} className="w-full border rounded px-2 py-1">
+
+            {/* Role Filter */}
+            <div className={`lg:block ${showFilters ? 'block' : 'hidden'}`}>
+              <select
+                value={roleFilter}
+                onChange={e => setRoleFilter(e.target.value)}
+                className="w-full lg:w-auto border border-gray-300 rounded-md px-3 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="">All Roles</option>
                 <option value="ADMIN">Admin</option>
                 <option value="MENTOR">Mentor</option>
                 <option value="STUDENT">Student</option>
               </select>
             </div>
-            <div className="flex gap-2">
-              <Button onClick={handleSave}>Save</Button>
-              <Button variant="outline" onClick={() => setEditingUser(null)}>
-                Cancel
-              </Button>
+          </div>
+        </div>
+
+        {/* Users List */}
+        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+          {/* Desktop Table View */}
+          <div className="hidden lg:block">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      User
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Role
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Registered
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Last Login
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Bookings
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredUsers.map((user) => (
+                    <tr key={user.id} className={user.deleted ? "bg-gray-50" : "hover:bg-gray-50"}>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="flex-shrink-0 h-10 w-10">
+                            <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
+                              <User className="h-5 w-5 text-gray-600" />
+                            </div>
+                          </div>
+                          <div className="ml-4">
+                            <div className="text-sm font-medium text-gray-900">
+                              {user.name || "No Name"}
+                            </div>
+                            <div className="text-sm text-gray-500 flex items-center">
+                              <Mail className="h-3 w-3 mr-1" />
+                              {user.email}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <Badge className={getRoleBadgeColor(user.role)}>
+                          {user.role}
+                        </Badge>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <div className="flex items-center">
+                          <Calendar className="h-3 w-3 mr-1" />
+                          {new Date(user.createdAt).toLocaleDateString()}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <div className="flex items-center">
+                          <Clock className="h-3 w-3 mr-1" />
+                          {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : "-"}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <div className="flex items-center">
+                          <BookOpen className="h-3 w-3 mr-1" />
+                          {user.bookingsCount ?? 0}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <Badge className={getStatusBadgeColor(user.deleted || false)}>
+                          {user.deleted ? "Deactivated" : "Active"}
+                        </Badge>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div className="flex space-x-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleEdit(user)}
+                            disabled={user.deleted}
+                            className="h-8 px-3"
+                          >
+                            <Edit className="h-3 w-3 mr-1" />
+                            Edit
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => handleDelete(user)}
+                            disabled={user.deleted}
+                            className="h-8 px-3"
+                          >
+                            <Trash2 className="h-3 w-3 mr-1" />
+                            Deactivate
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="lg:hidden">
+            <div className="p-4 space-y-4">
+              {filteredUsers.map((user) => (
+                <Card key={user.id} className={`p-4 ${user.deleted ? 'opacity-60' : ''}`}>
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center space-x-3">
+                      <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
+                        <User className="h-5 w-5 text-gray-600" />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-medium text-gray-900">
+                          {user.name || "No Name"}
+                        </h3>
+                        <p className="text-sm text-gray-500 flex items-center">
+                          <Mail className="h-3 w-3 mr-1" />
+                          {user.email}
+                        </p>
+                      </div>
+                    </div>
+                    <Badge className={getRoleBadgeColor(user.role)}>
+                      {user.role}
+                    </Badge>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
+                    <div className="flex items-center text-gray-500">
+                      <Calendar className="h-3 w-3 mr-1" />
+                      <span>Registered: {new Date(user.createdAt).toLocaleDateString()}</span>
+                    </div>
+                    <div className="flex items-center text-gray-500">
+                      <Clock className="h-3 w-3 mr-1" />
+                      <span>Last: {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : "-"}</span>
+                    </div>
+                    <div className="flex items-center text-gray-500">
+                      <BookOpen className="h-3 w-3 mr-1" />
+                      <span>Bookings: {user.bookingsCount ?? 0}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <Badge className={getStatusBadgeColor(user.deleted || false)}>
+                        {user.deleted ? "Deactivated" : "Active"}
+                      </Badge>
+                    </div>
+                  </div>
+
+                  <div className="flex space-x-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleEdit(user)}
+                      disabled={user.deleted}
+                      className="flex-1"
+                    >
+                      <Edit className="h-3 w-3 mr-1" />
+                      Edit
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => handleDelete(user)}
+                      disabled={user.deleted}
+                      className="flex-1"
+                    >
+                      <Trash2 className="h-3 w-3 mr-1" />
+                      Deactivate
+                    </Button>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          {filteredUsers.length === 0 && (
+            <div className="text-center py-12">
+              <div className="text-gray-400 mb-4">
+                <User className="h-12 w-12 mx-auto" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No users found</h3>
+              <p className="text-gray-500">Try adjusting your search or filter criteria.</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Edit Modal */}
+      {editingUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <Card className="w-full max-w-md bg-white">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold">Edit User</h2>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setEditingUser(null)}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="name">Name</Label>
+                  <Input
+                    id="name"
+                    name="name"
+                    value={form.name}
+                    onChange={handleChange}
+                    className="mt-1"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    value={form.email}
+                    onChange={handleChange}
+                    className="mt-1"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="password">Password (leave blank to keep unchanged)</Label>
+                  <Input
+                    id="password"
+                    name="password"
+                    type="password"
+                    value={form.password}
+                    onChange={handleChange}
+                    className="mt-1"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="role">Role</Label>
+                  <select
+                    id="role"
+                    name="role"
+                    value={form.role}
+                    onChange={handleChange}
+                    className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="ADMIN">Admin</option>
+                    <option value="MENTOR">Mentor</option>
+                    <option value="STUDENT">Student</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div className="flex gap-2 mt-6">
+                <Button onClick={handleSave} className="flex-1">
+                  Save Changes
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setEditingUser(null)}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+              </div>
             </div>
           </Card>
         </div>

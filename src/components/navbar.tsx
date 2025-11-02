@@ -8,6 +8,7 @@ import {
   Home,
   Calendar,
   MessageCircle,
+  BookOpen,
   HelpCircle,
   Inbox,
   Lock,
@@ -15,7 +16,6 @@ import {
   CalendarCheck,
   LineChart,
   Gauge,
-  BookOpen,
   LogOut,
   LogIn,
   UserPlus,
@@ -55,6 +55,9 @@ export default function Navbar() {
             </Link>
             <Link href="/forum" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base">
               <MessageCircle className="w-5 h-5" /> Forum
+            </Link>
+            <Link href="/test" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base">
+              <BookOpen className="w-5 h-5" /> Test
             </Link>
             {session?.user?.role === "STUDENT" && (
               <>
@@ -126,6 +129,9 @@ export default function Navbar() {
             </Link>
             <Link href="/forum" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base" onClick={() => setMobileMenuOpen(false)}>
               <MessageCircle className="w-5 h-5" /> Forum
+            </Link>
+            <Link href="/test" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base" onClick={() => setMobileMenuOpen(false)}>
+              <BookOpen className="w-5 h-5" /> Test
             </Link>
             {session?.user?.role === "STUDENT" && (
               <>

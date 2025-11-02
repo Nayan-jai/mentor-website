@@ -3,7 +3,6 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import Navbar from "@/components/navbar";
-import { StagewiseWrapper } from "@/components/stagewise-wrapper";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -33,7 +32,6 @@ export default function RootLayout({
               {children}
             </div>
           </div>
-          {/* <StagewiseWrapper /> */}
         </Providers>
       </body>
     </html>

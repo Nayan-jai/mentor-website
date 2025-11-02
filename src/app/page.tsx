@@ -184,7 +184,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* CTA Section */}hancemen        <section className="cta bg-gray-900 py-20 text-center text-white">
+        {/* CTA Section */}        <section className="cta bg-gray-900 py-20 text-center text-white">
           <div className="container mx-auto px-4 text-center">
             <h3 className="text-3xl font-bold mb-4">Ready to Start Your UPSC Journey?</h3>
             <p className="text-xl mb-8">Join our community of aspirants and mentors today</p>

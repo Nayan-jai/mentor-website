@@ -15,7 +15,7 @@ function cn() {
 // Formats a date in a specific timezone (default: Asia/Kolkata)
 function formatSessionTime(date, timeZone) {
     if (timeZone === void 0) { timeZone = 'Asia/Kolkata'; }
-    var zonedDate = (0, date_fns_tz_1.toZonedTime)(date, timeZone);
+    var zonedDate = (0, date_fns_tz_1.utcToZonedTime)(date, timeZone);
     // Example: June 26, 2024, 10:00 AM IST
     return (0, date_fns_tz_1.format)(zonedDate, "MMMM d, yyyy, hh:mm a zzz", { timeZone: timeZone });
 }

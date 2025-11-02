@@ -30,6 +30,8 @@ model User {
   bookings          Booking[] @relation("MenteeBookings")
   replies           Reply[]
   deleted           Boolean   @default(false)
+  createdTests      Test[]    @relation("TestCreator")
+  testAttempts      TestAttempt[]
 }
 
 model Account {
@@ -137,4 +139,87 @@ model Reply {
   author        User      @relation(fields: [authorId], references: [id])
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-} 
+}
+
+model Test {
+  id          String    @id @default(cuid())
+  title       String
+  description String
+  duration    Int       // Duration in minutes
+  totalMarks  Int       @default(0)
+  isPublic    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  createdById String
+  createdBy   User      @relation("TestCreator", fields: [createdById], references: [id])
+  questions   Question[]
+  attempts    TestAttempt[]
+}
+
+model Question {
+  id          String    @id @default(cuid())
+  testId      String
+  test        Test      @relation(fields: [testId], references: [id], onDelete: Cascade)
+  questionNumber Int
+  type        String    // "MCQ", "STATEMENT", "TABLE"
+  subject     String
+  difficulty  String    // "Easy", "Medium", "Hard"
+  marks       Int       @default(2)
+  timeLimit   Int       // Time limit in minutes
+  question    String?   // For MCQ type
+  prompt      String?   // For STATEMENT and TABLE types
+  explanation String?
+  options     Json      // Store options as JSON
+  statements  Json?     // For STATEMENT type (optional)
+  pairs       Json?     // For TABLE type (optional)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@unique([testId, questionNumber])
+}
+
+model TestAttempt {
+  id              String    @id @default(cuid())
+  testId          String
+  test            Test      @relation(fields: [testId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User      @relation(fields: [userId], references: [id])
+  attemptType     String    // "ONLINE" or "OMR"
+  startedAt       DateTime  @default(now())
+  completedAt     DateTime?
+  timeSpent       Int?      // Time spent in seconds
+  totalQuestions  Int
+  attemptedQuestions Int
+  correctAnswers  Int
+  incorrectAnswers Int
+  unattemptedQuestions Int
+  totalMarks      Float
+  maxMarks        Int
+  percentage      Float
+  grade           String?
+  isCompleted     Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  questionResponses QuestionResponse[]
+  insights        Json?     // Store AI insights
+  recommendations Json?     // Store AI recommendations
+}
+
+model QuestionResponse {
+  id              String      @id @default(cuid())
+  attemptId       String
+  attempt         TestAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  questionId      String
+  questionNumber  Int
+  selectedOption  String?     // 'a', 'b', 'c', 'd', or null for unattempted
+  correctAnswer   String
+  isCorrect       Boolean
+  isAttempted     Boolean
+  marks           Float       // Can be negative due to negative marking
+  maxMarks        Int         @default(2)
+  confidence      Float?      // OMR detection confidence (0-1)
+  timeSpent       Int?        // Time spent on this question in seconds
+  createdAt       DateTime    @default(now())
+  
+  @@unique([attemptId, questionNumber])
+}
