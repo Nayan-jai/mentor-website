@@ -27,168 +27,168 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <nav className="w-full bg-gradient-to-br from-gray-900/80 to-indigo-900/80 text-white shadow-md border-b border-indigo-800 z-50 backdrop-blur-md">
+    <nav suppressHydrationWarning className="w-full bg-gradient-to-br from-gray-900/90 to-indigo-950/90 text-white shadow-lg border-b border-indigo-950 z-50 backdrop-blur-md sticky top-0">
       <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center h-14">
+        <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
-            <GraduationCap className="w-7 h-7 text-blue-500" />
-            <span className="text-xl font-bold text-heading-color">UPSC Mentor</span>
+          <Link href="/" className="flex items-center gap-2 group">
+            <GraduationCap className="w-8 h-8 text-blue-400 transition-transform duration-300 group-hover:rotate-12" />
+            <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-white via-slate-100 to-indigo-200 bg-clip-text text-transparent">UPSC Mentor</span>
           </Link>
 
           {/* Hamburger for mobile */}
           <button
-            className="md:hidden p-2 focus:outline-none"
+            className="lg:hidden p-2 text-slate-300 hover:text-white focus:outline-none transition-colors"
             onClick={() => setMobileMenuOpen((open) => !open)}
             aria-label="Toggle menu"
           >
-            <span>{mobileMenuOpen ? <LogOut className="w-7 h-7" /> : <Menu className="w-7 h-7" />}</span>
+            <span>{mobileMenuOpen ? <LogOut className="w-6 h-6 text-rose-400" /> : <Menu className="w-6 h-6" />}</span>
           </button>
 
           {/* Navigation - Desktop */}
-          <nav className="hidden md:flex items-center space-x-4 md:space-x-2 lg:space-x-8 overflow-x-auto max-w-full">
-            <Link href="/" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base">
-              <Home className="w-5 h-5" /> Home
+          <nav className="hidden lg:flex items-center space-x-1 xl:space-x-3">
+            <Link href="/" className="group nav-link flex items-center gap-2 px-3 py-1.5 text-sm lg:text-base font-semibold tracking-wide">
+              <Home className="w-4 h-4 text-sky-400 transition-transform duration-200 group-hover:scale-110" /> Home
             </Link>
-            <Link href="/sessions" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base">
-              <Calendar className="w-5 h-5" /> Sessions
+            <Link href="/sessions" className="group nav-link flex items-center gap-2 px-3 py-1.5 text-sm lg:text-base font-semibold tracking-wide">
+              <Calendar className="w-4 h-4 text-violet-400 transition-transform duration-200 group-hover:scale-110" /> Sessions
             </Link>
-            <Link href="/forum" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base">
-              <MessageCircle className="w-5 h-5" /> Forum
+            <Link href="/forum" className="group nav-link flex items-center gap-2 px-3 py-1.5 text-sm lg:text-base font-semibold tracking-wide">
+              <MessageCircle className="w-4 h-4 text-emerald-400 transition-transform duration-200 group-hover:scale-110" /> Forum
             </Link>
-            <Link href="/test" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base">
-              <BookOpen className="w-5 h-5" /> Test
+            <Link href="/test" className="group nav-link flex items-center gap-2 px-3 py-1.5 text-sm lg:text-base font-semibold tracking-wide">
+              <BookOpen className="w-4 h-4 text-amber-400 transition-transform duration-200 group-hover:scale-110" /> Test
             </Link>
             {session?.user?.role === "STUDENT" && (
               <>
-                <Link href="/ask-mentor" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base">
-                  <HelpCircle className="w-5 h-5" /> Ask Mentor
+                <Link href="/ask-mentor" className="group nav-link flex items-center gap-2 px-3 py-1.5 text-sm lg:text-base font-semibold tracking-wide">
+                  <HelpCircle className="w-4 h-4 text-rose-400 transition-transform duration-200 group-hover:scale-110" /> Ask Mentor
                 </Link>
-                <Link href="/my-queries" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base">
-                  <Inbox className="w-5 h-5" /> My Queries
+                <Link href="/my-queries" className="group nav-link flex items-center gap-2 px-3 py-1.5 text-sm lg:text-base font-semibold tracking-wide">
+                  <Inbox className="w-4 h-4 text-indigo-400 transition-transform duration-200 group-hover:scale-110" /> My Queries
                 </Link>
               </>
             )}
             {session?.user?.role === "MENTOR" && (
-              <Link href="/mentor/private-queries" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base">
-                <Lock className="w-5 h-5" /> Private Queries
+              <Link href="/mentor/private-queries" className="group nav-link flex items-center gap-2 px-3 py-1.5 text-sm lg:text-base font-semibold tracking-wide">
+                <Lock className="w-4 h-4 text-rose-400 transition-transform duration-200 group-hover:scale-110" /> Private Queries
               </Link>
             )}
             {session?.user?.role === "ADMIN" && (
               <>
-                <Link href="/dashboard/admin/users" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base">
-                  <Users className="w-5 h-5" /> Manage Users
+                <Link href="/dashboard/admin/users" className="group nav-link flex items-center gap-2 px-3 py-1.5 text-sm lg:text-base font-semibold tracking-wide">
+                  <Users className="w-4 h-4 text-cyan-400 transition-transform duration-200 group-hover:scale-110" /> Manage Users
                 </Link>
-                <Link href="/dashboard/admin/sessions" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base">
-                  <CalendarCheck className="w-5 h-5" /> Manage Sessions & Bookings
+                <Link href="/dashboard/admin/sessions" className="group nav-link flex items-center gap-2 px-3 py-1.5 text-sm lg:text-base font-semibold tracking-wide">
+                  <CalendarCheck className="w-4 h-4 text-purple-400 transition-transform duration-200 group-hover:scale-110" /> Manage Sessions
                 </Link>
-                <Link href="/dashboard/admin/analytics" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base">
-                  <LineChart className="w-5 h-5" /> View Analytics
+                <Link href="/dashboard/admin/analytics" className="group nav-link flex items-center gap-2 px-3 py-1.5 text-sm lg:text-base font-semibold tracking-wide">
+                  <LineChart className="w-4 h-4 text-emerald-400 transition-transform duration-200 group-hover:scale-110" /> Analytics
                 </Link>
               </>
             )}
             {session ? (
-              <>
+              <div className="flex items-center gap-3 pl-2 border-l border-indigo-900/60 ml-2">
                 {session.user?.role === "STUDENT" && (
-                  <Link href="/dashboard/student" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base">
-                    <Gauge className="w-5 h-5" /> Dashboard
+                  <Link href="/dashboard/student" className="group nav-link flex items-center gap-2 px-3 py-1.5 text-sm lg:text-base font-semibold tracking-wide">
+                    <Gauge className="w-4 h-4 text-sky-400 transition-transform duration-200 group-hover:scale-110" /> Dashboard
                   </Link>
                 )}
                 {session.user?.role === "MENTOR" && (
-                  <Link href="/dashboard/mentor" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base">
-                    <BookOpen className="w-5 h-5" /> Mentor Dashboard
+                  <Link href="/dashboard/mentor" className="group nav-link flex items-center gap-2 px-3 py-1.5 text-sm lg:text-base font-semibold tracking-wide">
+                    <BookOpen className="w-4 h-4 text-emerald-400 transition-transform duration-200 group-hover:scale-110" /> Dashboard
                   </Link>
                 )}
                 <button
                   onClick={() => signOut({ callbackUrl: "/" })}
-                  className="btn-get-started flex items-center gap-2 px-4 md:px-3 py-2 md:py-1 rounded-lg text-black bg-white hover:bg-blue-700 hover:text-white transition text-base md:text-sm lg:text-base"
+                  className="group flex items-center gap-2 px-3 py-1.5 rounded-lg text-white bg-indigo-900/40 hover:bg-rose-600 border border-indigo-800/80 hover:border-rose-500 transition-all duration-300 text-sm lg:text-base font-semibold tracking-wide shadow-sm"
                 >
-                  <LogOut className="w-5 h-5" /> Sign Out
+                  <LogOut className="w-4 h-4 text-rose-400 group-hover:text-white transition-colors duration-200" /> Sign Out
                 </button>
-              </>
+              </div>
             ) : (
-              <>
-                <Link href="/auth/login" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base whitespace-nowrap" >
-                  <LogIn className="w-5 h-5" /> Sign In
+              <div className="flex items-center gap-2 pl-2 border-l border-indigo-900/60 ml-2">
+                <Link href="/auth/login" className="group nav-link flex items-center gap-2 px-3 py-1.5 text-sm lg:text-base font-semibold tracking-wide whitespace-nowrap" >
+                  <LogIn className="w-4 h-4 text-sky-400 transition-transform duration-200 group-hover:scale-110" /> Sign In
                 </Link>
-                <Link href="/auth/register" className="btn-get-started flex items-center gap-2 px-4 md:px-3 py-2 md:py-1 rounded-lg text-black bg-white hover:bg-blue-700 hover:text-white transition text-base md:text-sm lg:text-base whitespace-nowrap">
-                  <UserPlus className="w-5 h-5" /> Get Started
+                <Link href="/auth/register" className="group flex items-center gap-2 px-4 py-1.5 rounded-full text-black bg-white hover:bg-blue-600 hover:text-white transition-all duration-300 text-sm lg:text-base font-semibold tracking-wide whitespace-nowrap shadow-sm border border-transparent">
+                  <UserPlus className="w-4 h-4 text-blue-600 group-hover:text-white transition-transform duration-200" /> Get Started
                 </Link>
-              </>
+              </div>
             )}
           </nav>
         </div>
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <nav className="md:hidden flex flex-col bg-white text-black shadow-lg rounded-b-lg px-4 pt-2 pb-4 space-y-2 animate-fade-in">
-            <Link href="/" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base" onClick={() => setMobileMenuOpen(false)}>
-              <Home className="w-5 h-5" /> Home
+          <nav className="lg:hidden flex flex-col bg-slate-950/95 text-white border-t border-slate-900/80 backdrop-blur-md shadow-2xl rounded-b-xl px-4 pt-2 pb-6 space-y-1.5 animate-fade-in absolute left-0 right-0 top-16 z-50">
+            <Link href="/" className="group flex items-center gap-2 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/50 rounded-lg transition-all duration-200" onClick={() => setMobileMenuOpen(false)}>
+              <Home className="w-5 h-5 text-sky-400 transition-transform duration-200 group-hover:scale-110" /> Home
             </Link>
-            <Link href="/sessions" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base" onClick={() => setMobileMenuOpen(false)}>
-              <Calendar className="w-5 h-5" /> Sessions
+            <Link href="/sessions" className="group flex items-center gap-2 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/50 rounded-lg transition-all duration-200" onClick={() => setMobileMenuOpen(false)}>
+              <Calendar className="w-5 h-5 text-violet-400 transition-transform duration-200 group-hover:scale-110" /> Sessions
             </Link>
-            <Link href="/forum" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base" onClick={() => setMobileMenuOpen(false)}>
-              <MessageCircle className="w-5 h-5" /> Forum
+            <Link href="/forum" className="group flex items-center gap-2 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/50 rounded-lg transition-all duration-200" onClick={() => setMobileMenuOpen(false)}>
+              <MessageCircle className="w-5 h-5 text-emerald-400 transition-transform duration-200 group-hover:scale-110" /> Forum
             </Link>
-            <Link href="/test" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base" onClick={() => setMobileMenuOpen(false)}>
-              <BookOpen className="w-5 h-5" /> Test
+            <Link href="/test" className="group flex items-center gap-2 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/50 rounded-lg transition-all duration-200" onClick={() => setMobileMenuOpen(false)}>
+              <BookOpen className="w-5 h-5 text-amber-400 transition-transform duration-200 group-hover:scale-110" /> Test
             </Link>
             {session?.user?.role === "STUDENT" && (
               <>
-                <Link href="/ask-mentor" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base" onClick={() => setMobileMenuOpen(false)}>
-                  <HelpCircle className="w-5 h-5" /> Ask Mentor
+                <Link href="/ask-mentor" className="group flex items-center gap-2 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/50 rounded-lg transition-all duration-200" onClick={() => setMobileMenuOpen(false)}>
+                  <HelpCircle className="w-5 h-5 text-rose-400 transition-transform duration-200 group-hover:scale-110" /> Ask Mentor
                 </Link>
-                <Link href="/my-queries" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base" onClick={() => setMobileMenuOpen(false)}>
-                  <Inbox className="w-5 h-5" /> My Queries
+                <Link href="/my-queries" className="group flex items-center gap-2 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/50 rounded-lg transition-all duration-200" onClick={() => setMobileMenuOpen(false)}>
+                  <Inbox className="w-5 h-5 text-indigo-400 transition-transform duration-200 group-hover:scale-110" /> My Queries
                 </Link>
               </>
             )}
             {session?.user?.role === "MENTOR" && (
-              <Link href="/mentor/private-queries" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base" onClick={() => setMobileMenuOpen(false)}>
-                <Lock className="w-5 h-5" /> Private Queries
+              <Link href="/mentor/private-queries" className="group flex items-center gap-2 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/50 rounded-lg transition-all duration-200" onClick={() => setMobileMenuOpen(false)}>
+                <Lock className="w-5 h-5 text-rose-400 transition-transform duration-200 group-hover:scale-110" /> Private Queries
               </Link>
             )}
             {session?.user?.role === "ADMIN" && (
               <>
-                <Link href="/dashboard/admin/users" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base" onClick={() => setMobileMenuOpen(false)}>
-                  <Users className="w-5 h-5" /> Manage Users
+                <Link href="/dashboard/admin/users" className="group flex items-center gap-2 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/50 rounded-lg transition-all duration-200" onClick={() => setMobileMenuOpen(false)}>
+                  <Users className="w-5 h-5 text-cyan-400 transition-transform duration-200 group-hover:scale-110" /> Manage Users
                 </Link>
-                <Link href="/dashboard/admin/sessions" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base" onClick={() => setMobileMenuOpen(false)}>
-                  <CalendarCheck className="w-5 h-5" /> Manage Sessions & Bookings
+                <Link href="/dashboard/admin/sessions" className="group flex items-center gap-2 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/50 rounded-lg transition-all duration-200" onClick={() => setMobileMenuOpen(false)}>
+                  <CalendarCheck className="w-5 h-5 text-purple-400 transition-transform duration-200 group-hover:scale-110" /> Manage Sessions
                 </Link>
-                <Link href="/dashboard/admin/analytics" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base" onClick={() => setMobileMenuOpen(false)}>
-                  <LineChart className="w-5 h-5" /> View Analytics
+                <Link href="/dashboard/admin/analytics" className="group flex items-center gap-2 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/50 rounded-lg transition-all duration-200" onClick={() => setMobileMenuOpen(false)}>
+                  <LineChart className="w-5 h-5 text-emerald-400 transition-transform duration-200 group-hover:scale-110" /> Analytics
                 </Link>
               </>
             )}
             {session ? (
-              <>
+              <div className="pt-2 flex flex-col gap-2">
                 {session.user?.role === "STUDENT" && (
-                  <Link href="/dashboard/student" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base" onClick={() => setMobileMenuOpen(false)}>
-                    <Gauge className="w-5 h-5" /> Dashboard
+                  <Link href="/dashboard/student" className="group flex items-center gap-2 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/50 rounded-lg transition-all duration-200" onClick={() => setMobileMenuOpen(false)}>
+                    <Gauge className="w-5 h-5 text-sky-400 transition-transform duration-200 group-hover:scale-110" /> Dashboard
                   </Link>
                 )}
                 {session.user?.role === "MENTOR" && (
-                  <Link href="/dashboard/mentor" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base" onClick={() => setMobileMenuOpen(false)}>
-                    <BookOpen className="w-5 h-5" /> Mentor Dashboard
+                  <Link href="/dashboard/mentor" className="group flex items-center gap-2 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/50 rounded-lg transition-all duration-200" onClick={() => setMobileMenuOpen(false)}>
+                    <BookOpen className="w-5 h-5 text-emerald-400 transition-transform duration-200 group-hover:scale-110" /> Dashboard
                   </Link>
                 )}
                 <button
                   onClick={() => { setMobileMenuOpen(false); signOut({ callbackUrl: "/" }); }}
-                  className="btn-get-started flex items-center gap-2 w-full text-left px-4 md:px-3 py-2 md:py-1 bg-white text-black rounded-lg hover:bg-blue-700 hover:text-white transition text-base md:text-sm lg:text-base"
+                  className="group flex items-center gap-2 w-full text-left px-4 py-3 bg-rose-600/10 text-rose-400 rounded-lg hover:bg-rose-600 hover:text-white transition-all duration-200 text-base font-semibold"
                 >
-                  <LogOut className="w-5 h-5" /> Sign Out
+                  <LogOut className="w-5 h-5 text-rose-400 group-hover:text-white transition-colors duration-200" /> Sign Out
                 </button>
-              </>
+              </div>
             ) : (
-              <>
-                <Link href="/auth/login" className="nav-link flex items-center gap-2 px-3 md:px-2 py-2 md:py-1 text-base md:text-sm lg:text-base whitespace-nowrap" onClick={() => setMobileMenuOpen(false)}>
-                  <LogIn className="w-5 h-5" /> Sign In
+              <div className="pt-2 flex flex-col gap-2">
+                <Link href="/auth/login" className="group flex items-center justify-center gap-2 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/50 rounded-lg transition-all duration-200" onClick={() => setMobileMenuOpen(false)}>
+                  <LogIn className="w-5 h-5 text-sky-400 transition-transform duration-200 group-hover:scale-110" /> Sign In
                 </Link>
-                <Link href="/auth/register" className="btn-get-started flex items-center gap-2 px-4 md:px-3 py-2 md:py-1 rounded-lg text-black bg-white hover:bg-blue-700 hover:text-white transition text-base md:text-sm lg:text-base whitespace-nowrap" onClick={() => setMobileMenuOpen(false)}>
-                  <UserPlus className="w-5 h-5" /> Get Started
+                <Link href="/auth/register" className="group flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-black bg-white hover:bg-blue-600 hover:text-white transition-all duration-200 text-base font-semibold shadow-md" onClick={() => setMobileMenuOpen(false)}>
+                  <UserPlus className="w-5 h-5 text-blue-600 group-hover:text-white transition-all duration-200" /> Get Started
                 </Link>
-              </>
+              </div>
             )}
           </nav>
         )}

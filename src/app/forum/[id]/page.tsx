@@ -2,13 +2,15 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { formatDistanceToNow } from "date-fns";
-import { ThumbsUp, ThumbsDown, MessageSquare, Archive, CheckCircle, ArrowLeft, Lock } from "lucide-react";
+import { ThumbsUp, ThumbsDown, MessageSquare, Archive, CheckCircle, ArrowLeft, Lock, Edit2, Trash2 } from "lucide-react";
 import Link from "next/link";
 
 interface Comment {
@@ -43,6 +45,7 @@ interface Discussion {
 
 export default function DiscussionPage({ params }: { params: { id: string } }) {
   const { data: session, status } = useSession();
+  const router = useRouter();
   const [discussion, setDiscussion] = useState<Discussion | null>(null);
   const [comment, setComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -50,6 +53,9 @@ export default function DiscussionPage({ params }: { params: { id: string } }) {
   const [accessDenied, setAccessDenied] = useState(false);
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [editContent, setEditContent] = useState("");
+  const [isEditingDiscussion, setIsEditingDiscussion] = useState(false);
+  const [editTitle, setEditTitle] = useState("");
+  const [editDiscussionContent, setEditDiscussionContent] = useState("");
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -175,6 +181,37 @@ export default function DiscussionPage({ params }: { params: { id: string } }) {
     }
   };
 
+  const handleEditDiscussion = async () => {
+    if (!editTitle.trim() || !editDiscussionContent.trim()) return;
+    try {
+      const response = await fetch(`/api/discussions/${params.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: editTitle, content: editDiscussionContent }),
+      });
+      if (response.ok) {
+        setIsEditingDiscussion(false);
+        fetchDiscussion();
+      }
+    } catch (error) {
+      console.error("Error editing discussion:", error);
+    }
+  };
+
+  const handleDeleteDiscussion = async () => {
+    if (!window.confirm("Are you sure you want to delete this discussion thread? All comments will be deleted as well.")) return;
+    try {
+      const response = await fetch(`/api/discussions/${params.id}`, {
+        method: "DELETE",
+      });
+      if (response.ok) {
+        router.push("/forum");
+      }
+    } catch (error) {
+      console.error("Error deleting discussion:", error);
+    }
+  };
+
   if (status === "loading") {
     return (
       <div className="container mx-auto py-8 flex justify-center items-center min-h-[400px]">
@@ -244,55 +281,121 @@ export default function DiscussionPage({ params }: { params: { id: string } }) {
     <div className="container mx-auto py-8 pt-24 px-2 sm:px-4 md:px-8 lg:px-24">
       <Card className={`p-4 sm:p-6 mb-8 bg-white text-slate-800 ${isPrivate ? "border-l-8 border-pink-500 bg-pink-50" : "border border-gray-200"}`}>
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-4">
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2 mb-2">
-              <h1 className="text-2xl sm:text-3xl font-bold mb-0 break-words truncate max-w-full text-slate-900">{discussion.title}</h1>
-              {isPrivate && (
-                <Badge variant="destructive" className="flex items-center gap-1 bg-pink-100 text-pink-700 border-pink-400"><Lock className="w-4 h-4 mr-1" /> Private</Badge>
-              )}
-            </div>
-            <div className="flex flex-wrap gap-2 mb-4">
-              <Badge variant="secondary" className="bg-blue-100 text-blue-800 border-blue-200">{discussion.category}</Badge>
-              {discussion.tags.map((tag) => (
-                <Badge key={tag} variant="outline" className="bg-green-100 text-green-800 border-green-200">{tag}</Badge>
-              ))}
-            </div>
-            {isPrivate && (
-              <div className="mb-4 p-3 rounded bg-pink-100 border border-pink-200 text-pink-800 flex items-center gap-2">
-                <Lock className="w-4 h-4 mr-1" />
-                <span className="truncate">Only you and mentors can see this private query and its replies.</span>
+          {!isEditingDiscussion ? (
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2 mb-2">
+                <h1 className="text-2xl sm:text-3xl font-bold mb-0 break-words truncate max-w-full text-slate-900">{discussion.title}</h1>
+                {isPrivate && (
+                  <Badge variant="destructive" className="flex items-center gap-1 bg-pink-100 text-pink-700 border-pink-400"><Lock className="w-4 h-4 mr-1" /> Private</Badge>
+                )}
               </div>
-            )}
-          </div>
-          {session?.user?.role === "MENTOR" && (
-            <div className="flex flex-wrap gap-2 w-full sm:w-auto">
-              {!discussion.isResolved && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full sm:w-auto bg-gray-200 text-gray-800 border-gray-300 hover:bg-gray-300"
-                  onClick={handleMarkAsResolved}
-                >
-                  <CheckCircle className="mr-2 h-4 w-4" />
-                  Mark as Resolved
-                </Button>
+              <div className="flex flex-wrap gap-2 mb-4">
+                <Badge variant="secondary" className="bg-blue-100 text-blue-800 border-blue-200">{discussion.category}</Badge>
+                {discussion.tags.map((tag) => (
+                  <Badge key={tag} variant="outline" className="bg-green-100 text-green-800 border-green-200">{tag}</Badge>
+                ))}
+              </div>
+              {isPrivate && (
+                <div className="mb-4 p-3 rounded bg-pink-100 border border-pink-200 text-pink-800 flex items-center gap-2">
+                  <Lock className="w-4 h-4 mr-1" />
+                  <span className="truncate">Only you and mentors can see this private query and its replies.</span>
+                </div>
               )}
-              {!discussion.isArchived && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full sm:w-auto bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
-                  onClick={handleArchive}
-                >
-                  <Archive className="mr-2 h-4 w-4" />
-                  Archive
-                </Button>
+            </div>
+          ) : (
+            <div className="w-full">
+              <h1 className="text-xl font-bold mb-4 text-slate-900">Editing Thread</h1>
+            </div>
+          )}
+          {session?.user && (session.user.id === discussion.author.id || session.user.role === "MENTOR" || session.user.role === "ADMIN") && (
+            <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+              {(session.user.role === "MENTOR" || session.user.role === "ADMIN") && (
+                <>
+                  {!discussion.isResolved && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full sm:w-auto bg-gray-200 text-gray-800 border-gray-300 hover:bg-gray-300"
+                      onClick={handleMarkAsResolved}
+                    >
+                      <CheckCircle className="mr-2 h-4 w-4" />
+                      Mark as Resolved
+                    </Button>
+                  )}
+                  {!discussion.isArchived && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full sm:w-auto bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
+                      onClick={handleArchive}
+                    >
+                      <Archive className="mr-2 h-4 w-4" />
+                      Archive
+                    </Button>
+                  )}
+                </>
+              )}
+              {!isEditingDiscussion && (
+                <>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full sm:w-auto bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-200 hover:text-blue-900"
+                    onClick={() => {
+                      setIsEditingDiscussion(true);
+                      setEditTitle(discussion.title);
+                      setEditDiscussionContent(discussion.content);
+                    }}
+                  >
+                    <Edit2 className="mr-2 h-4 w-4" />
+                    Edit Thread
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    className="w-full sm:w-auto bg-red-100 text-red-700 border-red-200 hover:bg-red-200 hover:text-red-800"
+                    onClick={handleDeleteDiscussion}
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete Thread
+                  </Button>
+                </>
               )}
             </div>
           )}
         </div>
-        <div className="text-slate-800 text-base sm:text-lg mb-4 whitespace-pre-line break-words">{discussion.content}</div>
-        <div className="text-xs sm:text-sm text-slate-600 mb-2 break-words">Asked {formatDistanceToNow(new Date(discussion.createdAt), { addSuffix: true })} by {discussion.author.name}</div>
+        {isEditingDiscussion ? (
+          <div className="space-y-4 mt-4">
+            <div className="space-y-1">
+              <label className="text-sm font-semibold text-slate-700">Thread Title</label>
+              <Input
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                className="w-full"
+                placeholder="Title"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-semibold text-slate-700">Thread Content</label>
+              <Textarea
+                value={editDiscussionContent}
+                onChange={(e) => setEditDiscussionContent(e.target.value)}
+                rows={6}
+                className="w-full"
+                placeholder="Content"
+              />
+            </div>
+            <div className="flex gap-2 pt-2">
+              <Button size="sm" onClick={handleEditDiscussion}>Save Changes</Button>
+              <Button size="sm" variant="outline" onClick={() => setIsEditingDiscussion(false)}>Cancel</Button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="text-slate-800 text-base sm:text-lg mb-4 whitespace-pre-line break-words">{discussion.content}</div>
+            <div className="text-xs sm:text-sm text-slate-600 mb-2 break-words">Asked {formatDistanceToNow(new Date(discussion.createdAt), { addSuffix: true })} by {discussion.author.name}</div>
+          </>
+        )}
       </Card>
       {/* Replies Section */}
       <div className="mb-8">
@@ -302,8 +405,8 @@ export default function DiscussionPage({ params }: { params: { id: string } }) {
         ) : (
           <div className="space-y-4">
             {discussion.comments.map((c) => {
-              const canEdit = session?.user && session.user.id === c.author.id;
-              const canDelete = session?.user && session.user.id === c.author.id;
+              const canEdit = session?.user && (session.user.id === c.author.id || session.user.role === "MENTOR" || session.user.role === "ADMIN");
+              const canDelete = session?.user && (session.user.id === c.author.id || session.user.role === "MENTOR" || session.user.role === "ADMIN");
               return (
                 <Card key={c.id} className="p-3 sm:p-4 flex flex-col sm:flex-row gap-3 sm:gap-4 items-start bg-gray-50 text-slate-800 border border-gray-200">
                   <Avatar className="w-8 h-8 sm:w-10 sm:h-10">

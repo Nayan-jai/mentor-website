@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>UPSC Study Planner</title>
+  <link rel="stylesheet" href="upsc-planner-styles.css">
+</head>
+<body>
+
+<!-- ════════ HEADER ════════ -->
+<div class="header">
+  <div class="header-inner">
+    <div class="logo">UPSC<span>Planner</span></div>
+    <div class="tabs">
+      <button class="tab active" data-view="daily">📅 Daily</button>
+      <button class="tab" data-view="syllabus">📚 Syllabus</button>
+      <button class="tab" data-view="manage">⚙️ Manage</button>
+    </div>
+    <div class="hdr-btns">
+      <button class="hbtn danger" id="resetBtn">↺ Reset</button>
+      <button class="hbtn-menu" id="menuBtn" onclick="toggleHeaderMenu()">☰</button>
+    </div>
+  </div>
+  
+  <!-- Mobile menu dropdown -->
+  <div class="header-menu" id="headerMenu">
+    <button class="menu-item danger" id="menuReset" onclick="resetPlan()">↺ Reset Plan</button>
+  </div>
+</div>
+
+<!-- ════════ APP ════════ -->
+<div class="app">
+  <!-- Always visible -->
+  <div class="stats-row" id="statsRow"></div>
+  <div class="hours-bar-card" id="hoursBar"></div>
+
+  <!-- DAILY VIEW -->
+  <div class="view active" id="view-daily">
+    <div class="today-banner" id="todayBanner"></div>
+    <div class="day-nav">
+      <button class="nav-btn" id="prevBtn">←</button>
+      <div class="nav-label" id="navLabel"></div>
+      <button class="nav-btn" id="nextBtn">→</button>
+    </div>
+    <div class="day-dots" id="dayDots"></div>
+    <div id="dayContent"></div>
+  </div>
+
+  <!-- SYLLABUS VIEW -->
+  <div class="view" id="view-syllabus">
+    <div class="syl-grid" id="sylGrid"></div>
+  </div>
+
+  <!-- MANAGE VIEW -->
+  <div class="view" id="view-manage">
+    <div class="settings-panel" style="margin-bottom:14px;padding:16px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--sh);">
+      <h3 style="margin-bottom:12px;font-size:14px;color:var(--ink)">📅 Target Exam Planner</h3>
+      <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <label style="font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase">Exam Name</label>
+          <input type="text" id="targetExamName" placeholder="e.g. UPSC CSE Prelims" oninput="updateTargetName(this.value)" style="padding:6px 10px;background:var(--bg2);color:var(--ink);border:1px solid var(--border);border-radius:6px;outline:none;font-size:13px;width:180px" />
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <label style="font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase">Exam Date</label>
+          <input type="date" id="targetExamDate" onchange="updateTargetDate(this.value)" style="padding:6px 10px;background:var(--bg2);color:var(--ink);border:1px solid var(--border);border-radius:6px;outline:none;font-size:13px" />
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <label style="font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase">Days Remaining</label>
+          <div id="daysRemainingText" style="font-size:14px;font-weight:700;color:var(--ink);padding:6px 0">-</div>
+        </div>
+        <div style="display:flex;gap:8px;margin-left:auto;align-self:flex-end">
+          <button onclick="generatePlanTillTargetDate()" class="hbtn" style="background:var(--blue);color:#fff;border-color:var(--blue)">Adjust Plan Days</button>
+          <button id="repeatPatternBtn" onclick="repeatCurrentPattern()" class="hbtn" style="background:var(--green);color:#fff;border-color:var(--green);display:none">🔁 Repeat 7-Day Pattern</button>
+        </div>
+      </div>
+    </div>
+    <div class="mgmt-grid">
+      <div class="mpanel">
+        <div class="mpanel-hd">Subjects <button class="hbtn" style="height:28px;padding:0 10px;font-size:12px;background:var(--blue);color:#fff;border-color:var(--blue)" onclick="openSubjModal(null)">+ Add</button></div>
+        <div id="subjListEl"></div>
+      </div>
+      <div class="mpanel">
+        <div class="mpanel-hd">
+          Days
+          <div style="display:flex;gap:6px">
+            <button class="hbtn" style="height:28px;padding:0 10px;font-size:12px;background:var(--blue);color:#fff;border-color:var(--blue)" onclick="openDayModal(null)">+ Day</button>
+            <button class="hbtn" style="height:28px;padding:0 10px;font-size:12px" onclick="openBulkModal()">⚡ Bulk</button>
+          </div>
+        </div>
+        <div class="de-toolbar">
+          <input type="text" id="dSearch" placeholder="Search days…" oninput="renderDayListM()">
+          <select id="dFilter" onchange="renderDayListM()"><option value="">All Subjects</option></select>
+        </div>
+        <div style="max-height:500px;overflow-y:auto" id="dayListEl"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ MODALS ════════ -->
+
+<!-- Subject Modal -->
+<div class="overlay" id="subjOverlay" onclick="if(event.target===this)closeModal('subjOverlay')">
+  <div class="modal">
+    <div class="modal-drag"></div>
+    <div class="modal-hd">
+      <div class="modal-title" id="smTitle">Add Subject</div>
+      <button class="modal-close" onclick="closeModal('subjOverlay')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="mfrow">
+        <div class="mfg"><label>Name</label><input id="smName" placeholder="e.g. Polity"></div>
+        <div class="mfg"><label>Default Hours / Day</label><input id="smHrs" type="number" min="0.5" max="8" step="0.5" value="3"></div>
+      </div>
+      <div class="mfrow">
+        <div class="mfg"><label>Color</label><div class="color-row" id="colorRow"></div></div>
+      </div>
+      <div class="mfrow">
+        <div class="mfg"><label>Icon</label><div class="icon-row" id="iconRow"></div></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="hbtn" onclick="closeModal('subjOverlay')">Cancel</button>
+      <button class="hbtn" style="background:var(--blue);color:#fff;border-color:var(--blue)" onclick="saveSubject()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Day Modal -->
+<div class="overlay" id="dayOverlay" onclick="if(event.target===this)closeModal('dayOverlay')">
+  <div class="modal">
+    <div class="modal-drag"></div>
+    <div class="modal-hd">
+      <div class="modal-title" id="dmTitle">Add Day</div>
+      <button class="modal-close" onclick="closeModal('dayOverlay')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="mfrow">
+        <div class="mfg"><label>Day Title</label><input id="dmName" placeholder="e.g. Heavy Polity + CSAT"></div>
+        <div class="mfg"><label>Date Override</label><input id="dmDate" type="date"></div>
+      </div>
+      <div class="mfrow">
+        <div class="mfg"><label>Daily Target (hrs)</label><input id="dmTarget" type="number" min="7" max="14" step="0.5" value="9"></div>
+      </div>
+      <div class="divider"></div>
+      <div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);margin-bottom:10px">Subject Blocks</div>
+      <div id="dmBlocksEl"></div>
+      <button class="add-block-btn" style="width:100%;margin-top:4px;text-align:center" onclick="addModalBlock()">+ Add Subject Block</button>
+    </div>
+    <div class="modal-footer">
+      <button class="hbtn" onclick="closeModal('dayOverlay')">Cancel</button>
+      <button class="hbtn" style="background:var(--blue);color:#fff;border-color:var(--blue)" onclick="saveDay()">Save Day</button>
+    </div>
+  </div>
+</div>
+
+<!-- Block Picker Modal -->
+<div class="overlay" id="bpOverlay" onclick="if(event.target===this)closeModal('bpOverlay')">
+  <div class="modal">
+    <div class="modal-drag"></div>
+    <div class="modal-hd">
+      <div class="modal-title">Add Subject</div>
+      <button class="modal-close" onclick="closeModal('bpOverlay')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="subj-picker" id="bpList"></div>
+      <div class="mfrow" style="margin-top:14px">
+        <div class="mfg"><label>Target Hours</label><input id="bpHrs" type="number" min="0.5" max="12" step="0.5" value="2"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="hbtn" onclick="closeModal('bpOverlay')">Cancel</button>
+      <button class="hbtn" style="background:var(--blue);color:#fff;border-color:var(--blue)" onclick="confirmAddBlock()">Add</button>
+    </div>
+  </div>
+</div>
+
+<!-- Bulk Modal -->
+<div class="overlay" id="bulkOverlay" onclick="if(event.target===this)closeModal('bulkOverlay')">
+  <div class="modal">
+    <div class="modal-drag"></div>
+    <div class="modal-hd">
+      <div class="modal-title">⚡ Bulk Add Days</div>
+      <button class="modal-close" onclick="closeModal('bulkOverlay')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:12px;color:var(--ink3);margin-bottom:12px;line-height:1.6">
+        One day per line:<br>
+        <code style="background:var(--bg2);padding:2px 6px;border-radius:4px">Day Title | Subject:hrs | Subject:hrs</code><br>
+        Sub-topics: next line starting with two spaces and <code>-</code>
+      </p>
+      <div class="mfg">
+        <label>Input</label>
+        <textarea id="bulkInput" rows="10" placeholder="Polity + CSAT Day | Polity:3 | CSAT:2&#10;  - Fundamental Rights&#10;  - Art 19–22 Freedom&#10;Economy Focus | Economy:4 | Revision:1.5&#10;  - GDP and Inflation"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="hbtn" onclick="closeModal('bulkOverlay')">Cancel</button>
+      <button class="hbtn" style="background:var(--blue);color:#fff;border-color:var(--blue)" onclick="saveBulk()">Add Days</button>
+    </div>
+  </div>
+</div>
+<!-- Stats Detail Modal -->
+<div class="overlay" id="statsDetailOverlay" onclick="if(event.target===this)closeModal('statsDetailOverlay')">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-drag"></div>
+    <div class="modal-hd">
+      <div class="modal-title" id="sdTitle">Stats Detail</div>
+      <button class="modal-close" onclick="closeModal('statsDetailOverlay')">✕</button>
+    </div>
+    <div class="modal-body" id="sdBody" style="max-height:400px;overflow-y:auto;padding:4px 0">
+      <!-- Dynamic detailed statistics content will be injected here -->
+    </div>
+    <div class="modal-footer">
+      <button class="hbtn" onclick="closeModal('statsDetailOverlay')">Close</button>
+    </div>
+  </div>
+</div>
+
+<script src="upsc-planner-script.js"></script>
+
+</body>
+</html>

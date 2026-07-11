@@ -32,6 +32,7 @@ model User {
   deleted           Boolean   @default(false)
   createdTests      Test[]    @relation("TestCreator")
   testAttempts      TestAttempt[]
+  studyTracker      Json?
 }
 
 model Account {

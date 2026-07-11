@@ -7,7 +7,7 @@ export default function Breadcrumb() {
   const pathname = usePathname();
 
   // Skip breadcrumb for home page
-  if (pathname === "/") return null;
+  if (!pathname || pathname === "/") return null;
 
   // Generate breadcrumb items from pathname
   const breadcrumbs = pathname

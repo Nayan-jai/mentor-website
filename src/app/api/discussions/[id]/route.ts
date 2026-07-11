@@ -97,23 +97,26 @@ export const PATCH = async (
     const body = await request.json();
     const { title, content, category, tags, isResolved, isArchived } = body;
 
-    // Only mentors can update isResolved and isArchived
-    // Only the author can update title, content, category, tags
+    // Only mentors or admins can update isResolved and isArchived
+    // Only the author, a mentor, or an admin can update title, content, category, tags
     if (
       (isResolved !== undefined || isArchived !== undefined) &&
-      session.user.role !== "MENTOR"
+      session.user.role !== "MENTOR" &&
+      session.user.role !== "ADMIN"
     ) {
       return NextResponse.json(
-        { message: "Only mentors can update resolved/archived status" },
+        { message: "Only mentors or admins can update resolved/archived status" },
         { status: 403 }
       );
     }
     if (
       (title !== undefined || content !== undefined || category !== undefined || tags !== undefined) &&
-      session.user.id !== discussion.authorId
+      session.user.id !== discussion.authorId &&
+      session.user.role !== "MENTOR" &&
+      session.user.role !== "ADMIN"
     ) {
       return NextResponse.json(
-        { message: "Only the author can edit their query" },
+        { message: "Only the author, a mentor, or an admin can edit this query" },
         { status: 403 }
       );
     }
@@ -171,9 +174,13 @@ export const DELETE = async (
         { status: 404 }
       );
     }
-    if (session.user.id !== discussion.authorId) {
+    if (
+      session.user.id !== discussion.authorId &&
+      session.user.role !== "MENTOR" &&
+      session.user.role !== "ADMIN"
+    ) {
       return NextResponse.json(
-        { message: "Only the author can delete this query" },
+        { message: "Only the author, a mentor, or an admin can delete this query" },
         { status: 403 }
       );
     }

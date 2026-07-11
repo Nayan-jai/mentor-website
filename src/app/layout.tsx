@@ -17,20 +17,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="h-full">
+    <html lang="en" className="h-full" suppressHydrationWarning>
       <head>
         <link
           rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
         />
       </head>
-      <body className={`${inter.className} h-full relative`}>
+      <body className={`${inter.className} h-full relative`} suppressHydrationWarning>
         <Providers>
           <div className="flex flex-col min-h-screen relative z-[1]">
             <Navbar />
-            <div className="flex-1 flex items-center justify-center">
+            <main className="flex-1 flex flex-col w-full">
               {children}
-            </div>
+            </main>
           </div>
         </Providers>
       </body>

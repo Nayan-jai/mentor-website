@@ -1,3 +1,7 @@
+/**
+ * @jest-environment node
+ */
+
 import { POST } from '../route'
 import { prisma } from '@/lib/prisma'
 import { hash } from 'bcryptjs'

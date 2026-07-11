@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { randomBytes } from "crypto";
 import { addMinutes } from "date-fns";
 
-export const POST = async (request: NextRequest) => {
+export const POST = async (request: Request) => {
   try {
     const { email } = await request.json();
     if (!email) {

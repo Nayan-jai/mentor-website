@@ -26,11 +26,16 @@ export const authOptions: NextAuthOptions = {
             name: true,
             password: true,
             role: true,
+            deleted: true,
           },
         });
 
         if (!user) {
           throw new Error("No user found with this email");
+        }
+
+        if (user.deleted) {
+          throw new Error("This account has been deactivated");
         }
 
         const isPasswordValid = await compare(credentials.password, user.password);

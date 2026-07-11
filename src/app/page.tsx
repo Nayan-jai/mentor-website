@@ -66,10 +66,10 @@ export default function HomePage() {
         {/* Hero Section */}
         <section className="hero relative overflow-hidden min-h-screen flex flex-col justify-center bg-gradient-to-br from-gray-950 to-gray-900">
           {/* Animated floating text background */}
-          <div className="absolute top-14 bottom-0 left-0 right-0 pointer-events-none z-0">
+          <div className="absolute top-16 bottom-0 left-0 right-0 pointer-events-none z-0">
             <AnimatedBackground />
           </div>
-          <div className="container mx-auto px-4 relative z-10 pt-14">
+          <div className="container mx-auto px-4 relative z-10 pt-20">
             <div className="max-w-3xl mx-auto text-center">
               <h2 className="hero-title text-4xl md:text-6xl font-bold mb-6 text-white drop-shadow-lg">
                 Your Journey to UPSC Success Starts Here

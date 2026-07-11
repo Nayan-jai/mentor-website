@@ -6,6 +6,26 @@ export default withAuth(
     const token = req.nextauth.token;
     const isMentorRoute = req.nextUrl.pathname.startsWith("/dashboard/mentor");
     const isStudentRoute = req.nextUrl.pathname.startsWith("/dashboard/student");
+    const isAdminRoute = req.nextUrl.pathname.startsWith("/dashboard/admin");
+    const isApiAdmin = req.nextUrl.pathname.startsWith("/api/admin");
+
+    // API admin protection: return JSON 401 if unauthorized
+    if (isApiAdmin) {
+      if (!token || token.role !== "ADMIN") {
+        return new NextResponse(JSON.stringify({ message: "Unauthorized" }), {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+    }
+
+    // UI admin protection: redirect to corresponding dashboard if not ADMIN
+    if (isAdminRoute && token?.role !== "ADMIN") {
+      if (token?.role === "MENTOR") {
+        return NextResponse.redirect(new URL("/dashboard/mentor", req.url));
+      }
+      return NextResponse.redirect(new URL("/dashboard/student", req.url));
+    }
 
     // Redirect based on role
     if (token?.role === "MENTOR" && isStudentRoute) {
@@ -19,11 +39,17 @@ export default withAuth(
   },
   {
     callbacks: {
-      authorized: ({ token }) => !!token,
+      authorized: ({ token, req }) => {
+        // Let the middleware function handle API auth directly to return JSON instead of redirecting
+        if (req.nextUrl.pathname.startsWith("/api/admin")) {
+          return true;
+        }
+        return !!token;
+      },
     },
   }
 );
 
 export const config = {
-  matcher: ["/dashboard/:path*"],
+  matcher: ["/dashboard/:path*", "/api/admin/:path*"],
 }; 

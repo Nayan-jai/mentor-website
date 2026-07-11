@@ -93,6 +93,17 @@ export default function StudentDashboard() {
                 <h3 className="text-lg font-medium text-purple-900 mb-2">Resources</h3>
                 <p className="text-purple-700">Access learning materials</p>
               </div>
+
+              <div
+                className="bg-amber-50 p-6 rounded-lg cursor-pointer hover:shadow-lg transition"
+                onClick={() => router.push('/dashboard/student/study-tracker')}
+                tabIndex={0}
+                role="button"
+                aria-label="Go to Study Tracker"
+              >
+                <h3 className="text-lg font-medium text-amber-900 mb-2">Study Tracker</h3>
+                <p className="text-amber-700">Plan and track your daily study hours & syllabus</p>
+              </div>
             </div>
           </div>
         </div>

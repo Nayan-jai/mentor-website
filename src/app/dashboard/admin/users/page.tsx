@@ -30,6 +30,7 @@ interface User {
   bookingsCount?: number;
   lastLogin?: string | null;
   deleted?: boolean;
+  studyTracker?: any;
 }
 
 export default function AdminUsersPage() {
@@ -40,6 +41,79 @@ export default function AdminUsersPage() {
   const [form, setForm] = useState({ name: "", email: "", password: "", role: "STUDENT" });
   const [loading, setLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  const [selectedStudentTracker, setSelectedStudentTracker] = useState<User | null>(null);
+  const [jsonText, setJsonText] = useState("");
+  const [trackerError, setTrackerError] = useState<string | null>(null);
+  const [savingTracker, setSavingTracker] = useState(false);
+
+  const handleOpenTrackerManager = (user: User) => {
+    setSelectedStudentTracker(user);
+    setJsonText(user.studyTracker ? JSON.stringify(user.studyTracker, null, 2) : "{}");
+    setTrackerError(null);
+  };
+
+  const handleSaveTrackerJson = async () => {
+    if (!selectedStudentTracker) return;
+    setSavingTracker(true);
+    setTrackerError(null);
+    try {
+      const parsed = JSON.parse(jsonText);
+      const res = await fetch(`/api/admin/users/${selectedStudentTracker.id}/`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: selectedStudentTracker.name,
+          email: selectedStudentTracker.email,
+          role: selectedStudentTracker.role,
+          studyTracker: parsed,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to update study tracker data");
+      }
+      setSelectedStudentTracker(null);
+      await fetchUsers();
+    } catch (err) {
+      console.error(err);
+      setTrackerError(err instanceof Error ? err.message : "Invalid JSON format");
+    } finally {
+      setSavingTracker(false);
+    }
+  };
+
+  const handleDeleteTrackerData = async () => {
+    if (!selectedStudentTracker) return;
+    if (!window.confirm("Are you sure you want to delete and reset all study tracker data for this student? This cannot be undone.")) return;
+    setSavingTracker(true);
+    setTrackerError(null);
+    try {
+      const res = await fetch(`/api/admin/users/${selectedStudentTracker.id}/`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: selectedStudentTracker.name,
+          email: selectedStudentTracker.email,
+          role: selectedStudentTracker.role,
+          studyTracker: null,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to reset study tracker data");
+      }
+      setSelectedStudentTracker(null);
+      await fetchUsers();
+    } catch (err) {
+      console.error(err);
+      setTrackerError(err instanceof Error ? err.message : "Failed to reset tracker");
+    } finally {
+      setSavingTracker(false);
+    }
+  };
 
   useEffect(() => {
     fetchUsers();
@@ -47,12 +121,17 @@ export default function AdminUsersPage() {
 
   const fetchUsers = async () => {
     setLoading(true);
+    setError(null);
     try {
-      const res = await fetch("/api/admin/users");
+      const res = await fetch("/api/admin/users/", { cache: "no-store" });
+      if (!res.ok) {
+        throw new Error("Failed to load users");
+      }
       const data = await res.json();
       setUsers(data.users || []);
-    } catch (error) {
-      console.error("Error fetching users:", error);
+    } catch (err) {
+      console.error("Error fetching users:", err);
+      setError("Failed to load users. Please refresh the page.");
       setUsers([]);
     } finally {
       setLoading(false);
@@ -61,6 +140,7 @@ export default function AdminUsersPage() {
 
   const handleEdit = (user: User) => {
     setEditingUser(user);
+    setError(null);
     setForm({ name: user.name || "", email: user.email, password: "", role: user.role });
   };
 
@@ -70,25 +150,71 @@ export default function AdminUsersPage() {
 
   const handleSave = async () => {
     if (!editingUser) return;
-    const body: any = { name: form.name, email: form.email, role: form.role };
-    if (form.password && form.password.length >= 8) {
-      body.password = form.password;
+
+    if (!form.email.trim()) {
+      setError("Email is required");
+      return;
     }
-    await fetch(`/api/admin/users/${editingUser.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    setEditingUser(null);
-    fetchUsers();
+
+    if (form.password && form.password.length < 8) {
+      setError("Password must be at least 8 characters");
+      return;
+    }
+
+    setSaving(true);
+    setError(null);
+
+    try {
+      const body: Record<string, string> = {
+        name: form.name,
+        email: form.email,
+        role: form.role,
+      };
+      if (form.password) {
+        body.password = form.password;
+      }
+
+      const res = await fetch(`/api/admin/users/${editingUser.id}/`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to update user");
+      }
+
+      setEditingUser(null);
+      await fetchUsers();
+    } catch (err) {
+      console.error("Error updating user:", err);
+      setError(err instanceof Error ? err.message : "Failed to update user");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleDelete = async (user: User) => {
     if (!window.confirm(`Are you sure you want to deactivate ${user.email}?`)) return;
-    await fetch(`/api/admin/users/${user.id}`, {
-      method: "DELETE",
-    });
-    fetchUsers();
+
+    setError(null);
+
+    try {
+      const res = await fetch(`/api/admin/users/${user.id}/`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to deactivate user");
+      }
+
+      await fetchUsers();
+    } catch (err) {
+      console.error("Error deactivating user:", err);
+      setError(err instanceof Error ? err.message : "Failed to deactivate user");
+    }
   };
 
   const filteredUsers = (users || []).filter(u =>
@@ -130,6 +256,12 @@ export default function AdminUsersPage() {
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Manage Users</h1>
           <p className="text-gray-600">View and manage all platform users</p>
         </div>
+
+        {error && (
+          <div className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {error}
+          </div>
+        )}
 
         {/* Search and Filters */}
         <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 mb-6">
@@ -255,6 +387,18 @@ export default function AdminUsersPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex space-x-2">
+                          {user.role === "STUDENT" && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleOpenTrackerManager(user)}
+                              disabled={user.deleted}
+                              className="h-8 px-3 bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100 hover:text-amber-800"
+                            >
+                              <BookOpen className="h-3 w-3 mr-1" />
+                              Tracker
+                            </Button>
+                          )}
                           <Button
                             size="sm"
                             variant="outline"
@@ -330,6 +474,18 @@ export default function AdminUsersPage() {
                   </div>
 
                   <div className="flex space-x-2">
+                    {user.role === "STUDENT" && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleOpenTrackerManager(user)}
+                        disabled={user.deleted}
+                        className="flex-1 bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100 hover:text-amber-800"
+                      >
+                        <BookOpen className="h-3 w-3 mr-1" />
+                        Tracker
+                      </Button>
+                    )}
                     <Button
                       size="sm"
                       variant="outline"
@@ -437,8 +593,8 @@ export default function AdminUsersPage() {
               </div>
               
               <div className="flex gap-2 mt-6">
-                <Button onClick={handleSave} className="flex-1">
-                  Save Changes
+                <Button onClick={handleSave} className="flex-1" disabled={saving}>
+                  {saving ? "Saving..." : "Save Changes"}
                 </Button>
                 <Button
                   variant="outline"
@@ -452,6 +608,65 @@ export default function AdminUsersPage() {
           </Card>
         </div>
       )}
-    </div>
-  );
-} 
+
+        {/* Study Tracker Manager Modal */}
+        {selectedStudentTracker && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <Card className="w-full max-w-xl bg-white text-slate-800">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-4 border-b pb-4">
+                  <div>
+                    <h2 className="text-xl font-bold text-gray-900">Manage Study Tracker Data</h2>
+                    <p className="text-sm text-gray-500">{selectedStudentTracker.name} ({selectedStudentTracker.email})</p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setSelectedStudentTracker(null)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+
+                {trackerError && (
+                  <div className="mb-4 rounded bg-red-50 text-red-700 border border-red-200 px-3 py-2 text-xs">
+                    {trackerError}
+                  </div>
+                )}
+
+                <div className="space-y-4">
+                  <div className="flex flex-col gap-1">
+                    <Label htmlFor="trackerJson" className="text-sm font-semibold text-gray-700">Raw Study Tracker JSON Data</Label>
+                    <textarea
+                      id="trackerJson"
+                      rows={12}
+                      value={jsonText}
+                      onChange={(e) => setJsonText(e.target.value)}
+                      className="mt-1 w-full font-mono text-xs p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 text-slate-800"
+                      placeholder="{}"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-2 mt-6">
+                  <Button onClick={handleSaveTrackerJson} className="flex-grow bg-blue-600 hover:bg-blue-700 text-white" disabled={savingTracker}>
+                    {savingTracker ? "Saving..." : "Save JSON Changes"}
+                  </Button>
+                  <Button variant="destructive" onClick={handleDeleteTrackerData} className="flex-grow bg-red-100 text-red-700 border-red-200 hover:bg-red-200 hover:text-red-800" disabled={savingTracker}>
+                    Wipe &amp; Reset Tracker
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setSelectedStudentTracker(null)}
+                    className="flex-grow"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          </div>
+        )}
+      </div>
+    );
+  } 

@@ -119,10 +119,10 @@ export async function PATCH(request: NextRequest) {
     );
   }
 
-  // Only mentors can mark as answer
-  if (isAnswer !== undefined && isAnswer !== null && session.user.role !== "MENTOR") {
+  // Only mentors or admins can mark as answer
+  if (isAnswer !== undefined && isAnswer !== null && session.user.role !== "MENTOR" && session.user.role !== "ADMIN") {
     return NextResponse.json(
-      { message: "Only mentors can mark comments as answers" },
+      { message: "Only mentors or admins can mark comments as answers" },
       { status: 403 }
     );
   }
@@ -139,9 +139,9 @@ export async function PATCH(request: NextRequest) {
         { status: 404 }
       );
     }
-    if (session.user.id !== comment.author.id && session.user.role !== "MENTOR") {
+    if (session.user.id !== comment.author.id && session.user.role !== "MENTOR" && session.user.role !== "ADMIN") {
       return NextResponse.json(
-        { message: "Only the author or a mentor can edit this comment" },
+        { message: "Only the author, a mentor, or an admin can edit this comment" },
         { status: 403 }
       );
     }
@@ -198,9 +198,9 @@ export async function DELETE(request: NextRequest) {
       { status: 404 }
     );
   }
-  if (session.user.id !== comment.author.id) {
+  if (session.user.id !== comment.author.id && session.user.role !== "MENTOR" && session.user.role !== "ADMIN") {
     return NextResponse.json(
-      { message: "Only the author can delete this comment" },
+      { message: "Only the author, a mentor, or an admin can delete this comment" },
       { status: 403 }
     );
   }

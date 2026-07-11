@@ -60,7 +60,7 @@ export default function AdminSessionsPage() {
     
     setDeletingSession(sessionId);
     try {
-      await fetch(`/api/admin/sessions/${sessionId}`, { method: "DELETE" });
+      await fetch(`/api/admin/sessions?id=${sessionId}`, { method: "DELETE" });
       await fetchSessions();
     } catch (error) {
       console.error("Error deleting session:", error);
