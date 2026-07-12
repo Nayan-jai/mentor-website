@@ -6,6 +6,8 @@ import { Prisma } from "@prisma/client";
 import { sendNewSessionNotificationEmail } from '@/lib/email';
 import { formatSessionTime } from '@/lib/utils';
 
+export const dynamic = "force-dynamic";
+
 // Define the response type
 type SessionsResponse = {
   message: string;
