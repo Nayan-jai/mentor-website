@@ -21,6 +21,8 @@ export async function uploadFile(file: File, filename: string): Promise<string> 
       token,
     });
     return response.url;
+  } else if (process.env.NODE_ENV === "production") {
+    throw new Error("BLOB_READ_WRITE_TOKEN is not set. Add a Vercel Blob store to your project.");
   } else {
     // Local development fallback
     const bytes = await file.arrayBuffer();
