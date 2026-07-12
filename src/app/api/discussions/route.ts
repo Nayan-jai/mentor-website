@@ -37,6 +37,7 @@ export const POST = async (req: NextRequest) => {
 export const GET = async (request: NextRequest) => {
   try {
     const session = await getServerSession(authOptions);
+    console.log("[DISCUSSIONS_DEBUG] session:", JSON.stringify(session), "secret set:", !!process.env.NEXTAUTH_SECRET);
     if (!session) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
@@ -118,4 +119,4 @@ export const GET = async (request: NextRequest) => {
       { status: 500 }
     );
   }
-}; 
+};
