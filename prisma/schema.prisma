@@ -33,6 +33,7 @@ model User {
   createdTests      Test[]    @relation("TestCreator")
   testAttempts      TestAttempt[]
   studyTracker      Json?
+  resources         Resource[]
 }
 
 model Account {
@@ -224,3 +225,15 @@ model QuestionResponse {
   
   @@unique([attemptId, questionNumber])
 }
+
+model Resource {
+  id           String   @id @default(cuid())
+  title        String
+  url          String
+  fileSize     Int?
+  uploadedById String
+  uploadedBy   User     @relation(fields: [uploadedById], references: [id])
+  uploaderRole String   // "STUDENT" or "MENTOR"
+  createdAt    DateTime @default(now())
+}
+

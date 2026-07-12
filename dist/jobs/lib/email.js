@@ -45,23 +45,24 @@ exports.sendSessionBookingConfirmationEmail = sendSessionBookingConfirmationEmai
 exports.sendNewSessionNotificationEmail = sendNewSessionNotificationEmail;
 var nodemailer_1 = __importDefault(require("nodemailer"));
 var transporter = nodemailer_1.default.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT),
-    secure: true,
+    host: process.env.SMTP_HOST || "smtp.gmail.com",
+    port: Number(process.env.SMTP_PORT) || 465,
+    secure: process.env.SMTP_SECURE === "true" || (!process.env.SMTP_SECURE && Number(process.env.SMTP_PORT || 465) === 465),
     auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASSWORD,
+        user: process.env.SMTP_USER || process.env.EMAIL_USER,
+        pass: process.env.SMTP_PASSWORD || process.env.EMAIL_PASSWORD,
     },
 });
+var fromAddress = process.env.SMTP_FROM || process.env.SMTP_USER || process.env.EMAIL_USER || "no-reply@example.com";
 function sendPasswordResetEmail(email, token) {
     return __awaiter(this, void 0, void 0, function () {
         var resetUrl, mailOptions;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    resetUrl = "".concat(process.env.NEXTAUTH_URL, "/auth/reset-password?token=").concat(token);
+                    resetUrl = "".concat(process.env.NEXTAUTH_URL, "/auth/reset-password/").concat(token);
                     mailOptions = {
-                        from: process.env.SMTP_FROM,
+                        from: fromAddress,
                         to: email,
                         subject: "Reset Your Password",
                         html: "\n      <h1>Reset Your Password</h1>\n      <p>Click the link below to reset your password:</p>\n      <a href=\"".concat(resetUrl, "\">Reset Password</a>\n      <p>This link will expire in 1 hour.</p>\n      <p>If you didn't request this, please ignore this email.</p>\n    "),
@@ -81,7 +82,7 @@ function sendSessionReminderEmail(email, sessionTitle, sessionTime, mentorName, 
             switch (_a.label) {
                 case 0:
                     mailOptions = {
-                        from: process.env.SMTP_FROM,
+                        from: fromAddress,
                         to: email,
                         subject: "Reminder: Your session '".concat(sessionTitle, "' starts in 10 minutes!"),
                         html: "\n      <h1>Session Reminder</h1>\n      <p>Hi,</p>\n      <p>This is a reminder that your session <strong>".concat(sessionTitle, "</strong> with mentor <strong>").concat(mentorName, "</strong> will start at <strong>").concat(sessionTime, "</strong> (in 10 minutes).</p>\n      ").concat(meetingLink ? "<p>Join your session: <a href=\"".concat(meetingLink, "\">").concat(meetingLink, "</a></p>") : "", "\n      <p>Good luck and have a great session!</p>\n      <p style=\"color: #888; font-size: 0.9em;\">If you did not book this session, you can ignore this email.</p>\n    "),
@@ -101,7 +102,7 @@ function sendSessionBookingConfirmationEmail(email, sessionTitle, sessionTime, m
             switch (_a.label) {
                 case 0:
                     mailOptions = {
-                        from: process.env.SMTP_FROM,
+                        from: fromAddress,
                         to: email,
                         subject: "Session Booked: '".concat(sessionTitle, "' with ").concat(mentorName),
                         html: "\n      <h1>Session Booked!</h1>\n      <p>Hi,</p>\n      <p>Your session <strong>".concat(sessionTitle, "</strong> with mentor <strong>").concat(mentorName, "</strong> is scheduled for <strong>").concat(sessionTime, "</strong>.</p>\n      ").concat(meetingLink ? "<p>Join your session: <a href=\"".concat(meetingLink, "\">").concat(meetingLink, "</a></p>") : "", "\n      <p>You'll also get a reminder 10 minutes before the session starts.</p>\n      <p>Good luck and have a great session!</p>\n    "),
@@ -121,7 +122,7 @@ function sendNewSessionNotificationEmail(email, sessionTitle, sessionTime, mento
             switch (_a.label) {
                 case 0:
                     mailOptions = {
-                        from: process.env.SMTP_FROM,
+                        from: fromAddress,
                         to: email,
                         subject: "New Session Scheduled: '".concat(sessionTitle, "' with ").concat(mentorName),
                         html: "\n      <h1>New Session Scheduled!</h1>\n      <p>Hi,</p>\n      <p>A new session <strong>".concat(sessionTitle, "</strong> with mentor <strong>").concat(mentorName, "</strong> is scheduled for <strong>").concat(sessionTime, "</strong>.</p>\n      ").concat(meetingLink ? "<p>Join the session: <a href=\"".concat(meetingLink, "\">").concat(meetingLink, "</a></p>") : "", "\n      <p>Book your spot now if you're interested!</p>\n    "),

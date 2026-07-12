@@ -59,6 +59,11 @@ export default function Navbar() {
             <Link href="/test" className="group nav-link flex items-center gap-2 px-3 py-1.5 text-sm lg:text-base font-semibold tracking-wide">
               <BookOpen className="w-4 h-4 text-amber-400 transition-transform duration-200 group-hover:scale-110" /> Test
             </Link>
+            {session && (
+              <Link href="/resources" className="group nav-link flex items-center gap-2 px-3 py-1.5 text-sm lg:text-base font-semibold tracking-wide">
+                <BookOpen className="w-4 h-4 text-purple-400 transition-transform duration-200 group-hover:scale-110" /> Resources
+              </Link>
+            )}
             {session?.user?.role === "STUDENT" && (
               <>
                 <Link href="/ask-mentor" className="group nav-link flex items-center gap-2 px-3 py-1.5 text-sm lg:text-base font-semibold tracking-wide">
@@ -133,6 +138,11 @@ export default function Navbar() {
             <Link href="/test" className="group flex items-center gap-2 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/50 rounded-lg transition-all duration-200" onClick={() => setMobileMenuOpen(false)}>
               <BookOpen className="w-5 h-5 text-amber-400 transition-transform duration-200 group-hover:scale-110" /> Test
             </Link>
+            {session && (
+              <Link href="/resources" className="group flex items-center gap-2 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/50 rounded-lg transition-all duration-200" onClick={() => setMobileMenuOpen(false)}>
+                <BookOpen className="w-5 h-5 text-purple-400 transition-transform duration-200 group-hover:scale-110" /> Resources
+              </Link>
+            )}
             {session?.user?.role === "STUDENT" && (
               <>
                 <Link href="/ask-mentor" className="group flex items-center gap-2 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/50 rounded-lg transition-all duration-200" onClick={() => setMobileMenuOpen(false)}>
