@@ -1,19 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
-async function getUser() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) return null;
-  // Use email as the reliable lookup key since id might be undefined on some token shapes
-  return prisma.user.findUnique({ where: { email: session.user.email }, select: { id: true, studyTracker: true } });
+async function getUser(req: NextRequest) {
+  const session = await getSession(req);
+  if (!session?.user?.id) return null;
+  return prisma.user.findUnique({ where: { id: session.user.id }, select: { id: true, studyTracker: true } });
 }
 
-export async function GET() {
-  const user = await getUser();
+export async function GET(request: NextRequest) {
+  const user = await getUser(request);
   if (!user) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
@@ -21,7 +19,7 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  const user = await getUser();
+  const user = await getUser(request);
   if (!user) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }

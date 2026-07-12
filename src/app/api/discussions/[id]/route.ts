@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { authOptions, getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -10,7 +9,7 @@ export const GET = async (
   context: { params: { id: string } }
 ) => {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getSession(request);
     const discussion = await prisma.discussion.findUnique({
       where: { id: context.params.id },
       include: {
@@ -77,7 +76,7 @@ export const PATCH = async (
   context: { params: { id: string } }
 ) => {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getSession(request);
     if (!session?.user) {
       return NextResponse.json(
         { message: "Unauthorized" },
@@ -159,7 +158,7 @@ export const DELETE = async (
   context: { params: { id: string } }
 ) => {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getSession(request);
     if (!session?.user) {
       return NextResponse.json(
         { message: "Unauthorized" },

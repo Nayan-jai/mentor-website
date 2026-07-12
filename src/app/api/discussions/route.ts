@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { authOptions, getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 
@@ -8,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 export const POST = async (req: NextRequest) => {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getSession(request);
     if (!session?.user) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
@@ -36,7 +35,7 @@ export const POST = async (req: NextRequest) => {
 
 export const GET = async (request: NextRequest) => {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getSession(request);
     console.log("[DISCUSSIONS_DEBUG] session:", JSON.stringify(session), "secret set:", !!process.env.NEXTAUTH_SECRET);
     if (!session) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });

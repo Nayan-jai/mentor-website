@@ -1,24 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { uploadFile } from "@/lib/storage";
 
 export const dynamic = "force-dynamic";
 
-async function getAuthenticatedUser() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) return null;
+async function getAuthenticatedUser(req: NextRequest) {
+  const session = await getSession(req);
+  if (!session?.user?.id) return null;
   return prisma.user.findUnique({
-    where: { email: session.user.email },
+    where: { id: session.user.id },
     select: { id: true, role: true },
   });
 }
 
 // GET: Retrieve all resources
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const user = await getAuthenticatedUser();
+    const user = await getAuthenticatedUser(request);
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -45,7 +44,7 @@ export async function GET() {
 // POST: Upload a resource
 export async function POST(request: NextRequest) {
   try {
-    const user = await getAuthenticatedUser();
+    const user = await getAuthenticatedUser(request);
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
