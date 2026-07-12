@@ -1,20 +1,22 @@
 import nodemailer from "nodemailer";
 
 const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: Number(process.env.SMTP_PORT),
-  secure: true,
+  host: process.env.SMTP_HOST || "smtp.gmail.com",
+  port: Number(process.env.SMTP_PORT) || 465,
+  secure: process.env.SMTP_SECURE === "true" || (!process.env.SMTP_SECURE && Number(process.env.SMTP_PORT || 465) === 465),
   auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASSWORD,
+    user: process.env.SMTP_USER || process.env.EMAIL_USER,
+    pass: process.env.SMTP_PASSWORD || process.env.EMAIL_PASSWORD,
   },
 });
 
+const fromAddress = process.env.SMTP_FROM || process.env.SMTP_USER || process.env.EMAIL_USER || "no-reply@example.com";
+
 export async function sendPasswordResetEmail(email: string, token: string) {
-  const resetUrl = `${process.env.NEXTAUTH_URL}/auth/reset-password?token=${token}`;
+  const resetUrl = `${process.env.NEXTAUTH_URL}/auth/reset-password/${token}`;
 
   const mailOptions = {
-    from: process.env.SMTP_FROM,
+    from: fromAddress,
     to: email,
     subject: "Reset Your Password",
     html: `
@@ -31,7 +33,7 @@ export async function sendPasswordResetEmail(email: string, token: string) {
 
 export async function sendSessionReminderEmail(email: string, sessionTitle: string, sessionTime: string, mentorName: string, meetingLink?: string) {
   const mailOptions = {
-    from: process.env.SMTP_FROM,
+    from: fromAddress,
     to: email,
     subject: `Reminder: Your session '${sessionTitle}' starts in 10 minutes!`,
     html: `
@@ -48,7 +50,7 @@ export async function sendSessionReminderEmail(email: string, sessionTitle: stri
 
 export async function sendSessionBookingConfirmationEmail(email: string, sessionTitle: string, sessionTime: string, mentorName: string, meetingLink?: string) {
   const mailOptions = {
-    from: process.env.SMTP_FROM,
+    from: fromAddress,
     to: email,
     subject: `Session Booked: '${sessionTitle}' with ${mentorName}`,
     html: `
@@ -65,7 +67,7 @@ export async function sendSessionBookingConfirmationEmail(email: string, session
 
 export async function sendNewSessionNotificationEmail(email: string, sessionTitle: string, sessionTime: string, mentorName: string, meetingLink?: string) {
   const mailOptions = {
-    from: process.env.SMTP_FROM,
+    from: fromAddress,
     to: email,
     subject: `New Session Scheduled: '${sessionTitle}' with ${mentorName}`,
     html: `

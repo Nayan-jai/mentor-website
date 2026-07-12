@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { randomBytes } from "crypto";
 import { addMinutes } from "date-fns";
+import { sendPasswordResetEmail } from "@/lib/email";
 
 export const POST = async (request: Request) => {
   try {
@@ -31,7 +32,8 @@ export const POST = async (request: Request) => {
       },
     });
 
-    // TODO: Send email with reset link (not implemented here)
+    // Send email with reset link
+    await sendPasswordResetEmail(email, resetToken);
 
     return NextResponse.json({ message: "Password reset link has been generated.", resetToken }, { status: 200 });
   } catch (error) {

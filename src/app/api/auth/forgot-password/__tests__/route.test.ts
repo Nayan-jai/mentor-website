@@ -5,6 +5,7 @@
 import { POST } from '../route'
 import { prisma } from '@/lib/prisma'
 import { hash } from 'bcryptjs'
+import { sendPasswordResetEmail } from '@/lib/email'
 
 // Mock the prisma client
 jest.mock('@/lib/prisma', () => ({
@@ -14,6 +15,11 @@ jest.mock('@/lib/prisma', () => ({
       update: jest.fn(),
     },
   },
+}))
+
+// Mock the email sending functions
+jest.mock('@/lib/email', () => ({
+  sendPasswordResetEmail: jest.fn(),
 }))
 
 describe('Forgot Password API', () => {
@@ -77,6 +83,7 @@ describe('Forgot Password API', () => {
     expect(response.status).toBe(200)
     expect(data.message).toBe('Password reset link has been generated.')
     expect(data.resetToken).toBeDefined()
+    expect(sendPasswordResetEmail).toHaveBeenCalledWith('test@example.com', expect.any(String))
     expect(prisma.user.update).toHaveBeenCalledWith({
       where: { email: 'test@example.com' },
       data: expect.objectContaining({
