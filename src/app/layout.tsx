@@ -8,8 +8,8 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "UPSC Mentorship Platform",
-  description: "Connect with experienced mentors for UPSC preparation",
+  title: "Mentorship Platform",
+  description: "Connect with experienced mentors for your preparation",
 };
 
 export default function RootLayout({

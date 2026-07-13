@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 
 const words = [
-  'UPSC',
+  'STUDY',
   'MENTORSHIP',
   'SYLLABUS',
   'MAINS',

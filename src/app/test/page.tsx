@@ -93,7 +93,7 @@ interface StatementQuestion extends BaseQuestion {
   type: "STATEMENT";
   prompt: string;
   statements: StatementItem[];
-  options: MCQOption[]; // e.g., combinations A/B/C/D like UPSC
+  options: MCQOption[]; // e.g., combinations A/B/C/D like standard exams
 }
 
 interface TableQuestion extends BaseQuestion {
@@ -340,7 +340,7 @@ export default function TestPage() {
       // Fallback to sample test if loading fails
       const sample: Test = {
         id: "demo",
-        title: "UPSC Prelims Mixed Mock",
+        title: "Prelims Mixed Mock",
         description: "Sample with MCQ, Statement and Table type questions",
         totalMarks: 6,
         duration: 15,
@@ -1138,11 +1138,11 @@ export default function TestPage() {
       <div className="container mx-auto px-3 sm:px-4 max-w-3xl md:max-w-5xl xl:max-w-6xl">
         <div className="mb-6 sm:mb-8 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3 sm:gap-4">
           <div className="flex-1">
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">UPSC CSE Test Center</h1>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">Practice Test Center</h1>
             <p className="text-sm sm:text-base text-gray-600">
               {canCreateTests 
-                ? "Create and take practice tests for UPSC CSE prelims preparation" 
-                : "Take practice tests for UPSC CSE prelims preparation"
+                ? "Create and take practice tests for exam preparation" 
+                : "Take practice tests for exam preparation"
               }
             </p>
             {!canCreateTests && session && (
@@ -1688,7 +1688,7 @@ export default function TestPage() {
                   <Alert className="mb-6">
                     <Award className="h-4 w-4" />
                     <AlertDescription>
-                      <strong>UPSC Marking Scheme:</strong> +2 marks for correct answer, -0.67 marks for incorrect answer, 0 for unattempted
+                      <strong>Standard Marking Scheme:</strong> +2 marks for correct answer, -0.67 marks for incorrect answer, 0 for unattempted
                     </AlertDescription>
                   </Alert>
 

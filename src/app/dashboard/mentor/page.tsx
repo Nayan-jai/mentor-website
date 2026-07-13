@@ -46,7 +46,7 @@ function getProgressStats(student: any) {
   }).length;
 
   return {
-    examName: conf.examName || "UPSC",
+    examName: conf.examName || "Exam",
     targetDate: conf.targetDate,
     totalHrs,
     totalTargetHrs,

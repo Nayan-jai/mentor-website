@@ -80,7 +80,7 @@ export class ResultAnalyzer {
       const isAttempted = omrAnswer?.selectedOption !== null;
       const isCorrect = isAttempted && omrAnswer?.selectedOption === correctAnswer;
       
-      // UPSC marking scheme: +2 for correct, -2/3 for incorrect, 0 for unattempted
+      // Standard marking scheme: +2 for correct, -2/3 for incorrect, 0 for unattempted
       let marks = 0;
       if (isAttempted) {
         if (isCorrect) {

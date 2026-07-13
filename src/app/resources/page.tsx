@@ -254,7 +254,7 @@ export default function ResourcesPage() {
         {/* Header Section */}
         <div className="text-center sm:text-left mb-8">
           <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">
-            Curated UPSC Resources
+            Curated Resources
           </h1>
           <p className="mt-2 text-lg text-gray-600">
             Access and upload high-quality PDF study materials shared by mentors and students.

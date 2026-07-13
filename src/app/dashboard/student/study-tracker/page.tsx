@@ -39,7 +39,7 @@ export default function StudyTrackerPage() {
             <ArrowLeft className="w-4 h-4" /> Back
           </Button>
           <div className="h-5 w-[1px] bg-gray-200" />
-          <h1 className="text-sm font-semibold text-gray-800">UPSC Study Planner &amp; Tracker</h1>
+          <h1 className="text-sm font-semibold text-gray-800">Study Planner &amp; Tracker</h1>
         </div>
         <span className="text-xs text-gray-500 font-medium">
           {session.user.name}

@@ -958,16 +958,18 @@ input, textarea, select { font-family: var(--font); }
 .drm-meta { font-size: 11px; color: var(--ink3); margin-top: 1px; }
 .drm-actions { display: flex; gap: 4px; flex-shrink: 0; }
 .ic-btn {
-  width: 28px; height: 28px; flex-shrink: 0;
-  border: 1px solid var(--border); border-radius: 6px;
-  background: var(--bg2); color: var(--ink3);
-  font-size: 12px;
+  width: 34px; height: 34px; flex-shrink: 0;
+  border: 1px solid var(--border); border-radius: 8px;
+  background: var(--bg); color: var(--ink);
+  font-size: 15px; font-weight: bold;
   display: flex; align-items: center; justify-content: center;
   transition: all .15s;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
-.ic-btn:hover { background: var(--border); color: var(--ink); }
+.ic-btn:hover { background: var(--bg2); color: var(--blue); border-color: var(--blue); }
 .ic-btn:active { transform: scale(.88); }
-.ic-btn.del:hover { background: #d94f3d12; color: var(--red); border-color: transparent; }
+.ic-btn.del { color: #d94f3d; border-color: #d94f3d40; }
+.ic-btn.del:hover { background: var(--red); color: #fff; border-color: var(--red); }
 
 /* ═══════════════════════════════════════
    MODALS
@@ -998,10 +1000,11 @@ input, textarea, select { font-family: var(--font); }
 
 /* On tablet/desktop: centered modal */
 @media (min-width: 600px) {
-  .overlay { align-items: center; padding: 20px; }
+  .overlay { align-items: center; justify-content: center; padding: 20px; }
   .modal {
     border-radius: 14px;
-    max-width: 520px;
+    width: 100%;
+    max-width: 680px;
     max-height: 88vh;
     transform: scale(.95) translateY(8px);
     border: 1px solid var(--border);
@@ -1156,12 +1159,11 @@ input, textarea, select { font-family: var(--font); }
   .block-timer { padding: 9px 12px; }
   .timer-display { font-size: 16px; min-width: 62px; }
   .block-body { padding: 12px; }
-  .manual-add { display: none; }
   .nav-label { font-size: 14px; }
   .hb-track { height: 20px; }
   .hb-seg { font-size: 9px; }
   .hours-bar-card { padding: 12px; }
-  .ic-btn { width: 26px; height: 26px; font-size: 11px; }
+  .ic-btn { width: 30px; height: 30px; font-size: 13px; }
   .mini-ring { width: 32px; height: 32px; }
   .mini-ring .mr-svg { width: 32px; height: 32px; }
   .header-menu { right: 12px; }
@@ -1230,3 +1232,52 @@ input, textarea, select { font-family: var(--font); }
 }
 .empty-state .es-icon { font-size: 40px; margin-bottom: 12px; }
 .empty-state p { font-size: 14px; }
+
+/* Revision Table styles */
+.revision-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+.revision-table th, .revision-table td {
+  border-bottom: 1px solid var(--border);
+  padding: 12px;
+}
+.revision-table th {
+  background: var(--bg2);
+}
+.rev-box {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin: 0 auto;
+  font-size: 13px;
+  font-weight: bold;
+  transition: all 0.2s;
+  background: var(--card);
+  color: transparent;
+}
+.rev-box.done {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+.rev-box:hover {
+  transform: scale(1.1);
+  border-color: var(--green);
+}
+.rev-row-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.rev-progress-cell {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+}

@@ -5,22 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
-  <title>UPSC Study Planner</title>
-  <link rel="stylesheet" href="upsc-planner-styles.css">
+  <title>Study Planner</title>
+  <link rel="stylesheet" href="planner-styles.css">
 </head>
 <body>
 
 <!-- ════════ HEADER ════════ -->
 <div class="header">
   <div class="header-inner">
-    <div class="logo">UPSC<span>Planner</span></div>
+    <div class="logo">Study<span>Planner</span></div>
     <div class="tabs">
       <button class="tab active" data-view="daily">📅 Daily</button>
       <button class="tab" data-view="syllabus">📚 Syllabus</button>
       <button class="tab" data-view="manage">⚙️ Manage</button>
+      <button class="tab" data-view="revision" id="tab-revision" style="display:none">🔄 Revision</button>
     </div>
     <div class="hdr-btns">
       <button class="hbtn danger" id="resetBtn">↺ Reset</button>
+      <button class="hbtn" id="tutorialBtn" onclick="openTutorial()" title="Show Tutorial" style="font-size:16px;padding:0 8px">💡</button>
       <button class="hbtn-menu" id="menuBtn" onclick="toggleHeaderMenu()">☰</button>
     </div>
   </div>
@@ -51,6 +53,19 @@
 
   <!-- SYLLABUS VIEW -->
   <div class="view" id="view-syllabus">
+    <div class="syllabus-mode-panel" style="margin-bottom:14px;padding:16px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--sh);">
+      <h3 style="margin-bottom:10px;font-size:14px;color:var(--ink)">📚 Syllabus / Plan Template Setup</h3>
+      <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <label style="font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase">Select Plan Option</label>
+          <select id="sylModeSelect" onchange="toggleSyllabusModeView(this.value)" style="padding:6px 10px;background:var(--bg2);color:var(--ink);border:1px solid var(--border);border-radius:6px;outline:none;font-size:13px;width:260px">
+            <option value="custom">🛠️ Create My Own Syllabus</option>
+          </select>
+        </div>
+        <button id="loadSyllabusBtn" onclick="handleSyllabusLoadAction()" class="hbtn" style="background:var(--green);color:#fff;border-color:var(--green);align-self:flex-end">Create New Syllabus/Time Table</button>
+      </div>
+    </div>
+    
     <div class="syl-grid" id="sylGrid"></div>
   </div>
 
@@ -61,7 +76,7 @@
       <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
         <div style="display:flex;flex-direction:column;gap:4px">
           <label style="font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase">Exam Name</label>
-          <input type="text" id="targetExamName" placeholder="e.g. UPSC CSE Prelims" oninput="updateTargetName(this.value)" style="padding:6px 10px;background:var(--bg2);color:var(--ink);border:1px solid var(--border);border-radius:6px;outline:none;font-size:13px;width:180px" />
+          <input type="text" id="targetExamName" placeholder="e.g. CSE Prelims" oninput="updateTargetName(this.value)" style="padding:6px 10px;background:var(--bg2);color:var(--ink);border:1px solid var(--border);border-radius:6px;outline:none;font-size:13px;width:180px" />
         </div>
         <div style="display:flex;flex-direction:column;gap:4px">
           <label style="font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase">Exam Date</label>
@@ -72,6 +87,7 @@
           <div id="daysRemainingText" style="font-size:14px;font-weight:700;color:var(--ink);padding:6px 0">-</div>
         </div>
         <div style="display:flex;gap:8px;margin-left:auto;align-self:flex-end">
+          <button id="toggleRevisionBtn" onclick="toggleRevisionTracker()" class="hbtn" style="background:var(--green);color:#fff;border-color:var(--green)">Activate Revision Tracker</button>
           <button onclick="generatePlanTillTargetDate()" class="hbtn" style="background:var(--blue);color:#fff;border-color:var(--blue)">Adjust Plan Days</button>
           <button id="repeatPatternBtn" onclick="repeatCurrentPattern()" class="hbtn" style="background:var(--green);color:#fff;border-color:var(--green);display:none">🔁 Repeat 7-Day Pattern</button>
         </div>
@@ -79,7 +95,10 @@
     </div>
     <div class="mgmt-grid">
       <div class="mpanel">
-        <div class="mpanel-hd">Subjects <button class="hbtn" style="height:28px;padding:0 10px;font-size:12px;background:var(--blue);color:#fff;border-color:var(--blue)" onclick="openSubjModal(null)">+ Add</button></div>
+        <div class="mpanel-hd">Subjects</div>
+        <div id="subjSuggestionAlert" style="display:none;padding:10px 12px;background:#eef2ff;border:1px dashed #6366f1;color:#4f46e5;border-radius:8px;font-size:12px;margin:8px 12px;line-height:1.4;">
+          💡 <strong>Tip:</strong> Click on a subject name (like <em>Subject 1</em>) below to rename it to your actual study subject!
+        </div>
         <div id="subjListEl"></div>
       </div>
       <div class="mpanel">
@@ -96,6 +115,29 @@
         </div>
         <div style="max-height:500px;overflow-y:auto" id="dayListEl"></div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- REVISION VIEW -->
+<div class="view" id="view-revision">
+  <div class="revision-panel" style="margin-bottom:14px;padding:16px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--sh);">
+    <h3 style="margin-bottom:12px;font-size:14px;color:var(--ink)">🔄 Subject Revision Tracker</h3>
+    <div style="overflow-x:auto;">
+      <table class="revision-table" style="width:100%;border-collapse:collapse;margin-top:10px;">
+        <thead>
+          <tr style="border-bottom:2px solid var(--border);text-align:left">
+            <th style="padding:12px;font-size:12px;font-weight:700;color:var(--ink3);text-transform:uppercase">Subject</th>
+            <th style="padding:12px;font-size:12px;font-weight:700;color:var(--ink3);text-transform:uppercase;text-align:center">1st Rev</th>
+            <th style="padding:12px;font-size:12px;font-weight:700;color:var(--ink3);text-transform:uppercase;text-align:center">2nd Rev</th>
+            <th style="padding:12px;font-size:12px;font-weight:700;color:var(--ink3);text-transform:uppercase;text-align:center">3rd Rev</th>
+            <th style="padding:12px;font-size:12px;font-weight:700;color:var(--ink3);text-transform:uppercase;text-align:center">4th Rev</th>
+            <th style="padding:12px;font-size:12px;font-weight:700;color:var(--ink3);text-transform:uppercase;text-align:center">5th Rev</th>
+            <th style="padding:12px;font-size:12px;font-weight:700;color:var(--ink3);text-transform:uppercase;text-align:center">Progress</th>
+          </tr>
+        </thead>
+        <tbody id="revisionTableBody"></tbody>
+      </table>
     </div>
   </div>
 </div>
@@ -220,7 +262,28 @@
   </div>
 </div>
 
-<script src="upsc-planner-script.js"></script>
+<!-- TUTORIAL MODAL -->
+<div class="overlay" id="tutorialOverlay">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-hd">
+      <div class="modal-title" id="tutorialStepTitle">Welcome to Study Planner 📚</div>
+      <button class="modal-close" onclick="closeTutorial()">✕</button>
+    </div>
+    <div class="modal-body" id="tutorialStepBody" style="min-height:220px"></div>
+    <div class="modal-footer" style="justify-content:space-between">
+      <div style="display:flex;gap:8px;align-items:center">
+        <div id="tutorialDots" style="display:flex;gap:6px"></div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="hbtn" onclick="closeTutorial()" style="color:var(--ink3)">Skip</button>
+        <button class="hbtn" id="tutorialPrevBtn" onclick="tutorialPrev()" style="display:none">← Back</button>
+        <button class="hbtn" id="tutorialNextBtn" onclick="tutorialNext()" style="background:var(--blue);color:#fff;border-color:var(--blue)">Next →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="planner-script.js"></script>
 
 </body>
 </html>

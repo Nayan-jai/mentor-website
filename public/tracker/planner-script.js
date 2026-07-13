@@ -22,65 +22,34 @@ let isManagePage = false;
    DEFAULT DATA
 ══════════════════════════════════════════ */
 const DEF_SUBJ=[
-  {id:'pol',  name:'Polity',         color:'var(--red)', icon:'⚖️',  defaultHrs:3},
-  {id:'eco',  name:'Economy',        color:'var(--green)', icon:'📈',  defaultHrs:3},
-  {id:'geo',  name:'Geography',      color:'var(--blue)', icon:'🗺️',  defaultHrs:3},
-  {id:'csat', name:'CSAT',           color:'var(--purple)', icon:'🧮',  defaultHrs:2},
-  {id:'test', name:'Test Analysis',  color:'var(--orange)', icon:'📝',  defaultHrs:1.5},
-  {id:'rev',  name:'Revision',       color:'var(--teal)', icon:'🔁',  defaultHrs:1.5},
-  {id:'cur',  name:'Current Affairs',color:'var(--gold)', icon:'🗞️',  defaultHrs:1},
+  {id:'s1',  name:'Subject 1',  color:'var(--red)', icon:'📚',  defaultHrs:3},
+  {id:'s2',  name:'Subject 2',  color:'var(--green)', icon:'📖',  defaultHrs:3},
+  {id:'s3',  name:'Subject 3',  color:'var(--blue)', icon:'📝',  defaultHrs:3},
+  {id:'s4',  name:'Subject 4',  color:'var(--orange)', icon:'✏️',  defaultHrs:2},
 ];
 const DEF_DAYS=[
-  {id:'d1',title:'Polity + CSAT Start',dateOverride:null,targetHrs:9,blocks:[
-    {id:'b1a',subjectId:'pol', targetHrs:3,  topic:'Historical Background of Constitution',subtopics:['Sources of Indian Constitution','Regulating Act 1773','Charter Acts 1813–1853','Government of India Acts','Independence Act 1947']},
-    {id:'b1b',subjectId:'csat',targetHrs:2,  topic:'CSAT Paper 2 Practice',subtopics:['Reading comprehension set 1','Logical reasoning puzzles','Data interpretation basics']},
-    {id:'b1c',subjectId:'cur', targetHrs:1,  topic:'Current Affairs',subtopics:['The Hindu editorial reading','PIB highlights','Monthly magazine review']},
-    {id:'b1d',subjectId:'rev', targetHrs:1.5,topic:'Previous week revision',subtopics:['Flashcard review','Mind map update']},
+  {id:'d1',title:'Day 1',dateOverride:null,targetHrs:8,blocks:[
+    {id:'b1a',subjectId:'s1', targetHrs:3,  topic:'Topic 1',subtopics:['Subtopic 1','Subtopic 2','Subtopic 3']},
+    {id:'b1b',subjectId:'s2', targetHrs:3,  topic:'Topic 1',subtopics:['Subtopic 1','Subtopic 2']},
+    {id:'b1c',subjectId:'s3', targetHrs:2,  topic:'Topic 1',subtopics:['Subtopic 1']},
   ]},
-  {id:'d2',title:'Polity + Economy Day',dateOverride:null,targetHrs:9,blocks:[
-    {id:'b2a',subjectId:'pol', targetHrs:3,  topic:'Fundamental Rights (Part III)',subtopics:['Art 12–13: State & Laws','Art 14–18: Right to Equality','Art 19–22: Right to Freedom','Art 23–24: Against Exploitation','Art 25–28: Religion','Art 32: Remedies']},
-    {id:'b2b',subjectId:'eco', targetHrs:3,  topic:'Basic Economic Concepts',subtopics:['GDP, GNP, NNP formulas','Nominal vs Real GDP','Types of inflation (CPI, WPI)','Monetary aggregates M0–M3']},
-    {id:'b2c',subjectId:'cur', targetHrs:1,  topic:'Current Affairs',subtopics:['The Hindu editorial','Economic survey highlights']},
-    {id:'b2d',subjectId:'rev', targetHrs:1.5,topic:'Revision Day 1 content',subtopics:['Polity revision','Constitution sources recap']},
+  {id:'d2',title:'Day 2',dateOverride:null,targetHrs:8,blocks:[
+    {id:'b2a',subjectId:'s1', targetHrs:3,  topic:'Topic 2',subtopics:['Subtopic 4','Subtopic 5']},
+    {id:'b2b',subjectId:'s2', targetHrs:3,  topic:'Topic 2',subtopics:['Subtopic 3','Subtopic 4']},
+    {id:'b2c',subjectId:'s4', targetHrs:2,  topic:'Topic 1',subtopics:['Subtopic 1']},
   ]},
-  {id:'d3',title:'Polity + Geography + CSAT',dateOverride:null,targetHrs:10,blocks:[
-    {id:'b3a',subjectId:'pol', targetHrs:3,  topic:'DPSP, Duties & Amendments',subtopics:['Nature of DPSPs (non-justiciable)','Gandhian, Socialist, Liberal principles','Art 51A: 11 Fundamental Duties','Key amendments: 42nd, 44th, 86th, 101st','Basic Structure Doctrine']},
-    {id:'b3b',subjectId:'geo', targetHrs:3,  topic:'Physiography of India',subtopics:['Himalayan ranges & formation','Northern Plains','Peninsular Plateau & Western Ghats','Coastal plains & island groups']},
-    {id:'b3c',subjectId:'csat',targetHrs:2,  topic:'CSAT Reasoning',subtopics:['Series & analogies','Coding-decoding','Blood relations','Syllogisms']},
-    {id:'b3d',subjectId:'cur', targetHrs:1,  topic:'Current Affairs',subtopics:['News analysis','Yojana reading']},
-    {id:'b3e',subjectId:'rev', targetHrs:1,  topic:'Revision',subtopics:['Economy recap','Polity recap']},
-  ]},
-  {id:'d4',title:'Test + Analysis Day',dateOverride:null,targetHrs:8,blocks:[
-    {id:'b4a',subjectId:'test',targetHrs:3,  topic:'Full Mock Test (GS)',subtopics:['100 MCQ timed attempt','Mark difficult questions','Rough score estimate']},
-    {id:'b4b',subjectId:'test',targetHrs:1.5,topic:'Test Analysis',subtopics:['Review each wrong answer','Identify weak chapters','Category-wise error analysis']},
-    {id:'b4c',subjectId:'eco', targetHrs:2,  topic:'Banking & RBI',subtopics:['Functions of RBI','Monetary Policy: Repo, CRR, SLR','Priority Sector Lending','NPA & IBC resolution']},
-    {id:'b4d',subjectId:'cur', targetHrs:1,  topic:'Current Affairs',subtopics:['The Hindu editorial']},
-  ]},
-  {id:'d5',title:'Polity + Geography + CSAT Maths',dateOverride:null,targetHrs:9,blocks:[
-    {id:'b5a',subjectId:'pol', targetHrs:3,  topic:'Parliament & Executive',subtopics:['Lok Sabha & Rajya Sabha','Sessions & Budget process','Parliamentary procedures','President powers (Art 52–78)','PM & Council of Ministers']},
-    {id:'b5b',subjectId:'geo', targetHrs:3,  topic:'Climate, Monsoon & Soils',subtopics:['Factors affecting India\'s climate','Southwest & Northeast Monsoon','El Niño & La Niña effects','Types of soils: Alluvial, Black, Red, Laterite']},
-    {id:'b5c',subjectId:'csat',targetHrs:1.5,topic:'CSAT Maths',subtopics:['Percentages & ratio','Time-speed-distance','Profit & loss','Number system']},
-    {id:'b5d',subjectId:'rev', targetHrs:1.5,topic:'Weekly Revision',subtopics:['Polity days 1–5 recap','Economy concepts','Geography flashcards']},
-  ]},
-  {id:'d6',title:'Economy + Geography Focus',dateOverride:null,targetHrs:10,blocks:[
-    {id:'b6a',subjectId:'eco', targetHrs:3,  topic:'Fiscal Policy & External Sector',subtopics:['Union Budget components','Fiscal, Revenue & Primary Deficit','FRBM Act','Balance of Payments','IMF, World Bank, WTO']},
-    {id:'b6b',subjectId:'geo', targetHrs:3,  topic:'Minerals, Industries & Disaster',subtopics:['Iron, Coal, Bauxite distribution','Non-conventional energy','Major industries & regions','Disaster Management Act 2005','Sendai Framework']},
-    {id:'b6c',subjectId:'csat',targetHrs:1,  topic:'CSAT Mock Set',subtopics:['20-question practice set','Review answers']},
-    {id:'b6d',subjectId:'cur', targetHrs:1,  topic:'Current Affairs',subtopics:['Weekly current affairs wrap-up']},
-    {id:'b6e',subjectId:'pol', targetHrs:2,  topic:'Constitutional Bodies',subtopics:['UPSC (Art 315–323)','Election Commission (Art 324)','CAG (Art 148–151)','Finance Commission (Art 280)']},
-  ]},
-  {id:'d7',title:'Light Day — Revision Focus',dateOverride:null,targetHrs:7,blocks:[
-    {id:'b7a',subjectId:'rev', targetHrs:3,  topic:'Full Week Revision',subtopics:['Polity: all topics recap','Economy: key concepts','Geography: maps & facts','CSAT: formula sheet review']},
-    {id:'b7b',subjectId:'test',targetHrs:1.5,topic:'Sectional Test',subtopics:['30 Polity MCQs','Mark & review wrong answers']},
-    {id:'b7c',subjectId:'cur', targetHrs:1.5,topic:'Current Affairs Wrap-up',subtopics:['Weekly news summary','Important schemes list']},
-    {id:'b7d',subjectId:'csat',targetHrs:1,  topic:'Light CSAT Practice',subtopics:['10 reasoning questions','Review errors']},
-  ]},
+  {id:'d3',title:'Day 3',dateOverride:null,targetHrs:8,blocks:[
+    {id:'b3a',subjectId:'s1', targetHrs:3,  topic:'Topic 3',subtopics:['Subtopic 6']},
+    {id:'b3b',subjectId:'s2', targetHrs:3,  topic:'Topic 3',subtopics:['Subtopic 5']},
+    {id:'b3c',subjectId:'s3', targetHrs:2,  topic:'Topic 2',subtopics:['Subtopic 2']},
+  ]}
 ];
+let PREMADE_SYLLABI = {};
 
 /* ══════════════════════════════════════════
    STATE
 ══════════════════════════════════════════ */
-let subj=[], days=[], prog={}, conf={startDate:null,dark:false,targetDate:null};
+let subj=[], days=[], prog={}, conf={startDate:null,dark:false,targetDate:null,revisionActive:false,activeTab:'daily'};
 let curDay=0;
 let timers={};
 let editSubjId=null, editDayId=null, bpDayId=null, bpSelSubjId=null;
@@ -118,7 +87,13 @@ async function load() {
   for(let i=0;i<days.length;i++){if(getDd(i).getTime()===today.getTime()){curDay=i;break;}}
 }
 
-function defReset(){subj=JSON.parse(JSON.stringify(DEF_SUBJ));days=JSON.parse(JSON.stringify(DEF_DAYS));}
+function defReset(){
+  subj=JSON.parse(JSON.stringify(DEF_SUBJ));
+  days=JSON.parse(JSON.stringify(DEF_DAYS));
+  if (!conf) conf = {};
+  conf.syllabusType = 'custom';
+  conf.examName = 'My Study Plan';
+}
 
 let syncTimeout = null;
 function syncToServer() {
@@ -187,6 +162,8 @@ function updateTargetName(val) {
   conf.examName = val ? val.trim() : null;
   sc();
   updateDaysRemaining();
+  renderManage();
+  renderAll();
 }
 
 function updateDaysRemaining() {
@@ -217,6 +194,8 @@ function updateTargetDate(val) {
   conf.targetDate = val ? new Date(val).toISOString().split('T')[0] : null;
   sc();
   updateDaysRemaining();
+  renderManage();
+  renderAll();
 }
 
 function generatePlanTillTargetDate() {
@@ -240,14 +219,15 @@ function generatePlanTillTargetDate() {
           id: gid(),
           subjectId: b.subjectId,
           targetHrs: b.targetHrs,
-          topic: b.topic || '',
-          subtopics: [...(b.subtopics || [])]
+          topic: '',
+          subtopics: []
         }))
       });
     }
   }
   sd();
   renderAll();
+  renderManage();
   updateDaysRemaining();
   alert(`Plan set to ${total} days.`);
 }
@@ -269,14 +249,15 @@ function repeatCurrentPattern() {
         id: gid(),
         subjectId: b.subjectId,
         targetHrs: b.targetHrs,
-        topic: b.topic,
-        subtopics: [...b.subtopics]
+        topic: '',
+        subtopics: []
       }))
     });
   }
   days = newDays;
   sd();
   renderAll();
+  renderManage();
   alert(`Timetable repeated for all ${total - 7} upcoming days.`);
 }
 
@@ -841,33 +822,32 @@ function changeTgt(id,delta){const d=days.find(x=>x.id===id);if(!d)return;d.targ
 function chBlkHrs(dayId,bid,delta){
   const d=days.find(x=>x.id===dayId),b=d?.blocks.find(x=>x.id===bid);if(!b)return;
   b.targetHrs=+(Math.max(.5,Math.min(12,b.targetHrs+delta)).toFixed(1));sd();
-  const el=document.getElementById('bhv-'+bid);if(el)el.textContent=b.targetHrs+'h';
-  renderHoursBar();renderStats();
+  refreshAllViews();
 }
-function chBlkSubj(dayId,bid,sid){const d=days.find(x=>x.id===dayId),b=d?.blocks.find(x=>x.id===bid);if(b){b.subjectId=sid;sd();}refreshBlock(dayId,bid);}
-function chBlkTopic(dayId,bid,v){const d=days.find(x=>x.id===dayId),b=d?.blocks.find(x=>x.id===bid);if(b){b.topic=v.trim();sd();}}
-function delBlock(dayId,bid){if(!confirm('Remove this subject block?'))return;const d=days.find(x=>x.id===dayId);if(!d)return;d.blocks=d.blocks.filter(b=>b.id!==bid);delete prog[bid];sd();sp();renderDayContent();renderHoursBar();renderStats();}
-function markAll(bid,dayId){const d=days.find(x=>x.id===dayId),b=d?.blocks.find(x=>x.id===bid);if(!b)return;b.subtopics.forEach((_,j)=>gp(bid).subtopics[j]=true);sp();refreshBlock(dayId,bid);renderStats();renderDots();renderSyllabus();}
+function chBlkSubj(dayId,bid,sid){const d=days.find(x=>x.id===dayId),b=d?.blocks.find(x=>x.id===bid);if(b){b.subjectId=sid;sd();}refreshAllViews();}
+function chBlkTopic(dayId,bid,v){const d=days.find(x=>x.id===dayId),b=d?.blocks.find(x=>x.id===bid);if(b){b.topic=v.trim();sd();}refreshAllViews();}
+function delBlock(dayId,bid){if(!confirm('Remove this subject block?'))return;const d=days.find(x=>x.id===dayId);if(!d)return;d.blocks=d.blocks.filter(b=>b.id!==bid);delete prog[bid];sd();sp();refreshAllViews();}
+function markAll(bid,dayId){const d=days.find(x=>x.id===dayId),b=d?.blocks.find(x=>x.id===bid);if(!b)return;b.subtopics.forEach((_,j)=>gp(bid).subtopics[j]=true);sp();refreshAllViews();}
 
 /* Subtopics */
-function toggleST(bid,j,dayId){const p=gp(bid);p.subtopics[j]=!p.subtopics[j];sp();refreshBlock(dayId,bid);renderStats();renderDots();renderSyllabus();}
-function editST(dayId,bid,j,v){const d=days.find(x=>x.id===dayId),b=d?.blocks.find(x=>x.id===bid);if(b){b.subtopics[j]=v;sd();}}
+function toggleST(bid,j,dayId){const p=gp(bid);p.subtopics[j]=!p.subtopics[j];sp();refreshAllViews();}
+function editST(dayId,bid,j,v){const d=days.find(x=>x.id===dayId),b=d?.blocks.find(x=>x.id===bid);if(b){b.subtopics[j]=v;sd();}refreshAllViews();}
 function delST(dayId,bid,j){
   const d=days.find(x=>x.id===dayId),b=d?.blocks.find(x=>x.id===bid);if(!b)return;
   b.subtopics.splice(j,1);const p=gp(bid);
   const ns={};Object.keys(p.subtopics).forEach(k=>{const ki=+k;if(ki<j)ns[ki]=p.subtopics[ki];else if(ki>j)ns[ki-1]=p.subtopics[ki];});
-  p.subtopics=ns;sd();sp();refreshBlock(dayId,bid);renderStats();renderSyllabus();
+  p.subtopics=ns;sd();sp();refreshAllViews();
 }
 function addST(dayId,bid){
   const inp=document.getElementById('nst-'+bid);const txt=inp?.value?.trim();if(!txt)return;
   const d=days.find(x=>x.id===dayId),b=d?.blocks.find(x=>x.id===bid);if(!b)return;
-  b.subtopics.push(txt);inp.value='';sd();refreshBlock(dayId,bid);renderStats();renderSyllabus();
+  b.subtopics.push(txt);inp.value='';sd();refreshAllViews();
 }
 /* Custom tasks */
-function toggleCT(bid,j,dayId){const p=gp(bid);p.customTasks[j].done=!p.customTasks[j].done;sp();refreshBlock(dayId,bid);renderStats();renderSyllabus();}
-function editCT(bid,j,v){gp(bid).customTasks[j].text=v;sp();}
-function delCT(bid,j,dayId){gp(bid).customTasks.splice(j,1);sp();refreshBlock(dayId,bid);renderStats();renderSyllabus();}
-function addCT(bid,dayId){const inp=document.getElementById('nct-'+bid);const txt=inp?.value?.trim();if(!txt)return;gp(bid).customTasks.push({text:txt,done:false});inp.value='';sp();refreshBlock(dayId,bid);renderStats();renderSyllabus();}
+function toggleCT(bid,j,dayId){const p=gp(bid);p.customTasks[j].done=!p.customTasks[j].done;sp();refreshAllViews();}
+function editCT(bid,j,v){gp(bid).customTasks[j].text=v;sp();refreshAllViews();}
+function delCT(bid,j,dayId){gp(bid).customTasks.splice(j,1);sp();refreshAllViews();}
+function addCT(bid,dayId){const inp=document.getElementById('nct-'+bid);const txt=inp?.value?.trim();if(!txt)return;gp(bid).customTasks.push({text:txt,done:false});inp.value='';sp();refreshAllViews();}
 
 function refreshBlock(dayId,bid){
   const d=days.find(x=>x.id===dayId);if(!d)return;
@@ -969,15 +949,26 @@ function renderSyllabus(){
         <button class="add-btn" onclick="addSylSubject()" style="padding:7px 10px;background:var(--green);color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer;font-weight:800">+ Add Subject</button>
       </div>
     </div>
-    <div style="margin-top:12px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;">
-      ${subj.map(s=>`
-        <div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:8px;">
-          <div style="width:28px;height:28px;border-radius:6px;background:${s.color}20;display:flex;align-items:center;justify-content:center;font-size:16px">${s.icon}</div>
-          <div style="flex:1;min-width:0;">
-            <div style="font-size:13px;font-weight:800;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(s.name)}</div>
-            <div style="font-size:12px;color:var(--ink3)">${s.defaultHrs}h default</div>
+    <div style="margin-top:12px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;">
+      ${subj.map((s, idx)=>`
+        <div style="display:flex;flex-direction:column;gap:8px;padding:12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;">
+          <!-- Line 1: Icon, Name and Hours -->
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="width:24px;height:24px;border-radius:5px;background:${s.color}20;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;">${s.icon}</div>
+            <div style="flex:1;min-width:0;font-size:13px;font-weight:800;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(s.name)}</div>
+            <div style="font-size:11px;color:var(--ink3);flex-shrink:0;">${s.defaultHrs}h default</div>
           </div>
-          <button onclick="delSylSubject('${s.id}')" style="padding:6px 10px;background:#f44336;color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer;font-weight:800">Delete</button>
+          <!-- Line 2: Actions -->
+          <div style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);padding-top:8px;margin-top:2px;">
+            <div style="display:flex;gap:3px;align-items:center;">
+              <button onclick="moveSylSubject('${s.id}',-1)" style="width:20px;height:20px;background:var(--bg2);color:var(--ink);border:none;border-radius:4px;font-size:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;" title="Move Left">◀</button>
+              <button onclick="moveSylSubject('${s.id}',1)" style="width:20px;height:20px;background:var(--bg2);color:var(--ink);border:none;border-radius:4px;font-size:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;" title="Move Right">▶</button>
+            </div>
+            <div style="display:flex;gap:4px;align-items:center;">
+              <button onclick="openSubjModal('${s.id}')" style="padding:4px 8px;background:var(--blue);color:#fff;border:none;border-radius:4px;font-size:10px;cursor:pointer;font-weight:800;">Edit</button>
+              <button onclick="delSylSubject('${s.id}')" style="padding:4px 8px;background:#f44336;color:#fff;border:none;border-radius:4px;font-size:10px;cursor:pointer;font-weight:800;">Delete</button>
+            </div>
+          </div>
         </div>
       `).join('')}
     </div>
@@ -995,34 +986,57 @@ function renderSyllabus(){
         <div class="syl-pct" style="color:${s.color}">${pct}%</div>
       </div>
       <div class="syl-prog"><div class="syl-prog-fill" style="background:${s.color};width:${pct}%"></div></div>
-      <div class="syl-body">${blocks.length ? blocks.map(b=>{
-        const p=gp(b.id);
-        const bD=b.subtopics.filter((_,j)=>p.subtopics[j]).length+(p.customTasks||[]).filter(t=>t.done).length;
-        const bT=b.subtopics.length+(p.customTasks?.length||0);
-        const full=bD===bT&&bT>0,part=bD>0&&!full;
-        const stRows=[
-          ...b.subtopics.map((st,j)=>{const done=!!p.subtopics[j];return `<div class="syl-st"><div class="syl-stck${done?' on':''}" onclick="toggleST('${b.id}',${j},'${b.dayId}')">${done?'✓':''}</div><input class="syl-st-inp" value="${esc(st)}" onchange="editSylSt('${b.dayId}','${b.id}',${j},this.value)" /><button onclick="event.stopPropagation();delSylSt('${b.dayId}','${b.id}',${j})" class="syl-del-btn">✕</button></div>`;}),
-          ...(p.customTasks||[]).map((ct,j)=>`<div class="syl-st"><div class="syl-stck${ct.done?' on':''}" onclick="toggleCT('${b.id}',${j},'${b.dayId}')">${ct.done?'✓':''}</div><span style="padding:0 4px">★</span><input class="syl-st-inp" value="${esc(ct.text)}" onchange="editSylCt('${b.dayId}','${b.id}',${j},this.value)" /><button onclick="event.stopPropagation();delSylCt('${b.dayId}','${b.id}',${j})" class="syl-del-btn">✕</button></div>`)
-        ].join('');
-        return `<div class="syl-day" onclick="sylToggle(this,'${b.id}')">
-          <div class="syl-day-row">
-            <div class="syl-ck${full?' full':part?' part':''}">${full?'✓':part?'~':''}</div>
-            <input class="syl-topic-inp" value="${esc(b.topic||'')}" onchange="editSylTopic('${b.dayId}','${b.id}',this.value)" placeholder="Topic…" />
-            <span class="syl-day-meta">${bD}/${bT}</span>
-            <span class="syl-arr">▶</span>
+      <div class="syl-body">
+        ${blocks.length ? blocks.map(b=>{
+          const p=gp(b.id);
+          const bD=b.subtopics.filter((_,j)=>p.subtopics[j]).length+(p.customTasks||[]).filter(t=>t.done).length;
+          const bT=b.subtopics.length+(p.customTasks?.length||0);
+          const full=bD===bT&&bT>0,part=bD>0&&!full;
+          const stRows=[
+            ...b.subtopics.map((st,j)=>{const done=!!p.subtopics[j];return `<div class="syl-st" style="display:flex;align-items:center;gap:6px;"><div class="syl-stck${done?' on':''}" onclick="toggleST('${b.id}',${j},'${b.dayId}')">${done?'✓':''}</div><input class="syl-st-inp" value="${esc(st)}" onclick="event.stopPropagation()" onchange="editSylSt('${b.dayId}','${b.id}',${j},this.value)" style="flex:1;" /><div style="display:flex;align-items:center;gap:2px;"><button onclick="event.stopPropagation();moveSylSubtopic('${b.dayId}','${b.id}',${j},-1)" style="width:18px;height:18px;border-radius:3px;border:1px solid var(--border);background:var(--card);color:var(--ink3);cursor:pointer;font-size:7px;display:flex;align-items:center;justify-content:center;" title="Move Up">▲</button><button onclick="event.stopPropagation();moveSylSubtopic('${b.dayId}','${b.id}',${j},1)" style="width:18px;height:18px;border-radius:3px;border:1px solid var(--border);background:var(--card);color:var(--ink3);cursor:pointer;font-size:7px;display:flex;align-items:center;justify-content:center;" title="Move Down">▼</button></div><button onclick="event.stopPropagation();delSylSt('${b.dayId}','${b.id}',${j})" class="syl-del-btn">✕</button></div>`;}),
+            ...(p.customTasks||[]).map((ct,j)=>`<div class="syl-st" style="display:flex;align-items:center;gap:6px;"><div class="syl-stck${ct.done?' on':''}" onclick="toggleCT('${b.id}',${j},'${b.dayId}')">${ct.done?'✓':''}</div><span style="padding:0 4px">★</span><input class="syl-st-inp" value="${esc(ct.text)}" onclick="event.stopPropagation()" onchange="editSylCt('${b.dayId}','${b.id}',${j},this.value)" style="flex:1;" /><button onclick="event.stopPropagation();delSylCt('${b.dayId}','${b.id}',${j})" class="syl-del-btn">✕</button></div>`)
+          ].join('');
+          const isOpen = window.expandedTopics && window.expandedTopics.has(b.id);
+          return `<div class="syl-day${isOpen ? ' open' : ''}" onclick="sylToggle(this,'${b.id}')">
+            <div class="syl-day-row">
+              <span class="syl-arr" style="margin-right:2px;">▶</span>
+              <div class="syl-ck${full?' full':part?' part':''}">${full?'✓':part?'~':''}</div>
+              <input class="syl-topic-inp" value="${esc(b.topic||'')}" onclick="event.stopPropagation()" onchange="editSylTopic('${b.dayId}','${b.id}',this.value)" placeholder="Topic…" style="flex:1;" />
+              <span class="syl-day-meta">${bD}/${bT}</span>
+              <div style="display:flex;align-items:center;gap:2px;margin-left:8px;flex-shrink:0;">
+                <button onclick="event.stopPropagation();moveSylTopic('${s.id}','${b.id}',-1)" style="width:20px;height:20px;border-radius:4px;border:1px solid var(--border);background:var(--card);color:var(--ink2);cursor:pointer;font-size:8px;display:flex;align-items:center;justify-content:center;" title="Move Up">▲</button>
+                <button onclick="event.stopPropagation();moveSylTopic('${s.id}','${b.id}',1)" style="width:20px;height:20px;border-radius:4px;border:1px solid var(--border);background:var(--card);color:var(--ink2);cursor:pointer;font-size:8px;display:flex;align-items:center;justify-content:center;" title="Move Down">▼</button>
+              </div>
+            </div>
+          </div>
+          <div class="syl-sts${isOpen ? ' open' : ''}" id="sst-${b.id}">${stRows}<div style="padding:6px;display:flex;gap:5px"><input id="sylst-${b.id}" class="syl-st-inp" placeholder="Add subtopic…" style="font-size:11px" /><button onclick="addSylSt('${b.dayId}','${b.id}')" class="syl-add-btn">Add</button></div></div>`;
+        }).join('') : `<div style="padding: 24px 16px; text-align: center; color: var(--ink3); background: var(--bg2); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 120px; gap: 8px; border-radius: 8px; margin-bottom: 8px;">
+          <div style="font-size: 24px;">📅</div>
+          <div style="font-weight: 700; font-size: 12px; color: var(--ink2);">No topics scheduled yet</div>
+        </div>`}
+        
+        <div style="padding: 10px; border-top: 1px dashed var(--border); display: flex; flex-direction: column; gap: 8px; margin-top: 8px;">
+          <div style="font-size: 10px; font-weight: 700; color: var(--ink3); text-transform: uppercase; letter-spacing: 0.05em;">＋ Add New Topic to Plan</div>
+          <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+            <input id="sylAddTopicName-${s.id}" placeholder="Topic (e.g. Chapter 1)" style="padding: 5px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--ink); font-size: 11px; flex: 2; min-width: 140px; outline: none;" />
+            <button onclick="addTopicToDay('${s.id}')" style="padding: 5px 12px; background: var(--blue); color: #fff; border: none; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; transition: opacity 0.15s;" onmouseover="this.style.opacity=0.9" onmouseout="this.style.opacity=1">Add</button>
           </div>
         </div>
-        <div class="syl-sts" id="sst-${b.id}">${stRows}<div style="padding:6px;display:flex;gap:5px"><input id="sylst-${b.id}" class="syl-st-inp" placeholder="Add subtopic…" style="font-size:11px" /><button onclick="addSylSt('${b.dayId}','${b.id}')" class="syl-add-btn">Add</button></div></div>`;
-      }).join('') : `<div style="padding: 24px 16px; text-align: center; color: var(--ink3); background: var(--bg2); display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; min-height: 200px; gap: 8px;">
-        <div style="font-size: 28px;">📅</div>
-        <div style="font-weight: 700; font-size: 13px; color: var(--ink2);">No topics scheduled</div>
-        <div style="font-size: 11px; color: var(--ink3); line-height: 1.4; max-width: 180px; margin: 0 auto;">Assign this subject to a day in the Manage tab to add topics.</div>
-      </div>`}</div>
+      </div>
     </div>`;
   });
   document.getElementById('sylGrid').innerHTML=html||'<div class="empty-state"><div class="es-icon">📚</div><p>No subjects yet.</p></div>';
 }
-function sylToggle(el,bid){el.classList.toggle('open');document.getElementById('sst-'+bid)?.classList.toggle('open');}
+function sylToggle(el,bid){
+  if (!window.expandedTopics) window.expandedTopics = new Set();
+  const isOpen = el.classList.toggle('open');
+  document.getElementById('sst-'+bid)?.classList.toggle('open', isOpen);
+  if (isOpen) {
+    window.expandedTopics.add(bid);
+  } else {
+    window.expandedTopics.delete(bid);
+  }
+}
 
 /* Syllabus subject add/delete */
 function addSylSubject(){
@@ -1036,6 +1050,7 @@ function addSylSubject(){
   sd();
   renderSyllabus();
   renderManage();
+  renderAll();
 }
 
 function delSylSubject(sid){
@@ -1050,6 +1065,275 @@ function delSylSubject(sid){
   renderStats();
 }
 
+function addTopicToDay(sid){
+  const nameInput=document.getElementById(`sylAddTopicName-${sid}`);
+  const topicName=nameInput?.value?.trim();
+  if(!topicName){alert('Please enter a topic name.');return;}
+  const s=subj.find(x=>x.id===sid);
+  if(!s)return;
+  const newBlock={
+    id:'b'+Date.now()+Math.random().toString(36).slice(2,5),
+    subjectId:sid,
+    targetHrs:s.defaultHrs||3,
+    topic:topicName,
+    subtopics:[]
+  };
+  if(days.length===0){
+    const newDay={
+      id:'d'+Date.now(),
+      title:'Day 1',
+      dateOverride:null,
+      targetHrs:8,
+      blocks:[newBlock]
+    };
+    days.push(newDay);
+  }else{
+    days[0].blocks.push(newBlock);
+  }
+  
+  if(!window.expandedTopics) window.expandedTopics=new Set();
+  window.expandedTopics.add(newBlock.id);
+
+  sd();
+  renderSyllabus();
+  renderManage();
+  renderDots();
+  renderNavLabel();
+}
+
+function toggleSyllabusModeView(val) {
+  const btn = document.getElementById('loadSyllabusBtn');
+  if (!btn) return;
+  if (val === 'custom') {
+    btn.textContent = 'Create New Syllabus/Time Table';
+    btn.style.background = 'var(--green)';
+    btn.style.borderColor = 'var(--green)';
+  } else {
+    btn.textContent = 'Load Exam Syllabus';
+    btn.style.background = 'var(--blue)';
+    btn.style.borderColor = 'var(--blue)';
+  }
+}
+
+async function loadSyllabusTemplates() {
+  try {
+    const res = await fetch("/tracker/premade-syllabi.json");
+    if (res.ok) {
+      PREMADE_SYLLABI = await res.json();
+      rebuildSyllabusDropdown();
+    }
+  } catch (err) {
+    console.error("Error loading syllabus templates:", err);
+  }
+}
+
+function rebuildSyllabusDropdown() {
+  const select = document.getElementById('sylModeSelect');
+  if (!select) return;
+  
+  select.innerHTML = '<option value="custom">🛠️ Create My Own Syllabus</option>';
+  for (const key in PREMADE_SYLLABI) {
+    const option = document.createElement('option');
+    option.value = key;
+    option.textContent = `📚 ${PREMADE_SYLLABI[key].examName}`;
+    select.appendChild(option);
+  }
+  
+  select.value = conf.syllabusType || 'custom';
+  toggleSyllabusModeView(select.value);
+}
+
+function handleSyllabusLoadAction() {
+  const val = document.getElementById('sylModeSelect')?.value || 'custom';
+  if (val === 'custom') {
+    loadCustomSyllabusDefaults();
+  } else {
+    loadSelectedPremadeSyllabus(val);
+  }
+}
+
+function loadCustomSyllabusDefaults() {
+  const confirmMsg = "Warning: Resetting to custom syllabus defaults will completely clear your current subjects, study day schedules, and checklist progress.\n\nDo you wish to proceed?";
+  if (!confirm(confirmMsg)) return;
+
+  subj = JSON.parse(JSON.stringify(DEF_SUBJ));
+  days = JSON.parse(JSON.stringify(DEF_DAYS));
+  prog = {};
+  stopAllTimers();
+  timers = {};
+  
+  conf.examName = "My Study Plan";
+  conf.startDate = new Date().toISOString();
+  conf.syllabusType = "custom";
+  
+  sd();
+  curDay = 0;
+  
+  const examNameInp = document.getElementById('targetExamName');
+  if (examNameInp) examNameInp.value = conf.examName;
+  updateDaysRemaining();
+  
+  renderAll();
+  renderSyllabus();
+  renderManage();
+  renderDots();
+  renderNavLabel();
+  
+  alert('Custom syllabus defaults loaded successfully!');
+}
+
+function loadSelectedPremadeSyllabus(templateKey) {
+  if (!templateKey || !PREMADE_SYLLABI[templateKey]) {
+    alert('Please select a valid exam syllabus template.');
+    return;
+  }
+  
+  const template = PREMADE_SYLLABI[templateKey];
+  const confirmMsg = `Warning: Loading the "${template.examName}" syllabus will completely reset your current subjects, study day schedules, and checklist progress.\n\nDo you wish to proceed?`;
+  if (!confirm(confirmMsg)) {
+    const selectEl = document.getElementById('sylModeSelect');
+    if (selectEl) {
+      selectEl.value = conf.syllabusType || 'custom';
+      toggleSyllabusModeView(selectEl.value);
+    }
+    return;
+  }
+
+  // Overwrite subjects and days
+  subj = JSON.parse(JSON.stringify(template.subj));
+  days = JSON.parse(JSON.stringify(template.days));
+  
+  // Reset progress and timers
+  prog = {};
+  stopAllTimers();
+  timers = {};
+  
+  // Set default configurations
+  conf.examName = template.examName;
+  conf.startDate = new Date().toISOString();
+  conf.syllabusType = templateKey;
+  
+  // Save to localStorage and API
+  sd();
+  
+  // Reset current day back to first day
+  curDay = 0;
+  
+  // Update name and date in the Manage panel UI
+  const examNameInp = document.getElementById('targetExamName');
+  if (examNameInp) examNameInp.value = conf.examName;
+  updateDaysRemaining();
+  
+  // Refresh views
+  renderAll();
+  renderSyllabus();
+  renderManage();
+  renderDots();
+  renderNavLabel();
+  
+  alert(`"${template.examName}" syllabus loaded successfully!`);
+}
+
+/* Arrange / Reorder items functions */
+function moveSylSubject(sid, dir) {
+  const idx = subj.findIndex(s => s.id === sid);
+  const targetIdx = idx + dir;
+  if (targetIdx < 0 || targetIdx >= subj.length) return;
+
+  const temp = subj[idx];
+  subj[idx] = subj[targetIdx];
+  subj[targetIdx] = temp;
+
+  sd();
+  renderSyllabus();
+  renderManage();
+  renderAll();
+}
+
+function moveSylTopic(sid, bid, dir) {
+  const list = [];
+  days.forEach(d => {
+    d.blocks.forEach((b, bIdx) => {
+      if (b.subjectId === sid) {
+        list.push({ dayId: d.id, blockIdx: bIdx, block: b });
+      }
+    });
+  });
+
+  const idx = list.findIndex(x => x.block.id === bid);
+  const targetIdx = idx + dir;
+  if (targetIdx < 0 || targetIdx >= list.length) return;
+
+  const currItem = list[idx];
+  const targItem = list[targetIdx];
+
+  const currDay = days.find(d => d.id === currItem.dayId);
+  const targDay = days.find(d => d.id === targItem.dayId);
+  if (!currDay || !targDay) return;
+
+  const currBlock = currDay.blocks[currItem.blockIdx];
+  const targBlock = targDay.blocks[targItem.blockIdx];
+
+  const temp = {
+    id: currBlock.id,
+    topic: currBlock.topic,
+    subtopics: currBlock.subtopics,
+    customTasks: currBlock.customTasks
+  };
+
+  currBlock.id = targBlock.id;
+  currBlock.topic = targBlock.topic;
+  currBlock.subtopics = targBlock.subtopics;
+  currBlock.customTasks = targBlock.customTasks;
+
+  targBlock.id = temp.id;
+  targBlock.topic = temp.topic;
+  targBlock.subtopics = temp.subtopics;
+  targBlock.customTasks = temp.customTasks;
+
+  const tempProg = prog[currBlock.id] || {};
+  prog[currBlock.id] = prog[targBlock.id] || {};
+  prog[targBlock.id] = tempProg;
+
+  if (window.expandedTopics) {
+    const currOpen = window.expandedTopics.has(currBlock.id);
+    const targOpen = window.expandedTopics.has(targBlock.id);
+    
+    if (currOpen) window.expandedTopics.add(targBlock.id);
+    else window.expandedTopics.delete(targBlock.id);
+    
+    if (targOpen) window.expandedTopics.add(currBlock.id);
+    else window.expandedTopics.delete(currBlock.id);
+  }
+
+  sd();
+  sp();
+  refreshAllViews();
+}
+
+function moveSylSubtopic(dayId, blockId, idx, dir) {
+  const day = days.find(d => d.id === dayId);
+  if (!day) return;
+  const block = day.blocks.find(b => b.id === blockId);
+  if (!block) return;
+
+  const targetIdx = idx + dir;
+  if (targetIdx < 0 || targetIdx >= block.subtopics.length) return;
+
+  const temp = block.subtopics[idx];
+  block.subtopics[idx] = block.subtopics[targetIdx];
+  block.subtopics[targetIdx] = temp;
+
+  const p = gp(blockId);
+  const tempDone = p.subtopics[idx] || false;
+  p.subtopics[idx] = p.subtopics[targetIdx] || false;
+  p.subtopics[targetIdx] = tempDone;
+
+  sd();
+  sp();
+  refreshAllViews();
+}
+
 /* Syllabus editing functions */
 function editSylTopic(dayId,blockId,newTopic){
   const day=days.find(d=>d.id===dayId);
@@ -1058,6 +1342,7 @@ function editSylTopic(dayId,blockId,newTopic){
     if(block){
       block.topic=newTopic.trim();
       sd();
+      refreshAllViews();
     }
   }
 }
@@ -1069,6 +1354,7 @@ function editSylSt(dayId,blockId,idx,newText){
     if(block){
       block.subtopics[idx]=newText.trim();
       sd();
+      refreshAllViews();
     }
   }
 }
@@ -1081,12 +1367,13 @@ function delSylSt(dayId,blockId,idx){
       if(block){
         block.subtopics.splice(idx,1);
         delete gp(blockId).subtopics[idx];
-        sd();sp();renderSyllabus();
+        sd();sp();refreshAllViews();
       }
     }
   }
 }
 
+// Add Syllabus subtopic
 function addSylSt(dayId,blockId){
   const inp=document.getElementById('sylst-'+blockId);
   const txt=inp?.value?.trim();
@@ -1097,7 +1384,7 @@ function addSylSt(dayId,blockId){
     if(block){
       block.subtopics.push(txt);
       inp.value='';
-      sd();renderSyllabus();
+      sd();refreshAllViews();
     }
   }
 }
@@ -1109,6 +1396,7 @@ function editSylCt(dayId,blockId,idx,newText){
     if(block&&block.customTasks){
       block.customTasks[idx].text=newText.trim();
       sd();
+      refreshAllViews();
     }
   }
 }
@@ -1120,7 +1408,7 @@ function delSylCt(dayId,blockId,idx){
       const block=day.blocks.find(b=>b.id===blockId);
       if(block&&block.customTasks){
         block.customTasks.splice(idx,1);
-        sd();sp();renderSyllabus();
+        sd();sp();refreshAllViews();
       }
     }
   }
@@ -1130,13 +1418,18 @@ function delSylCt(dayId,blockId,idx){
    MANAGE VIEW
 ══════════════════════════════════════════ */
 function renderManage(){
+  const isFirstTime = subj.some(s => ['subject 1', 'subject 2', 'subject 3'].includes(s.name.toLowerCase()));
+  const alertEl = document.getElementById('subjSuggestionAlert');
+  if (alertEl) {
+    alertEl.style.display = isFirstTime ? 'block' : 'none';
+  }
+
   document.getElementById('subjListEl').innerHTML=subj.map(s=>`
     <div class="subj-row" onclick="openSubjModal('${s.id}')">
       <div class="sdot" style="background:${s.color}"></div>
       <span style="font-size:15px">${s.icon}</span>
       <span class="srow-name">${esc(s.name)}</span>
       <span class="srow-meta">${s.defaultHrs}h</span>
-      <button class="srow-del" onclick="event.stopPropagation();delSubj('${s.id}')">✕</button>
     </div>`).join('')||'<div style="padding:14px;font-size:13px;color:var(--ink3)">No subjects.</div>';
   renderDayListM();populateDFilter();
 }
@@ -1269,7 +1562,7 @@ function saveSubject(){
   if(!name){alert('Enter subject name');return;}
   if(editSubjId){const s=subj.find(x=>x.id===editSubjId);if(s){s.name=name;s.color=selColor;s.icon=selIcon;s.defaultHrs=hrs;}}
   else subj.push({id:'s'+Date.now(),name,color:selColor,icon:selIcon,defaultHrs:hrs});
-  sd();closeModal('subjOverlay');renderAll();
+  sd();closeModal('subjOverlay');renderAll();renderSyllabus();renderManage();
 }
 
 function openDayModal(id){
@@ -1293,46 +1586,52 @@ function renderModalBlocks(){
     if (existing.length > 0) {
       if (!window.sylTopicCache) window.sylTopicCache = {};
       window.sylTopicCache[b.subjectId] = existing;
-      quickPopulateHtml = `<select style="padding:4px 6px;border-radius:4px;border:1px solid var(--border);background:var(--bg2);color:var(--ink);font-size:11px;outline:none;max-width:180px;" onchange="if(this.value!==''){ const item=window.sylTopicCache['${b.subjectId}'][this.value]; modalBlocks[${i}].topic=item.topic; modalBlocks[${i}].subtopics=[...item.subtopics]; renderModalBlocks(); }">
+      quickPopulateHtml = `<select style="padding:4px 6px;border-radius:4px;border:1px solid color-mix(in srgb, ${s.color} 30%, transparent);background:var(--card);color:var(--ink);font-size:11px;outline:none;max-width:180px;" onchange="if(this.value!==''){ const item=window.sylTopicCache['${b.subjectId}'][this.value]; modalBlocks[${i}].topic=item.topic; modalBlocks[${i}].subtopics=[...item.subtopics]; renderModalBlocks(); }">
         <option value="">📋 Select Existing Topic...</option>
         ${existing.map((item, idx) => `<option value="${idx}">${esc(item.topic)} (${item.subtopics.length} st)</option>`).join('')}
       </select>`;
     }
 
-    return `<div class="mblk-row" style="flex-direction:column;align-items:stretch;gap:10px">
-      <div style="display:flex;align-items:center;gap:10px">
-        <div style="font-size:18px;flex-shrink:0">${s.icon}</div>
-        <div style="flex:1;display:flex;flex-direction:column;gap:5px">
-          <div style="display:flex;align-items:center;justify-content:space-between">
-            <div class="mblk-name" style="color:${s.color}">${s.name}</div>
-            ${quickPopulateHtml}
+    return `<div class="mblk-row" style="background: color-mix(in srgb, ${s.color} 5%, transparent); border-color: color-mix(in srgb, ${s.color} 25%, transparent); flex-direction:column; align-items:stretch; gap:12px;">
+      <!-- Line 1: Header Info & Controls -->
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="width:28px;height:28px;border-radius:6px;background:color-mix(in srgb, ${s.color} 15%, transparent);display:flex;align-items:center;justify-content:center;font-size:15px">${s.icon}</div>
+          <div class="mblk-name" style="color:${s.color};font-weight:800;font-size:14px;">${s.name}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-left:auto;">
+          <select style="padding:5px 8px;border-radius:6px;border:1px solid color-mix(in srgb, ${s.color} 30%, transparent);background:var(--card);color:var(--ink);font-size:12px;outline:none;" onchange="modalBlocks[${i}].subjectId=this.value;renderModalBlocks()">
+            ${subj.map(sx=>`<option value="${sx.id}"${sx.id===b.subjectId?' selected':''}>${sx.icon} ${sx.name}</option>`).join('')}
+          </select>
+          <div class="mblk-hrs" style="background:var(--card);border:1px solid color-mix(in srgb, ${s.color} 20%, transparent);padding:2px;border-radius:6px;display:flex;align-items:center;">
+            <button class="ctrl-btn" style="border:none;background:transparent;cursor:pointer;" onclick="modalBlocks[${i}].targetHrs=+(Math.max(.5,modalBlocks[${i}].targetHrs-.5).toFixed(1));renderModalBlocks()">−</button>
+            <div class="mblk-hr-val" style="color:${s.color};font-weight:800;min-width:32px;text-align:center;font-size:13px;">${b.targetHrs}h</div>
+            <button class="ctrl-btn" style="border:none;background:transparent;cursor:pointer;" onclick="modalBlocks[${i}].targetHrs=+(Math.min(12,modalBlocks[${i}].targetHrs+.5).toFixed(1));renderModalBlocks()">+</button>
           </div>
-          <input class="mblk-topic" value="${esc(b.topic||'')}" placeholder="Topic…" onchange="modalBlocks[${i}].topic=this.value" style="margin-top:2px">
+          <button onclick="modalBlocks.splice(${i},1);renderModalBlocks()" style="width:26px;height:26px;border-radius:6px;border:1px solid color-mix(in srgb, ${s.color} 30%, transparent);background:var(--card);color:#d94f3d;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;transition:all .15s;" onmouseover="this.style.background='#d94f3d15'" onmouseout="this.style.background='var(--card)'">✕</button>
         </div>
-        <select style="padding:5px 7px;border-radius:6px;border:1px solid var(--border);background:var(--bg2);color:var(--ink);font-size:12px;outline:none;flex-shrink:0" onchange="modalBlocks[${i}].subjectId=this.value;renderModalBlocks()">
-          ${subj.map(sx=>`<option value="${sx.id}"${sx.id===b.subjectId?' selected':''}>${sx.icon} ${sx.name}</option>`).join('')}
-        </select>
-        <div class="mblk-hrs">
-          <button class="ctrl-btn" onclick="modalBlocks[${i}].targetHrs=+(Math.max(.5,modalBlocks[${i}].targetHrs-.5).toFixed(1));renderModalBlocks()">−</button>
-          <div class="mblk-hr-val" style="color:${s.color}">${b.targetHrs}h</div>
-          <button class="ctrl-btn" onclick="modalBlocks[${i}].targetHrs=+(Math.min(12,modalBlocks[${i}].targetHrs+.5).toFixed(1));renderModalBlocks()">+</button>
-        </div>
-        <button onclick="modalBlocks.splice(${i},1);renderModalBlocks()" style="width:22px;height:22px;border-radius:5px;border:1px solid var(--border);background:none;color:var(--ink3);cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0">✕</button>
       </div>
-      <div style="border-top:1px solid var(--border);padding-top:8px">
+      <!-- Line 2: Topic Input & Quick Populate -->
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:2px;">
+        <input class="mblk-topic" value="${esc(b.topic||'')}" placeholder="Topic name…" onchange="modalBlocks[${i}].topic=this.value" style="flex:2;min-width:180px;margin:0;">
+        ${quickPopulateHtml ? `<div style="flex:1;min-width:160px;display:flex;justify-content:flex-end;">${quickPopulateHtml}</div>` : ''}
+      </div>
+      <!-- Sub-topics Section -->
+      <div style="border-top:1px solid color-mix(in srgb, ${s.color} 15%, transparent);padding-top:8px">
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--ink3);margin-bottom:6px">📋 Sub-topics</div>
         <div style="margin-bottom:8px">${stHtml}</div>
         <div style="display:flex;gap:5px;margin-bottom:12px">
-          <input id="mst-${i}" placeholder="Add sub-topic" style="flex:1;padding:6px 8px;border:1px solid var(--border);border-radius:5px;background:var(--bg2);font-size:12px">
-          <button onclick="const txt=document.getElementById('mst-${i}').value.trim();if(txt){modalBlocks[${i}].subtopics.push(txt);document.getElementById('mst-${i}').value='';renderModalBlocks()}" style="padding:6px 10px;background:var(--green);color:#fff;border:none;border-radius:5px;font-size:11px;font-weight:700">Add</button>
+          <input id="mst-${i}" placeholder="Add sub-topic" style="flex:1;padding:6px 8px;border:1px solid var(--border);border-radius:5px;background:var(--card);font-size:12px;color:var(--ink);outline:none;">
+          <button onclick="const txt=document.getElementById('mst-${i}').value.trim();if(txt){modalBlocks[${i}].subtopics.push(txt);document.getElementById('mst-${i}').value='';renderModalBlocks()}" style="padding:6px 10px;background:var(--green);color:#fff;border:none;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;">Add</button>
         </div>
       </div>
-      <div style="border-top:1px solid var(--border);padding-top:8px">
+      <!-- Custom Tasks Section -->
+      <div style="border-top:1px solid color-mix(in srgb, ${s.color} 15%, transparent);padding-top:8px">
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--ink3);margin-bottom:6px">✏️ Custom Tasks</div>
         <div style="margin-bottom:8px">${ctHtml}</div>
         <div style="display:flex;gap:5px">
-          <input id="mct-${i}" placeholder="Add custom task" style="flex:1;padding:6px 8px;border:1px solid var(--border);border-radius:5px;background:var(--bg2);font-size:12px">
-          <button onclick="const txt=document.getElementById('mct-${i}').value.trim();if(txt){if(!modalBlocks[${i}].customTasks)modalBlocks[${i}].customTasks=[];modalBlocks[${i}].customTasks.push({text:txt,done:false});document.getElementById('mct-${i}').value='';renderModalBlocks()}" style="padding:6px 10px;background:var(--blue);color:#fff;border:none;border-radius:5px;font-size:11px;font-weight:700">Add</button>
+          <input id="mct-${i}" placeholder="Add custom task" style="flex:1;padding:6px 8px;border:1px solid var(--border);border-radius:5px;background:var(--card);font-size:12px;color:var(--ink);outline:none;">
+          <button onclick="const txt=document.getElementById('mct-${i}').value.trim();if(txt){if(!modalBlocks[${i}].customTasks)modalBlocks[${i}].customTasks=[];modalBlocks[${i}].customTasks.push({text:txt,done:false});document.getElementById('mct-${i}').value='';renderModalBlocks()}" style="padding:6px 10px;background:var(--blue);color:#fff;border:none;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;">Add</button>
         </div>
       </div>
     </div>`;
@@ -1351,7 +1650,7 @@ function saveDay(){
   } else {
     days.push({id:'day'+Date.now(),title,dateOverride:dv?new Date(dv).toISOString():null,targetHrs:target,blocks:modalBlocks});
   }
-  sd();closeModal('dayOverlay');renderAll();
+  sd();closeModal('dayOverlay');refreshAllViews();
 }
 
 /* Block picker */
@@ -1372,7 +1671,7 @@ function confirmAddBlock(){
   const d=days.find(x=>x.id===bpDayId);if(!d)return;
   const s=sj(bpSelSubjId);
   d.blocks.push({id:gid(),subjectId:bpSelSubjId,targetHrs:parseFloat(document.getElementById('bpHrs').value)||s.defaultHrs||2,topic:'',subtopics:[]});
-  sd();closeModal('bpOverlay');renderDayContent();renderHoursBar();renderStats();
+  sd();closeModal('bpOverlay');refreshAllViews();
 }
 
 /* Bulk */
@@ -1386,7 +1685,7 @@ function saveBulk(){
     if(l.startsWith('  -')||l.startsWith('\t-')){const txt=l.replace(/^\s*-\s*/,'').trim();if(curBlocks.length&&txt)curBlocks[curBlocks.length-1].subtopics.push(txt);}
     else if(l.includes('|')){flush();const parts=l.split('|').map(p=>p.trim());cur=parts[0];curBlocks=parts.slice(1).map(p=>{const[nm,hrs]=p.split(':');const s=subj.find(x=>x.name.toLowerCase()===nm.trim().toLowerCase());if(!s)return null;return{id:gid(),subjectId:s.id,targetHrs:parseFloat(hrs)||s.defaultHrs||2,topic:'',subtopics:[]};}).filter(Boolean);}
   });flush();
-  if(added){sd();closeModal('bulkOverlay');renderAll();alert(`${added} day(s) added!`);}
+  if(added){sd();closeModal('bulkOverlay');refreshAllViews();alert(`${added} day(s) added!`);}
   else alert('No days added. Check subject names match exactly.');
 }
 
@@ -1396,9 +1695,116 @@ function saveBulk(){
 function switchView(v){
   document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.view===v));
   document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id==='view-'+v));
+  
+  const statsEl = document.getElementById('statsRow');
+  const hoursEl = document.getElementById('hoursBar');
+  if (statsEl) statsEl.style.display = (v === 'daily') ? '' : 'none';
+  if (hoursEl) hoursEl.style.display = (v === 'daily') ? '' : 'none';
+
   if(v==='syllabus')renderSyllabus();
   if(v==='manage'){renderManage();updateDaysRemaining();}
   if(v==='daily')renderDaily();
+  if(v==='revision')renderRevision();
+
+  conf.activeTab = v;
+  sc();
+}
+
+function renderRevision() {
+  const container = document.getElementById('revisionTableBody');
+  if (!container) return;
+
+  if (!prog.revision) {
+    prog.revision = {};
+  }
+
+  if (subj.length === 0) {
+    container.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--ink3);padding:24px;">No subjects defined yet. Add subjects in the Manage or Syllabus tabs.</td></tr>`;
+    return;
+  }
+
+  let html = '';
+  subj.forEach(s => {
+    const revs = prog.revision[s.id] || [false, false, false, false, false];
+    while (revs.length < 5) {
+      revs.push(false);
+    }
+    prog.revision[s.id] = revs;
+
+    const completed = revs.filter(Boolean).length;
+    const pct = Math.round((completed / 5) * 100);
+
+    html += `
+      <tr style="border-bottom:1px solid var(--border)">
+        <td style="padding:12px;display:flex;align-items:center;gap:8px">
+          <div style="width:12px;height:12px;border-radius:3px;background:${s.color}"></div>
+          <span style="font-size:15px;margin-right:4px">${s.icon}</span>
+          <span class="rev-row-name">${esc(s.name)}</span>
+        </td>
+        ${revs.map((done, idx) => `
+          <td style="padding:12px;text-align:center">
+            <div class="rev-box${done ? ' done' : ''}" onclick="toggleRevisionCheck('${s.id}', ${idx})">
+              ${done ? '✓' : ''}
+            </div>
+          </td>
+        `).join('')}
+        <td style="padding:12px;">
+          <div style="display:flex;align-items:center;gap:8px;justify-content:center">
+            <div style="flex:1;min-width:60px;height:6px;background:var(--bg2);border-radius:3px;overflow:hidden">
+              <div style="height:100%;width:${pct}%;background:var(--green)"></div>
+            </div>
+            <span class="rev-progress-cell" style="color:${pct === 100 ? 'var(--green)' : 'var(--ink)'}">${completed}/5</span>
+          </div>
+        </td>
+      </tr>
+    `;
+  });
+
+  container.innerHTML = html;
+}
+
+function toggleRevisionCheck(subjId, idx) {
+  if (!prog.revision) {
+    prog.revision = {};
+  }
+  const revs = prog.revision[subjId] || [false, false, false, false, false];
+  while (revs.length < 5) {
+    revs.push(false);
+  }
+  revs[idx] = !revs[idx];
+  prog.revision[subjId] = revs;
+  sp();
+  renderRevision();
+}
+
+function toggleRevisionTracker() {
+  conf.revisionActive = !conf.revisionActive;
+  sc();
+  updateRevisionTabVisibility();
+}
+
+function updateRevisionTabVisibility() {
+  const tab = document.getElementById('tab-revision');
+  const btn = document.getElementById('toggleRevisionBtn');
+  if (!tab || !btn) return;
+
+  if (conf.revisionActive) {
+    tab.style.display = 'inline-block';
+    btn.textContent = 'Deactivate Revision Tracker';
+    btn.style.background = '#f44336';
+    btn.style.borderColor = '#f44336';
+  } else {
+    tab.style.display = 'none';
+    btn.textContent = 'Activate Revision Tracker';
+    btn.style.background = 'var(--green)';
+    btn.style.borderColor = 'var(--green)';
+    
+    // Redirect away from revision tab if it's currently selected
+    const activeTab = document.querySelector('.tab.active');
+    if (activeTab && activeTab.dataset.view === 'revision') {
+      switchView('daily');
+    }
+  }
 }
 document.addEventListener('DOMContentLoaded',()=>{
   const tabs=document.querySelectorAll('.tab[data-view]');
@@ -1424,6 +1830,190 @@ function toggleTheme(){
   applyTheme();
   closeHeaderMenu();
 }
+/* ══════════════════════════════════════════
+   TUTORIAL
+══════════════════════════════════════════ */
+const TUTORIAL_STEPS = [
+  {
+    title: 'Welcome to Study Planner 📚',
+    content: `
+      <div style="text-align:center;padding:12px 0 20px">
+        <div style="font-size:48px;margin-bottom:12px">🎓</div>
+        <p style="font-size:15px;color:var(--ink2);line-height:1.7;margin-bottom:12px">
+          Your personal study companion — plan your schedule, track your syllabus, and stay consistent every day.
+        </p>
+        <p style="font-size:13px;color:var(--ink3);line-height:1.6">
+          This quick tour will walk you through the <strong>3 main tabs</strong> and key features. You can skip at any time and re-open using the 💡 button in the top bar.
+        </p>
+      </div>
+    `
+  },
+  {
+    title: '📅 Daily Tab — Track Your Day',
+    content: `
+      <div style="padding:4px 0">
+        <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:14px">
+          <span style="font-size:24px;flex-shrink:0">📊</span>
+          <div>
+            <div style="font-weight:700;color:var(--ink);margin-bottom:4px">Progress Stats</div>
+            <p style="font-size:13px;color:var(--ink2);line-height:1.6">View your overall progress, current streak, and total hours logged across all subjects at a glance.</p>
+          </div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:14px">
+          <span style="font-size:24px;flex-shrink:0">⏱️</span>
+          <div>
+            <div style="font-weight:700;color:var(--ink);margin-bottom:4px">Study Timer</div>
+            <p style="font-size:13px;color:var(--ink2);line-height:1.6">Start a live timer for each subject block. Or use the <strong>minutes bar</strong> to manually add study time in minutes.</p>
+          </div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:12px">
+          <span style="font-size:24px;flex-shrink:0">✅</span>
+          <div>
+            <div style="font-weight:700;color:var(--ink);margin-bottom:4px">Subtopic Checklist</div>
+            <p style="font-size:13px;color:var(--ink2);line-height:1.6">Tick off subtopics as you complete them. Each subject block shows your completion percentage.</p>
+          </div>
+        </div>
+      </div>
+    `
+  },
+  {
+    title: '📚 Syllabus Tab — Build Your Plan',
+    content: `
+      <div style="padding:4px 0">
+        <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:14px">
+          <span style="font-size:24px;flex-shrink:0">🛠️</span>
+          <div>
+            <div style="font-weight:700;color:var(--ink);margin-bottom:4px">Create Your Own Syllabus</div>
+            <p style="font-size:13px;color:var(--ink2);line-height:1.6">Add custom subjects, topics, and subtopics. Organize exactly what you want to study.</p>
+          </div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:14px">
+          <span style="font-size:24px;flex-shrink:0">📋</span>
+          <div>
+            <div style="font-weight:700;color:var(--ink);margin-bottom:4px">Premade Syllabi</div>
+            <p style="font-size:13px;color:var(--ink2);line-height:1.6">Select from curated syllabi for <strong>UPSC, UPPSC, BPSC</strong> and more — complete with subjects and their subtopics already filled in.</p>
+          </div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:12px">
+          <span style="font-size:24px;flex-shrink:0">➕</span>
+          <div>
+            <div style="font-weight:700;color:var(--ink);margin-bottom:4px">Add / Remove Freely</div>
+            <p style="font-size:13px;color:var(--ink2);line-height:1.6">Add or remove subjects anytime. Inside each subject, add topics and subtopics to track granular progress.</p>
+          </div>
+        </div>
+      </div>
+    `
+  },
+  {
+    title: '⚙️ Manage Tab — Your Study Calendar',
+    content: `
+      <div style="padding:4px 0">
+        <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:14px">
+          <span style="font-size:24px;flex-shrink:0">🎯</span>
+          <div>
+            <div style="font-weight:700;color:var(--ink);margin-bottom:4px">Set Target Exam</div>
+            <p style="font-size:13px;color:var(--ink2);line-height:1.6">Enter your exam name and date. The planner will auto-generate a full daily schedule from today until your exam day.</p>
+          </div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:14px">
+          <span style="font-size:24px;flex-shrink:0">📆</span>
+          <div>
+            <div style="font-weight:700;color:var(--ink);margin-bottom:4px">Manage Daily Schedule</div>
+            <p style="font-size:13px;color:var(--ink2);line-height:1.6">See and edit each day's study blocks — which subjects to study, for how many hours, and on which date.</p>
+          </div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:12px">
+          <span style="font-size:24px;flex-shrink:0">🔄</span>
+          <div>
+            <div style="font-weight:700;color:var(--ink);margin-bottom:4px">Revision Tracker (Optional)</div>
+            <p style="font-size:13px;color:var(--ink2);line-height:1.6">Activate the Revision Tracker button here to unlock a dedicated tab where you can tick off revision rounds (1st–5th) for each subject.</p>
+          </div>
+        </div>
+      </div>
+    `
+  },
+  {
+    title: "You're All Set! 🚀",
+    content: `
+      <div style="text-align:center;padding:16px 0 20px">
+        <div style="font-size:52px;margin-bottom:12px">🚀</div>
+        <p style="font-size:15px;color:var(--ink2);line-height:1.7;margin-bottom:16px">
+          Start by setting your exam date in <strong>Manage</strong>, choosing a syllabus in <strong>Syllabus</strong>, then track every day in <strong>Daily</strong>.
+        </p>
+        <p style="font-size:13px;color:var(--ink3);line-height:1.6">
+          Anytime you need this guide again, tap the <strong>💡 bulb icon</strong> in the header.
+        </p>
+        <div style="margin-top:20px;padding:12px 16px;background:var(--bg2);border-radius:8px;font-size:13px;color:var(--ink2)">
+          🔥 Consistency beats intensity. Show up every day!
+        </div>
+      </div>
+    `
+  }
+];
+
+let tutorialStep = 0;
+
+function openTutorial() {
+  tutorialStep = 0;
+  renderTutorialStep();
+  openModal('tutorialOverlay');
+}
+
+function closeTutorial() {
+  closeModal('tutorialOverlay');
+  conf.tutorialDone = true;
+  sc();
+}
+
+function renderTutorialStep() {
+  const step = TUTORIAL_STEPS[tutorialStep];
+  document.getElementById('tutorialStepTitle').textContent = step.title;
+  document.getElementById('tutorialStepBody').innerHTML = step.content;
+
+  // Dots
+  const dots = TUTORIAL_STEPS.map((_, i) => `
+    <div onclick="jumpTutorialStep(${i})" style="width:8px;height:8px;border-radius:50%;background:${i === tutorialStep ? 'var(--blue)' : 'var(--border)'};cursor:pointer;transition:background .2s"></div>
+  `).join('');
+  document.getElementById('tutorialDots').innerHTML = dots;
+
+  // Buttons
+  const prevBtn = document.getElementById('tutorialPrevBtn');
+  const nextBtn = document.getElementById('tutorialNextBtn');
+  prevBtn.style.display = tutorialStep > 0 ? 'inline-block' : 'none';
+  const isLast = tutorialStep === TUTORIAL_STEPS.length - 1;
+  nextBtn.textContent = isLast ? '✓ Done' : 'Next →';
+  nextBtn.style.background = isLast ? 'var(--green)' : 'var(--blue)';
+  nextBtn.style.borderColor = isLast ? 'var(--green)' : 'var(--blue)';
+}
+
+function tutorialNext() {
+  if (tutorialStep < TUTORIAL_STEPS.length - 1) {
+    tutorialStep++;
+    renderTutorialStep();
+  } else {
+    closeTutorial();
+  }
+}
+
+function tutorialPrev() {
+  if (tutorialStep > 0) {
+    tutorialStep--;
+    renderTutorialStep();
+  }
+}
+
+function jumpTutorialStep(i) {
+  tutorialStep = i;
+  renderTutorialStep();
+}
+
+function maybeShowTutorial() {
+  if (!conf.tutorialDone) {
+    openTutorial();
+  }
+}
+
+
 
 function resetPlan(){
   if(!confirm('Reset all progress? Your plan is kept.'))return;
@@ -1431,7 +2021,7 @@ function resetPlan(){
   prog={};
   timers={};
   sp();
-  renderAll();
+  refreshAllViews();
   closeHeaderMenu();
 }
 
@@ -1472,6 +2062,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 });
 
 function renderAll(){renderStats();renderDaily();}
+function refreshAllViews(){renderAll();renderSyllabus();renderManage();}
 
 /* ══════════════════════════════════════════
    INIT
@@ -1502,19 +2093,27 @@ window.addEventListener('pagehide',()=>{
 document.addEventListener('DOMContentLoaded', async ()=>{
   loadLocalSync();
   applyTheme();
+  await loadSyllabusTemplates();
+  updateRevisionTabVisibility();
   renderAll();
   const nameInput=document.getElementById('targetExamName');
   if(nameInput&&conf.examName)nameInput.value=conf.examName;
   const dateInput=document.getElementById('targetExamDate');
   if(dateInput&&conf.targetDate)dateInput.value=conf.targetDate;
   updateDaysRemaining();
+  switchView(conf.activeTab || 'daily');
 
   await load();
   applyTheme();
+  await loadSyllabusTemplates();
+  updateRevisionTabVisibility();
   renderAll();
   if(nameInput&&conf.examName)nameInput.value=conf.examName;
   if(dateInput&&conf.targetDate)dateInput.value=conf.targetDate;
   updateDaysRemaining();
+  switchView(conf.activeTab || 'daily');
   // Persist current plan to server so mentors can see student has opened tracker
   syncToServer();
+  // Show tutorial on first visit only
+  maybeShowTutorial();
 });

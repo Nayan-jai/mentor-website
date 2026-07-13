@@ -33,7 +33,7 @@ export default function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
             <GraduationCap className="w-8 h-8 text-blue-400 transition-transform duration-300 group-hover:rotate-12" />
-            <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-white via-slate-100 to-indigo-200 bg-clip-text text-transparent">UPSC Mentor</span>
+            <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-white via-slate-100 to-indigo-200 bg-clip-text text-transparent">Mentor</span>
           </Link>
 
           {/* Hamburger for mobile */}

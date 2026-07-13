@@ -72,11 +72,11 @@ export default function HomePage() {
           <div className="container mx-auto px-4 relative z-10 pt-20">
             <div className="max-w-3xl mx-auto text-center">
               <h2 className="hero-title text-4xl md:text-6xl font-bold mb-6 text-white drop-shadow-lg">
-                Your Journey to UPSC Success Starts Here
+                Your Journey to Success Starts Here
               </h2>
               <p className="hero-subtitle text-xl md:text-2xl mb-8 text-gray-200">
                 Connect with experienced mentors, get personalized guidance, and
-                accelerate your UPSC preparation
+                accelerate your preparation
               </p>
               {!session ? (
                 <div className="space-x-4">
@@ -119,7 +119,7 @@ export default function HomePage() {
                   <a href="#" className="text-gray-100">Expert Mentors</a>
                 </h3>
                 <p className="text-gray-300">
-                  Connect with experienced UPSC mentors who have successfully cleared
+                  Connect with experienced mentors who have successfully cleared
                   the examination
                 </p>
               </div>
@@ -186,7 +186,7 @@ export default function HomePage() {
 
         {/* CTA Section */}        <section className="cta bg-gray-900 py-20 text-center text-white">
           <div className="container mx-auto px-4 text-center">
-            <h3 className="text-3xl font-bold mb-4">Ready to Start Your UPSC Journey?</h3>
+            <h3 className="text-3xl font-bold mb-4">Ready to Start Your Journey?</h3>
             <p className="text-xl mb-8">Join our community of aspirants and mentors today</p>
             {!session ? (
               <Link

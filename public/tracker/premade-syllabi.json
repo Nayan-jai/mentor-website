@@ -1,0 +1,797 @@
+{
+  "upsc": {
+    "examName": "UPSC Civil Services",
+    "subj": [
+      {
+        "id": "s_polity",
+        "name": "Polity",
+        "color": "var(--red)",
+        "icon": "⚖️",
+        "defaultHrs": 3
+      },
+      {
+        "id": "s_history",
+        "name": "History",
+        "color": "var(--orange)",
+        "icon": "🏛️",
+        "defaultHrs": 3
+      },
+      {
+        "id": "s_economy",
+        "name": "Economy",
+        "color": "var(--green)",
+        "icon": "📈",
+        "defaultHrs": 3
+      },
+      {
+        "id": "s_geography",
+        "name": "Geography",
+        "color": "var(--blue)",
+        "icon": "🗺️",
+        "defaultHrs": 3
+      },
+      {
+        "id": "s_env",
+        "name": "Environment & Ecology",
+        "color": "var(--teal)",
+        "icon": "🌿",
+        "defaultHrs": 2
+      },
+      {
+        "id": "s_csat",
+        "name": "CSAT",
+        "color": "var(--gold)",
+        "icon": "🔢",
+        "defaultHrs": 2
+      }
+    ],
+    "days": [
+      {
+        "id": "d_u1",
+        "title": "Day 1 Focus: Constitutional Framework",
+        "dateOverride": null,
+        "targetHrs": 8,
+        "blocks": [
+          {
+            "id": "b_u1a",
+            "subjectId": "s_polity",
+            "targetHrs": 3,
+            "topic": "Historical Underpinnings & Preamble",
+            "subtopics": [
+              "Regulating Act 1773 to Independence Act 1947",
+              "Constituent Assembly composition",
+              "Preamble keywords & significance"
+            ]
+          },
+          {
+            "id": "b_u1b",
+            "subjectId": "s_history",
+            "targetHrs": 3,
+            "topic": "Ancient India: Indus Valley Civilization",
+            "subtopics": [
+              "IVC major sites & excavations",
+              "Town planning, agriculture & trade",
+              "Decline of Indus Valley Civilization"
+            ]
+          },
+          {
+            "id": "b_u1c",
+            "subjectId": "s_csat",
+            "targetHrs": 2,
+            "topic": "Number System: Divisibility",
+            "subtopics": [
+              "Divisibility rules & prime factorization",
+              "HCF & LCM base rules"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "d_u2",
+        "title": "Day 2 Focus: Geography & National Income",
+        "dateOverride": null,
+        "targetHrs": 8,
+        "blocks": [
+          {
+            "id": "b_u2a",
+            "subjectId": "s_geography",
+            "targetHrs": 3,
+            "topic": "Physical Geography: Earth Interior",
+            "subtopics": [
+              "Crust, Mantle, Core boundaries",
+              "Continental Drift theory",
+              "Plate Tectonics mechanism"
+            ]
+          },
+          {
+            "id": "b_u2b",
+            "subjectId": "s_economy",
+            "targetHrs": 3,
+            "topic": "National Income Accounting",
+            "subtopics": [
+              "GDP, GNP, NDP, NNP formulas",
+              "Real vs Nominal GDP",
+              "National Income estimation methods"
+            ]
+          },
+          {
+            "id": "b_u2c",
+            "subjectId": "s_env",
+            "targetHrs": 2,
+            "topic": "Ecology: Ecosystem Basics",
+            "subtopics": [
+              "Biotic & abiotic components",
+              "Trophic levels & energy flow"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "d_u3",
+        "title": "Day 3 Focus: Fundamental Rights",
+        "dateOverride": null,
+        "targetHrs": 8,
+        "blocks": [
+          {
+            "id": "b_u3a",
+            "subjectId": "s_polity",
+            "targetHrs": 3,
+            "topic": "Fundamental Rights (Part III)",
+            "subtopics": [
+              "Articles 14-18 (Equality)",
+              "Articles 19-22 (Freedom)",
+              "Writs & Constitutional Remedies (Article 32)"
+            ]
+          },
+          {
+            "id": "b_u3b",
+            "subjectId": "s_history",
+            "targetHrs": 3,
+            "topic": "Ancient India: Vedic Era",
+            "subtopics": [
+              "Early vs Later Vedic period",
+              "Vedic literature & Upanishads",
+              "Social organization & assemblies (Sabha, Samiti)"
+            ]
+          },
+          {
+            "id": "b_u3c",
+            "subjectId": "s_economy",
+            "targetHrs": 2,
+            "topic": "Inflation Concept & Measurement",
+            "subtopics": [
+              "WPI vs CPI metrics",
+              "Demand-pull vs Cost-push inflation",
+              "Monetary measures to control inflation"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "d_u4",
+        "title": "Day 4 Focus: Geomorphology & Biodiversity",
+        "dateOverride": null,
+        "targetHrs": 8,
+        "blocks": [
+          {
+            "id": "b_u4a",
+            "subjectId": "s_geography",
+            "targetHrs": 3,
+            "topic": "Geomorphology: Landforms",
+            "subtopics": [
+              "Fluvial & Aeolian landforms",
+              "Karst & Glacial landforms",
+              "Volcanism & Earthquake waves"
+            ]
+          },
+          {
+            "id": "b_u4b",
+            "subjectId": "s_env",
+            "targetHrs": 3,
+            "topic": "Biodiversity & Conservation",
+            "subtopics": [
+              "In-situ conservation (National Parks, WLS)",
+              "Ex-situ conservation (Zoo, Seed banks)",
+              "Biodiversity Hotspots in India"
+            ]
+          },
+          {
+            "id": "b_u4c",
+            "subjectId": "s_csat",
+            "targetHrs": 2,
+            "topic": "Number System: Remainders",
+            "subtopics": [
+              "Euler's theorem & remainder rules",
+              "Simplification techniques"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "d_u5",
+        "title": "Day 5 Focus: State Policy & Maurya Empire",
+        "dateOverride": null,
+        "targetHrs": 8,
+        "blocks": [
+          {
+            "id": "b_u5a",
+            "subjectId": "s_polity",
+            "targetHrs": 3,
+            "topic": "DPSP & Fundamental Duties",
+            "subtopics": [
+              "Socialist, Gandhian & Liberal principles",
+              "Relationship between FR and DPSP",
+              "List of 11 Fundamental Duties"
+            ]
+          },
+          {
+            "id": "b_u5b",
+            "subjectId": "s_history",
+            "targetHrs": 3,
+            "topic": "Ancient India: Buddhism & Jainism",
+            "subtopics": [
+              "Life & Teachings of Gautama Buddha",
+              "Teachings of Mahavira",
+              "Buddhist and Jain councils"
+            ]
+          },
+          {
+            "id": "b_u5c",
+            "subjectId": "s_economy",
+            "targetHrs": 2,
+            "topic": "Banking & RBI Controls",
+            "subtopics": [
+              "Quantitative instruments (CRR, SLR, Repo)",
+              "Qualitative credit control instruments"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "uppsc": {
+    "examName": "UPPSC Uttar Pradesh State Services",
+    "subj": [
+      {
+        "id": "s_polity",
+        "name": "Polity",
+        "color": "var(--red)",
+        "icon": "⚖️",
+        "defaultHrs": 3
+      },
+      {
+        "id": "s_history",
+        "name": "History",
+        "color": "var(--orange)",
+        "icon": "🏛️",
+        "defaultHrs": 3
+      },
+      {
+        "id": "s_economy",
+        "name": "Economy",
+        "color": "var(--green)",
+        "icon": "📈",
+        "defaultHrs": 3
+      },
+      {
+        "id": "s_geography",
+        "name": "Geography",
+        "color": "var(--blue)",
+        "icon": "🗺️",
+        "defaultHrs": 3
+      },
+      {
+        "id": "s_upspl",
+        "name": "UP Special",
+        "color": "var(--teal)",
+        "icon": "🕌",
+        "defaultHrs": 3
+      },
+      {
+        "id": "s_csat",
+        "name": "CSAT",
+        "color": "var(--gold)",
+        "icon": "🔢",
+        "defaultHrs": 2
+      }
+    ],
+    "days": [
+      {
+        "id": "d_up1",
+        "title": "Day 1 Focus: Constitutional Underpinnings",
+        "dateOverride": null,
+        "targetHrs": 8,
+        "blocks": [
+          {
+            "id": "b_up1a",
+            "subjectId": "s_polity",
+            "targetHrs": 3,
+            "topic": "Historical Framework & Preamble",
+            "subtopics": [
+              "Regulating Act 1773 to Independence Act 1947",
+              "Preamble keywords & key cases"
+            ]
+          },
+          {
+            "id": "b_up1b",
+            "subjectId": "s_history",
+            "targetHrs": 3,
+            "topic": "Modern India: Revolt of 1857",
+            "subtopics": [
+              "Political, economic & social causes",
+              "UP Centers of Revolt (Agra, Kanpur, Lucknow, Jhansi)",
+              "Key leaders from UP & consequences"
+            ]
+          },
+          {
+            "id": "b_up1c",
+            "subjectId": "s_upspl",
+            "targetHrs": 2,
+            "topic": "Uttar Pradesh Special: History",
+            "subtopics": [
+              "Ancient sites in UP (Atranjikhera, Sravasti)",
+              "Medieval history of UP (Agra Fort, Fatehpur Sikri)"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "d_up2",
+        "title": "Day 2 Focus: Geography & State Policy",
+        "dateOverride": null,
+        "targetHrs": 8,
+        "blocks": [
+          {
+            "id": "b_up2a",
+            "subjectId": "s_geography",
+            "targetHrs": 3,
+            "topic": "Physical Geography of India",
+            "subtopics": [
+              "Himalayan physiographic divisions",
+              "Northern Plains structure",
+              "Peninsular Plateau relief features"
+            ]
+          },
+          {
+            "id": "b_up2b",
+            "subjectId": "s_polity",
+            "targetHrs": 3,
+            "topic": "Fundamental Rights (Part III)",
+            "subtopics": [
+              "Articles 14-18 (Equality)",
+              "Articles 19-22 (Freedom)",
+              "Right to Constitutional Remedies"
+            ]
+          },
+          {
+            "id": "b_up2c",
+            "subjectId": "s_upspl",
+            "targetHrs": 2,
+            "topic": "UP Special: Geography",
+            "subtopics": [
+              "Bordering states and international borders of UP",
+              "Soils and climate zones in UP"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "d_up3",
+        "title": "Day 3 Focus: Indian Rivers & UP Special",
+        "dateOverride": null,
+        "targetHrs": 8,
+        "blocks": [
+          {
+            "id": "b_up3a",
+            "subjectId": "s_geography",
+            "targetHrs": 3,
+            "topic": "Indian Drainage System",
+            "subtopics": [
+              "Ganges river basin & tributaries",
+              "Indus & Brahmaputra river systems",
+              "Peninsular rivers (Narmada, Godavari, Krishna)"
+            ]
+          },
+          {
+            "id": "b_up3b",
+            "subjectId": "s_upspl",
+            "targetHrs": 3,
+            "topic": "UP Special: Rivers & Irrigation",
+            "subtopics": [
+              "Major rivers in UP (Yamuna, Ganga, Ghaghara, Betwa)",
+              "Canal systems in UP (Sharda Canal)",
+              "Dams & Reservoirs in UP"
+            ]
+          },
+          {
+            "id": "b_up3c",
+            "subjectId": "s_history",
+            "targetHrs": 2,
+            "topic": "Indian National Congress & Extremist Phase",
+            "subtopics": [
+              "Foundation of INC (1885)",
+              "Moderate vs Extremist leaders",
+              "Partition of Bengal (1905)"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "d_up4",
+        "title": "Day 4 Focus: Economy & UP Special",
+        "dateOverride": null,
+        "targetHrs": 8,
+        "blocks": [
+          {
+            "id": "b_up4a",
+            "subjectId": "s_economy",
+            "targetHrs": 3,
+            "topic": "Economic Planning & Poverty",
+            "subtopics": [
+              "History of planning in India",
+              "Five Year Plans achievements",
+              "Poverty estimation committees"
+            ]
+          },
+          {
+            "id": "b_up4b",
+            "subjectId": "s_upspl",
+            "targetHrs": 3,
+            "topic": "UP Special: Economy & Schemes",
+            "subtopics": [
+              "One District One Product (ODOP) initiative",
+              "UP Industrial Corridors & Expressway projects",
+              "UP Budget allocation highlights"
+            ]
+          },
+          {
+            "id": "b_up4c",
+            "subjectId": "s_csat",
+            "targetHrs": 2,
+            "topic": "CSAT: Hindi & English Basics",
+            "subtopics": [
+              "Hindi grammar (Sandhi, Samas, Vyakaran)",
+              "English reading comprehension"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "d_up5",
+        "title": "Day 5 Focus: State Legislature & culture",
+        "dateOverride": null,
+        "targetHrs": 8,
+        "blocks": [
+          {
+            "id": "b_up5a",
+            "subjectId": "s_polity",
+            "targetHrs": 3,
+            "topic": "State Executive & Legislature",
+            "subtopics": [
+              "Governor's appointment & discretionary powers",
+              "Chief Minister & Council of Ministers",
+              "Bicameral legislature in UP (Vidhan Sabha & Council)"
+            ]
+          },
+          {
+            "id": "b_up5b",
+            "subjectId": "s_upspl",
+            "targetHrs": 3,
+            "topic": "UP Special: Culture & Festivals",
+            "subtopics": [
+              "Folk dances (Kathak, Charkula, Karma)",
+              "Folk music & theatrical forms (Nautanki, Raslila)",
+              "Major fairs and festivals in UP"
+            ]
+          },
+          {
+            "id": "b_up5c",
+            "subjectId": "s_economy",
+            "targetHrs": 2,
+            "topic": "Inflation & Public Finance",
+            "subtopics": [
+              "CPI & WPI trends",
+              "GST council composition & tax slabs"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "bpsc": {
+    "examName": "BPSC Bihar State Services",
+    "subj": [
+      {
+        "id": "s_polity",
+        "name": "Polity",
+        "color": "var(--red)",
+        "icon": "⚖️",
+        "defaultHrs": 3
+      },
+      {
+        "id": "s_history",
+        "name": "History",
+        "color": "var(--orange)",
+        "icon": "🏛️",
+        "defaultHrs": 3
+      },
+      {
+        "id": "s_economy",
+        "name": "Economy",
+        "color": "var(--green)",
+        "icon": "📈",
+        "defaultHrs": 3
+      },
+      {
+        "id": "s_geography",
+        "name": "Geography",
+        "color": "var(--blue)",
+        "icon": "🗺️",
+        "defaultHrs": 3
+      },
+      {
+        "id": "s_science",
+        "name": "General Science",
+        "color": "var(--purple)",
+        "icon": "🔬",
+        "defaultHrs": 3
+      },
+      {
+        "id": "s_bihspl",
+        "name": "Bihar Special",
+        "color": "var(--teal)",
+        "icon": "🏮",
+        "defaultHrs": 3
+      }
+    ],
+    "days": [
+      {
+        "id": "d_bp1",
+        "title": "Day 1 Focus: Polity & Ancient Bihar",
+        "dateOverride": null,
+        "targetHrs": 8,
+        "blocks": [
+          {
+            "id": "b_bp1a",
+            "subjectId": "s_polity",
+            "targetHrs": 3,
+            "topic": "Constitutional Framework & Preamble",
+            "subtopics": [
+              "Preamble text and significance",
+              "Salient features of Indian Constitution"
+            ]
+          },
+          {
+            "id": "b_bp1b",
+            "subjectId": "s_history",
+            "targetHrs": 3,
+            "topic": "Ancient History: Buddhism & Jainism",
+            "subtopics": [
+              "Life and teachings of Gautama Buddha",
+              "Mahavira and Jainism rules",
+              "Buddhist Councils held in Rajgir, Vaishali, Pataliputra"
+            ]
+          },
+          {
+            "id": "b_bp1c",
+            "subjectId": "s_bihspl",
+            "targetHrs": 2,
+            "topic": "Bihar Special: Ancient History",
+            "subtopics": [
+              "Rise of Magadha Empire & Haryanka dynasty",
+              "Mauryan rule in Pataliputra",
+              "Nalanda & Vikramshila universities"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "d_bp2",
+        "title": "Day 2 Focus: Indian Geography & Physics",
+        "dateOverride": null,
+        "targetHrs": 8,
+        "blocks": [
+          {
+            "id": "b_bp2a",
+            "subjectId": "s_geography",
+            "targetHrs": 3,
+            "topic": "Physical Divisions of India",
+            "subtopics": [
+              "Himalayan mountain ranges",
+              "Northern fertile plains",
+              "Peninsular hills & coastal systems"
+            ]
+          },
+          {
+            "id": "b_bp2b",
+            "subjectId": "s_science",
+            "targetHrs": 3,
+            "topic": "General Science: Physics Basics",
+            "subtopics": [
+              "SI units & dimensions",
+              "Newton's laws of motion",
+              "Work, Energy & Power concepts"
+            ]
+          },
+          {
+            "id": "b_bp2c",
+            "subjectId": "s_bihspl",
+            "targetHrs": 2,
+            "topic": "Bihar Special: Geography",
+            "subtopics": [
+              "Bihar location, boundaries and climate",
+              "Soil types in North and South Bihar"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "d_bp3",
+        "title": "Day 3 Focus: Modern India & Bihar Rivers",
+        "dateOverride": null,
+        "targetHrs": 8,
+        "blocks": [
+          {
+            "id": "b_bp3a",
+            "subjectId": "s_history",
+            "targetHrs": 3,
+            "topic": "Modern India: Freedom Struggle",
+            "subtopics": [
+              "1857 Revolt causes & centers",
+              "Non-Cooperation Movement (1920-22)",
+              "Quit India Movement (1942)"
+            ]
+          },
+          {
+            "id": "b_bp3b",
+            "subjectId": "s_bihspl",
+            "targetHrs": 3,
+            "topic": "Bihar Special: Rivers & Drainage",
+            "subtopics": [
+              "Ganges river system in Bihar",
+              "North Bihar rivers (Kosi, Gandak, Bagmati)",
+              "South Bihar rivers (Son, Punpun, Phalgu)",
+              "Kosi river: Cause of floods"
+            ]
+          },
+          {
+            "id": "b_bp3c",
+            "subjectId": "s_polity",
+            "targetHrs": 2,
+            "topic": "Fundamental Rights & Duties",
+            "subtopics": [
+              "Articles 14-32 list",
+              "Directive Principles of State Policy"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "d_bp4",
+        "title": "Day 4 Focus: Economy & Chemistry",
+        "dateOverride": null,
+        "targetHrs": 8,
+        "blocks": [
+          {
+            "id": "b_bp4a",
+            "subjectId": "s_economy",
+            "targetHrs": 3,
+            "topic": "Indian Economy & Planning",
+            "subtopics": [
+              "Economic planning & NITI Aayog",
+              "Budget concepts & deficit indicators"
+            ]
+          },
+          {
+            "id": "b_bp4b",
+            "subjectId": "s_science",
+            "targetHrs": 3,
+            "topic": "General Science: Chemistry Basics",
+            "subtopics": [
+              "Elements, mixtures & compounds",
+              "Acids, bases & pH scale",
+              "Metals, non-metals & alloys"
+            ]
+          },
+          {
+            "id": "b_bp4c",
+            "subjectId": "s_bihspl",
+            "targetHrs": 2,
+            "topic": "Bihar Special: Economy & Survey",
+            "subtopics": [
+              "Bihar Budget highlights",
+              "Bihar Economic Survey: Agricultural and industrial growth"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "d_bp5",
+        "title": "Day 5 Focus: Biology & Bihar Freedom Movement",
+        "dateOverride": null,
+        "targetHrs": 8,
+        "blocks": [
+          {
+            "id": "b_bp5a",
+            "subjectId": "s_science",
+            "targetHrs": 3,
+            "topic": "General Science: Biology",
+            "subtopics": [
+              "Cell structure & functions",
+              "Plant and human physiology",
+              "Vitamins & deficiency diseases"
+            ]
+          },
+          {
+            "id": "b_bp5b",
+            "subjectId": "s_bihspl",
+            "targetHrs": 3,
+            "topic": "Bihar Special: Freedom Struggle",
+            "subtopics": [
+              "Champaran Satyagraha 1917 & Gandhi",
+              "Role of Kunwar Singh in 1857 Revolt",
+              "Peasant movement in Bihar & Sahajanand Saraswati"
+            ]
+          },
+          {
+            "id": "b_bp5c",
+            "subjectId": "s_polity",
+            "targetHrs": 2,
+            "topic": "State Executive & Legislature",
+            "subtopics": [
+              "Governor and CM powers in Bihar",
+              "Bihar State Assembly structure"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "new_exam_key": {
+    "examName": "nayan exam",
+    "subj": [
+      {
+        "id": "s1",
+        "name": "Polity s1",
+        "color": "var(--red)",
+        "icon": "⚖️",
+        "defaultHrs": 4
+      }
+    ],
+    "days": [
+      {
+        "id": "d1",
+        "title": "Day 1 Focus",
+        "dateOverride": null,
+        "targetHrs": 5,
+        "blocks": [
+          {
+            "id": "b1",
+            "subjectId": "s1",
+            "targetHrs": 3,
+            "topic": "Preamble & Basics",
+            "subtopics": [
+              "Subtopic 1",
+              "Subtopic 2",
+              "sub3"
+            ]
+          },
+          {
+            "id": "b_1783947126275yn4",
+            "subjectId": "s1",
+            "targetHrs": 3,
+            "topic": "New Topic",
+            "subtopics": []
+          }
+        ]
+      },
+      {
+        "id": "d_1783947139942",
+        "title": "Day 2",
+        "dateOverride": null,
+        "targetHrs": 8,
+        "blocks": []
+      }
+    ]
+  }
+}
