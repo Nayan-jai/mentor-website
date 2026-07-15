@@ -72,6 +72,61 @@ function resolveColor(color: string) {
   return map[color] || color;
 }
 
+function getDailyLogs(student: any) {
+  const tracker = student?.studyTracker;
+  if (!tracker || !tracker.days) return [];
+
+  const { days = [], prog = {}, subj = [] } = tracker;
+  const subjectMap: Record<string, { name: string; color: string; icon: string }> = {};
+  subj.forEach((s: any) => {
+    subjectMap[s.id] = { name: s.name, color: s.color, icon: s.icon || "📚" };
+  });
+
+  return days.map((day: any, index: number) => {
+    let dayTotalSeconds = 0;
+    const blocks = (day.blocks || []).map((block: any) => {
+      const blockProg = prog[block.id] || {};
+      const timeSpent = blockProg.timeSpent || 0;
+      dayTotalSeconds += timeSpent;
+
+      const subtopicsCount = block.subtopics?.length || 0;
+      let completedSubtopics = 0;
+      if (blockProg.subtopics) {
+        if (Array.isArray(blockProg.subtopics)) {
+          blockProg.subtopics.forEach((done: boolean) => {
+            if (done) completedSubtopics++;
+          });
+        } else if (typeof blockProg.subtopics === "object") {
+          Object.values(blockProg.subtopics).forEach((done: any) => {
+            if (done) completedSubtopics++;
+          });
+        }
+      }
+
+      const subject = subjectMap[block.subjectId] || { name: "Unknown Subject", color: "var(--indigo)", icon: "📚" };
+
+      return {
+        id: block.id,
+        topic: block.topic || "Untitled Topic",
+        subjectName: subject.name,
+        subjectColor: resolveColor(subject.color),
+        subjectIcon: subject.icon,
+        targetHrs: block.targetHrs || 0,
+        actualHrs: timeSpent / 3600,
+        completedSubtopics,
+        totalSubtopics: subtopicsCount,
+      };
+    });
+
+    return {
+      dayNumber: index + 1,
+      date: day.date,
+      totalHoursLogged: dayTotalSeconds / 3600,
+      blocks,
+    };
+  }).reverse(); // Latest days first
+}
+
 export default function MentorDashboard() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -417,7 +472,7 @@ export default function MentorDashboard() {
             </div>
 
             {/* Subject breakdown */}
-            <div>
+            <div className="mb-6">
               <div className="text-xs font-bold text-gray-700 uppercase tracking-wide mb-3">Subject Breakdown</div>
               <div className="space-y-3">
                 {stats.subjects.map((sub: any) => {
@@ -435,6 +490,90 @@ export default function MentorDashboard() {
                   );
                 })}
               </div>
+            </div>
+
+            {/* Daily Activity & Study Logs */}
+            <div className="border-t pt-5">
+              <h4 className="text-xs font-bold text-gray-700 uppercase tracking-wide mb-3 flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5 text-indigo-500" /> Daily Planner & Study Logs
+              </h4>
+              
+              {(() => {
+                const logs = getDailyLogs(selectedStudent);
+                if (logs.length === 0) {
+                  return (
+                    <p className="text-xs text-gray-400 italic">No study logs recorded yet.</p>
+                  );
+                }
+
+                return (
+                  <div className="space-y-4 max-h-[35vh] overflow-y-auto pr-1">
+                    {logs.map((log: any) => (
+                      <div key={log.dayNumber} className="bg-gray-50 border border-gray-100 rounded-xl p-3.5">
+                        {/* Day Header */}
+                        <div className="flex justify-between items-center mb-2.5">
+                          <span className="text-xs font-bold text-gray-800">
+                            Day {log.dayNumber} {log.date ? `(${log.date})` : ""}
+                          </span>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                            log.totalHoursLogged > 0 
+                              ? "bg-emerald-100 text-emerald-800" 
+                              : "bg-gray-100 text-gray-500"
+                          }`}>
+                            {log.totalHoursLogged > 0 
+                              ? `✓ Studied: ${log.totalHoursLogged.toFixed(1)}h` 
+                              : "No study time logged"}
+                          </span>
+                        </div>
+
+                        {/* Blocks */}
+                        {log.blocks.length === 0 ? (
+                          <div className="text-[11px] text-gray-400 italic">No tasks scheduled.</div>
+                        ) : (
+                          <div className="space-y-2">
+                            {log.blocks.map((block: any) => {
+                              const blockPct = block.targetHrs > 0 
+                                ? Math.min(Math.round((block.actualHrs / block.targetHrs) * 100), 100) 
+                                : 0;
+                              return (
+                                <div key={block.id} className="bg-white p-2.5 rounded-lg border border-gray-100 text-xs">
+                                  <div className="flex justify-between items-start gap-2 mb-1.5 flex-wrap">
+                                    <div className="min-w-0 flex-1">
+                                      <div className="font-semibold text-gray-800 truncate">{block.topic}</div>
+                                      <div className="text-[10px] text-gray-500 flex items-center gap-1 mt-0.5">
+                                        <span className="inline-block w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: block.subjectColor }} />
+                                        <span className="truncate">{block.subjectIcon} {block.subjectName}</span>
+                                      </div>
+                                    </div>
+                                    <div className="text-[10px] text-gray-500 text-right shrink-0">
+                                      <div>Actual: <strong>{block.actualHrs.toFixed(1)}h</strong> / Target: {block.targetHrs.toFixed(1)}h</div>
+                                      {block.totalSubtopics > 0 && (
+                                        <div className="text-indigo-600 mt-0.5 font-medium">
+                                          {block.completedSubtopics} / {block.totalSubtopics} topics done
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                  
+                                  {/* Progress bar */}
+                                  {block.targetHrs > 0 && (
+                                    <div className="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden">
+                                      <div 
+                                        className="h-full rounded-full transition-all" 
+                                        style={{ width: `${blockPct}%`, backgroundColor: block.subjectColor }} 
+                                      />
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
             </div>
 
             <div className="mt-6 flex justify-end">

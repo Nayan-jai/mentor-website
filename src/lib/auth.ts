@@ -7,7 +7,23 @@ import { compare } from "bcryptjs";
 
 /** Use this instead of getServerSession in App Router route handlers. */
 export async function getSession(req: NextRequest) {
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+  const headersObj: Record<string, string> = {};
+  req.headers.forEach((v, k) => {
+    headersObj[k] = v;
+  });
+
+  const cookiesObj: Record<string, string> = {};
+  req.cookies.getAll().forEach((c) => {
+    cookiesObj[c.name] = c.value;
+  });
+
+  const minimalReq = {
+    headers: headersObj,
+    cookies: cookiesObj,
+    url: req.url,
+  };
+
+  const token = await getToken({ req: minimalReq as any, secret: process.env.NEXTAUTH_SECRET });
   if (!token) return null;
   return {
     user: {

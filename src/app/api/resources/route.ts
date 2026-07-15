@@ -57,6 +57,7 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
     const title = formData.get("title") as string | null;
+    const folderId = formData.get("folderId") as string | null;
 
     if (!file || !title) {
       return NextResponse.json({ error: "Missing file or title" }, { status: 400 });
@@ -93,6 +94,7 @@ export async function POST(request: NextRequest) {
         fileSize: file.size,
         uploadedById: user.id,
         uploaderRole: user.role,
+        folderId: folderId && folderId !== "null" && folderId !== "" ? folderId : null,
       },
     });
 

@@ -47,9 +47,11 @@ export default function Navbar() {
 
           {/* Navigation - Desktop */}
           <nav className="hidden lg:flex items-center space-x-1 xl:space-x-3">
-            <Link href="/" className="group nav-link flex items-center gap-2 px-3 py-1.5 text-sm lg:text-base font-semibold tracking-wide">
-              <Home className="w-4 h-4 text-sky-400 transition-transform duration-200 group-hover:scale-110" /> Home
-            </Link>
+            {!session && (
+              <Link href="/" className="group nav-link flex items-center gap-2 px-3 py-1.5 text-sm lg:text-base font-semibold tracking-wide">
+                <Home className="w-4 h-4 text-sky-400 transition-transform duration-200 group-hover:scale-110" /> Home
+              </Link>
+            )}
             <Link href="/sessions" className="group nav-link flex items-center gap-2 px-3 py-1.5 text-sm lg:text-base font-semibold tracking-wide">
               <Calendar className="w-4 h-4 text-violet-400 transition-transform duration-200 group-hover:scale-110" /> Sessions
             </Link>
@@ -126,9 +128,11 @@ export default function Navbar() {
         {/* Mobile Menu */}
         {mobileMenuOpen && (
           <nav className="lg:hidden flex flex-col bg-slate-950/95 text-white border-t border-slate-900/80 backdrop-blur-md shadow-2xl rounded-b-xl px-4 pt-2 pb-6 space-y-1.5 animate-fade-in absolute left-0 right-0 top-16 z-50">
-            <Link href="/" className="group flex items-center gap-2 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/50 rounded-lg transition-all duration-200" onClick={() => setMobileMenuOpen(false)}>
-              <Home className="w-5 h-5 text-sky-400 transition-transform duration-200 group-hover:scale-110" /> Home
-            </Link>
+            {!session && (
+              <Link href="/" className="group flex items-center gap-2 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/50 rounded-lg transition-all duration-200" onClick={() => setMobileMenuOpen(false)}>
+                <Home className="w-5 h-5 text-sky-400 transition-transform duration-200 group-hover:scale-110" /> Home
+              </Link>
+            )}
             <Link href="/sessions" className="group flex items-center gap-2 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/50 rounded-lg transition-all duration-200" onClick={() => setMobileMenuOpen(false)}>
               <Calendar className="w-5 h-5 text-violet-400 transition-transform duration-200 group-hover:scale-110" /> Sessions
             </Link>

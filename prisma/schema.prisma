@@ -34,6 +34,8 @@ model User {
   testAttempts      TestAttempt[]
   studyTracker      Json?
   resources         Resource[]
+  ownedGroups       StudyGroup[] @relation("GroupOwner")
+  groupMemberships  StudyGroupMember[] @relation("GroupMember")
 }
 
 model Account {
@@ -234,6 +236,42 @@ model Resource {
   uploadedById String
   uploadedBy   User     @relation(fields: [uploadedById], references: [id])
   uploaderRole String   // "STUDENT" or "MENTOR"
+  folderId     String?
+  folder       Folder?  @relation(fields: [folderId], references: [id], onDelete: Cascade)
   createdAt    DateTime @default(now())
+}
+
+model Folder {
+  id        String     @id @default(cuid())
+  name      String
+  resources Resource[]
+  createdAt DateTime   @default(now())
+}
+
+
+model StudyGroup {
+  id        String             @id @default(cuid())
+  code      String             @unique // 6-char uppercase code (invite code)
+  name      String
+  ownerId   String
+  owner     User               @relation("GroupOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  members   StudyGroupMember[]
+  createdAt DateTime           @default(now())
+}
+
+model StudyGroupMember {
+  id         String     @id @default(cuid())
+  groupId    String
+  group      StudyGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User       @relation("GroupMember", fields: [userId], references: [id], onDelete: Cascade)
+  timerBid   String?    // active block id, null = idle
+  timerStart DateTime?  // absolute start timestamp
+  timerBase  Int?       // accumulated seconds at start
+  subject    String?    // subject name
+  topic      String?    // topic name
+  updatedAt  DateTime   @updatedAt
+
+  @@unique([groupId, userId])
 }
 

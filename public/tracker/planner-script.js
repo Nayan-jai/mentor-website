@@ -866,6 +866,8 @@ function toggleTimer(bid,dayId){
     clearInterval(timers[bid].interval);
     gp(bid).timeSpent=(gp(bid).timeSpent||0)+el;
     timers[bid]={running:false};sp();
+    localStorage.removeItem('_runningTimer'); // clear on manual pause
+    try{pushGroupTimerState(null);}catch{}
     refreshBlock(dayId,bid);renderStats();renderHoursBar();
   } else {
     // stop any other running timer first
@@ -875,14 +877,14 @@ function toggleTimer(bid,dayId){
         clearInterval(timers[id].interval);
         gp(id).timeSpent=(gp(id).timeSpent||0)+el;
         timers[id]={running:false};
-        
         const otherDay = days.find(d => d.blocks.some(b => b.id === id));
-        if (otherDay) {
-          refreshBlock(otherDay.id, id);
-        }
+        if (otherDay) { refreshBlock(otherDay.id, id); }
       }
     });
     timers[bid]={running:true,start:Date.now(),interval:null,ticks:0};
+    // Save absolute start so page refresh can resume without beforeunload
+    localStorage.setItem('_runningTimer',JSON.stringify({bid,start:timers[bid].start,base:gp(bid).timeSpent||0}));
+    try{pushGroupTimerState(bid);}catch{}
     const d=days.find(x=>x.id===dayId),b=d?.blocks.find(x=>x.id===bid);
     timers[bid].interval=setInterval(()=>{
       const ex=Math.floor((Date.now()-timers[bid].start)/1000);
@@ -894,6 +896,9 @@ function toggleTimer(bid,dayId){
       renderStats();renderHoursBar();
       // Sync to server every 30 seconds while timer is running
       timers[bid].ticks=(timers[bid].ticks||0)+1;
+      if(timers[bid].ticks%5===0){
+        try{pushGroupTimerState(bid);}catch{}
+      }
       if(timers[bid].ticks%30===0){
         const snapSecs=Math.floor((Date.now()-timers[bid].start)/1000);
         const snapProg=JSON.parse(JSON.stringify(prog));
@@ -912,13 +917,13 @@ function stopAllTimers(){
       const el=Math.floor((Date.now()-timers[bid].start)/1000);
       gp(bid).timeSpent=(gp(bid).timeSpent||0)+el;
       timers[bid]={running:false};
-      
       const day = days.find(d => d.blocks.some(b => b.id === bid));
-      if (day) {
-        refreshBlock(day.id, bid);
-      }
+      if (day) { refreshBlock(day.id, bid); }
     }
-  });sp();
+  });
+  localStorage.removeItem('_runningTimer');
+  try{pushGroupTimerState(null);}catch{}
+  sp();
 }
 function addManTime(bid,dayId){
   const inp=document.getElementById('mi-'+bid);const m=parseInt(inp?.value)||0;if(m<=0)return;
@@ -1705,6 +1710,7 @@ function switchView(v){
   if(v==='manage'){renderManage();updateDaysRemaining();}
   if(v==='daily')renderDaily();
   if(v==='revision')renderRevision();
+  if(v==='group')renderGroup();
 
   conf.activeTab = v;
   sc();
@@ -2015,14 +2021,49 @@ function maybeShowTutorial() {
 
 
 
+function showResetModal(){
+  const existing=document.getElementById('_resetModal');
+  if(existing) existing.remove();
+  const el=document.createElement('div');
+  el.id='_resetModal';
+  el.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:99999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)';
+  el.innerHTML=`
+    <div style="background:var(--card,#1e1e2e);border-radius:16px;padding:28px 24px;max-width:420px;width:92%;box-shadow:0 20px 56px rgba(0,0,0,.55);border:1.5px solid #d94f3d66">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <span style="font-size:28px">⚠️</span>
+        <div style="font-size:17px;font-weight:800;color:#d94f3d">Reset All Progress?</div>
+      </div>
+      <div style="font-size:12px;color:var(--ink3,#999);line-height:1.7;margin-bottom:16px">
+        <p style="margin:0 0 10px">This action <strong style="color:#d94f3d">cannot be undone</strong>. The following will be permanently cleared:</p>
+        <ul style="margin:0 0 10px;padding-left:18px">
+          <li>All subtopic &amp; custom task checkmarks</li>
+          <li>All logged study time (timers)</li>
+          <li>All block notes</li>
+        </ul>
+        <p style="margin:0;padding:10px 12px;background:#d94f3d18;border-radius:8px;border-left:3px solid #d94f3d;color:var(--ink,#fff)">
+          ✅ Your <strong>plan structure</strong> (subjects, days, topics) is <strong>kept intact</strong> — only progress is wiped.
+        </p>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-end">
+        <button onclick="document.getElementById('_resetModal').remove()" style="padding:9px 18px;background:var(--bg2,#2a2a3e);color:var(--ink,#fff);border:1px solid var(--border,#444);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">Cancel</button>
+        <button onclick="_confirmReset()" style="padding:9px 18px;background:#d94f3d;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">↺ Yes, Reset Everything</button>
+      </div>
+    </div>`;
+  document.body.appendChild(el);
+}
+
+function _confirmReset(){
+  document.getElementById('_resetModal')?.remove();
+  resetPlan();
+}
+
 function resetPlan(){
-  if(!confirm('Reset all progress? Your plan is kept.'))return;
   stopAllTimers();
   prog={};
   timers={};
+  localStorage.removeItem('_runningTimer');
   sp();
   refreshAllViews();
-  closeHeaderMenu();
 }
 
 function toggleHeaderMenu(){
@@ -2047,9 +2088,6 @@ function applyTheme(){
 document.addEventListener('DOMContentLoaded',()=>{
   const themeBtn=document.getElementById('themeBtn');
   if(themeBtn)themeBtn.addEventListener('click',toggleTheme);
-
-  const resetBtn=document.getElementById('resetBtn');
-  if(resetBtn)resetBtn.addEventListener('click',resetPlan);
   
   // Close menu when clicking outside
   document.addEventListener('click',(e)=>{
@@ -2082,13 +2120,455 @@ function flushRunningTimersToStorage(){
   sp();
 }
 
-window.addEventListener('beforeunload',()=>{
+// ── Focus-mode: warn when user leaves while timer is running ──────────────
+let _leftAt=null;
+
+function showAwayWarning(awayMs){
+  document.getElementById('_awayWarning')?.remove();
+  const m=Math.floor(awayMs/60000),s=Math.floor((awayMs%60000)/1000);
+  const awayStr=m>0?`${m}m ${s}s`:`${s}s`;
+  const el=document.createElement('div');
+  el.id='_awayWarning';
+  el.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:99999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(10px)';
+  el.innerHTML=`
+    <div style="background:var(--card,#1e1e2e);border-radius:18px;padding:36px 28px;max-width:380px;width:90%;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.6);border:1px solid var(--border,#333)">
+      <div style="font-size:52px;margin-bottom:14px">⚠️</div>
+      <div style="font-size:19px;font-weight:800;color:var(--ink,#fff);margin-bottom:8px">You left your study session!</div>
+      <div style="font-size:13px;color:var(--ink3,#999);margin-bottom:26px">The timer kept running. You were away for <strong style="color:var(--orange,#e07a2a)">${awayStr}</strong>.</div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+        <button onclick="document.getElementById('_awayWarning').remove()" style="padding:11px 22px;background:var(--green,#2e9e5b);color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer">✅ Keep Timer Running</button>
+        <button onclick="_pauseFromWarning()" style="padding:11px 22px;background:var(--red,#d94f3d);color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer">⏸ Pause Timer</button>
+      </div>
+    </div>`;
+  document.body.appendChild(el);
+}
+
+function _pauseFromWarning(){
+  document.getElementById('_awayWarning')?.remove();
+  const runningBid=Object.keys(timers).find(bid=>timers[bid]?.running);
+  if(runningBid){const day=days.find(d=>d.blocks.some(b=>b.id===runningBid));if(day)toggleTimer(runningBid,day.id);}
+}
+
+// Show overlay when user returns after switching away while timer was running
+document.addEventListener('visibilitychange',()=>{
+  const runningBid=Object.keys(timers).find(bid=>timers[bid]?.running);
+  if(document.hidden){
+    if(runningBid) _leftAt=Date.now();
+  } else {
+    if(_leftAt&&runningBid){
+      const away=Date.now()-_leftAt;
+      if(away>2000) showAwayWarning(away); // ignore instant flickers < 2s
+    }
+    _leftAt=null;
+  }
+});
+
+window.addEventListener('beforeunload',(e)=>{
+  _navigating=true;
+  const runningBid=Object.keys(timers).find(bid=>timers[bid]?.running);
+  if(runningBid){
+    // Block navigation with native browser confirm when timer is running
+    e.preventDefault();
+    e.returnValue='';
+    // Save state in case user confirms leaving
+    const inFlight=Math.floor((Date.now()-timers[runningBid].start)/1000);
+    const totalSpent=(gp(runningBid).timeSpent||0)+inFlight;
+    sessionStorage.setItem('_resumeTimer',JSON.stringify({bid:runningBid,timeSpent:totalSpent}));
+  } else {
+    sessionStorage.removeItem('_resumeTimer');
+  }
   try{flushRunningTimersToStorage();}catch{}
 });
 
+// Safety net for mobile (pagehide may fire without beforeunload)
 window.addEventListener('pagehide',()=>{
-  try{flushRunningTimersToStorage();}catch{}
+  if(!_navigating){
+    _navigating=true;
+    const runningBid=Object.keys(timers).find(bid=>timers[bid]?.running);
+    if(runningBid){
+      const inFlight=Math.floor((Date.now()-timers[runningBid].start)/1000);
+      const totalSpent=(gp(runningBid).timeSpent||0)+inFlight;
+      sessionStorage.setItem('_resumeTimer',JSON.stringify({bid:runningBid,timeSpent:totalSpent}));
+    } else {
+      sessionStorage.removeItem('_resumeTimer');
+    }
+    try{flushRunningTimersToStorage();}catch{}
+  }
 });
+
+/* ══════════════════════════════════════════
+   👥 GROUP STUDY MODULE
+   ══════════════════════════════════════════ */
+window.isInGroup = false;
+window.activeGroup = null;
+let groupPollInterval = null;
+let groupTickInterval = null;
+
+async function renderGroup() {
+  const container = document.getElementById('groupContent');
+  if (!container) return;
+
+  if (groupPollInterval) { clearInterval(groupPollInterval); groupPollInterval = null; }
+  if (groupTickInterval) { clearInterval(groupTickInterval); groupTickInterval = null; }
+
+  container.innerHTML = `
+    <div style="display:flex;justify-content:center;padding:40px 0;">
+      <div style="font-size:14px;color:var(--ink3);">Loading Group Study...</div>
+    </div>`;
+
+  try {
+    const res = await fetch("/api/study-group");
+    if (!res.ok) throw new Error("Failed to load group");
+    const data = await res.json();
+
+    window.isInGroup = data.joined;
+    
+    const ownedContainer = document.getElementById('ownedGroupsContent');
+    if (data.joined) {
+      window.activeGroup = data.group;
+      renderActiveGroupUI(container);
+      if (ownedContainer) ownedContainer.innerHTML = '';
+      
+      groupPollInterval = setInterval(pollGroupTimers, 4000);
+      startGroupTimerTicks();
+    } else {
+      window.activeGroup = null;
+      renderGroupLandingUI(container);
+      renderOwnedGroupsUI(data.ownedGroups || []);
+    }
+  } catch (err) {
+    container.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;padding:40px 20px;text-align:center;gap:12px">
+        <span style="font-size:32px">❌</span>
+        <div style="font-size:14px;font-weight:700;color:var(--ink)">Failed to load study group</div>
+        <button class="hbtn" style="background:var(--blue);color:#fff;border-color:var(--blue)" onclick="renderGroup()">Retry</button>
+      </div>`;
+    const ownedContainer = document.getElementById('ownedGroupsContent');
+    if (ownedContainer) ownedContainer.innerHTML = '';
+  }
+}
+
+function renderGroupLandingUI(container) {
+  container.innerHTML = `
+    <div class="group-actions-panel" style="margin-top:16px;">
+      <!-- Create Group Box -->
+      <div class="group-action-box">
+        <h3 style="margin-bottom:12px;font-size:16px;color:var(--ink)">🛠️ Create a Study Group</h3>
+        <p style="font-size:12px;color:var(--ink3);line-height:1.6;margin-bottom:16px">
+          Create a new study group, get an invite code, and invite your friends. You can see each other's live timers.
+        </p>
+        <input type="text" id="newGroupName" class="group-inp" placeholder="e.g. UPSC Aspirants 2026" />
+        <button class="hbtn" style="width:100%;background:var(--green);color:#fff;border-color:var(--green);font-weight:800;height:36px;border-radius:8px;" onclick="handleCreateGroup()">Create Group</button>
+      </div>
+
+      <!-- Join Group Box -->
+      <div class="group-action-box">
+        <h3 style="margin-bottom:12px;font-size:16px;color:var(--ink)">👥 Join a Study Group</h3>
+        <p style="font-size:12px;color:var(--ink3);line-height:1.6;margin-bottom:16px">
+          Enter a 6-character study group invite code shared by your friend to join their group and study together.
+        </p>
+        <input type="text" id="groupInviteCode" class="group-inp" placeholder="e.g. AB12CD" style="text-transform:uppercase" maxLength="6" />
+        <button class="hbtn" style="width:100%;background:var(--blue);color:#fff;border-color:var(--blue);font-weight:800;height:36px;border-radius:8px;" onclick="handleJoinGroup()">Join Group</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderOwnedGroupsUI(ownedGroups = []) {
+  const container = document.getElementById('ownedGroupsContent');
+  if (!container) return;
+
+  if (ownedGroups.length === 0) {
+    container.innerHTML = '';
+    return;
+  }
+
+  container.innerHTML = `
+    <div class="group-card" style="width:100%">
+      <h3 style="margin-bottom:14px;font-size:14px;color:var(--ink);font-weight:800;text-transform:uppercase;letter-spacing:0.04em">🔑 Your Created Groups</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        ${ownedGroups.map(og => `
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;flex-wrap:wrap;gap:12px;">
+            <div style="flex:1;min-width:180px">
+              <strong style="color:var(--ink);font-size:13px;">${esc(og.name)}</strong>
+              <div style="font-size:11px;color:var(--ink3);margin-top:2px;">Invite Code: <code style="font-weight:700;color:var(--blue);font-family:monospace">${og.code}</code></div>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button class="hbtn" style="background:var(--green);color:#fff;border-color:var(--green);font-weight:700;height:28px;" onclick="quickJoinOwnedGroup('${og.code}')">Enter Group</button>
+              <button class="hbtn" style="background:#d94f3d;color:#fff;border-color:#d94f3d;font-weight:700;height:28px;" onclick="handleDeleteGroup('${og.id}')">Delete</button>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+async function quickJoinOwnedGroup(code) {
+  try {
+    const res = await fetch("/api/study-group", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "join", code })
+    });
+    if (res.ok) {
+      renderGroup();
+    } else {
+      const data = await res.json();
+      alert(data.message || "Failed to enter group");
+    }
+  } catch (err) {
+    alert("Error entering group");
+  }
+}
+
+function renderActiveGroupUI(container) {
+  const g = window.activeGroup;
+  if (!g) return;
+
+  const selfMember = g.members.find(m => m.isSelf);
+  const userIsOwner = g.ownerId && selfMember && g.ownerId === selfMember.userId;
+
+  const actionButtons = userIsOwner 
+    ? `<button class="hbtn" style="background:var(--bg2);color:var(--ink);border-color:var(--border)" onclick="handleLeaveGroup()">🚪 Leave Group</button>
+       <button class="hbtn" style="background:#d94f3d;color:#fff;border-color:#d94f3d" onclick="handleDeleteGroup('${g.id}')">🗑️ Delete Group</button>`
+    : `<button class="hbtn" style="background:var(--bg2);color:var(--ink);border-color:var(--border)" onclick="handleLeaveGroup()">🚪 Leave Group</button>`;
+
+  container.innerHTML = `
+    <div class="group-card">
+      <div class="group-header-row">
+        <div>
+          <div class="group-title-label">${esc(g.name)}</div>
+          <div style="font-size:11px;color:var(--ink3);margin-top:4px">Created by ${userIsOwner ? 'you' : 'group admin'}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="group-code-badge" title="Share this code with friends to join">
+            Invite Code: <strong style="margin-left:4px">${g.code}</strong>
+            <button onclick="copyGroupCode('${g.code}')" style="background:none;border:none;color:var(--blue);cursor:pointer;font-size:12px;padding:0;font-weight:700;margin-left:8px">📋 Copy</button>
+          </div>
+          ${actionButtons}
+        </div>
+      </div>
+
+      <div style="font-size:11px;font-weight:800;color:var(--ink3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:12px">📚 Live Study Session</div>
+      <div class="member-grid" id="memberGridEl">
+        ${renderMemberGridHtml()}
+      </div>
+    </div>
+  `;
+}
+
+function renderMemberGridHtml() {
+  const g = window.activeGroup;
+  if (!g || !g.members) return '';
+
+  return g.members.map(m => {
+    const isStudying = !!m.timerBid;
+    let timerText = '00:00:00';
+    let subjectText = 'Idle';
+    let topicText = 'Not studying right now';
+
+    if (isStudying) {
+      subjectText = m.subject || 'Study Block';
+      topicText = m.topic || 'General study';
+      
+      if (m.timerStart) {
+        const start = new Date(m.timerStart).getTime();
+        const elapsed = Math.floor((Date.now() - start) / 1000);
+        const total = Math.max(0, (m.timerBase || 0) + elapsed);
+        const th = Math.floor(total / 3600), tm = Math.floor((total % 3600) / 60), ts = total % 60;
+        timerText = `${String(th).padStart(2,'0')}:${String(tm).padStart(2,'0')}:${String(ts).padStart(2,'0')}`;
+      }
+    }
+
+    const cardClass = isStudying ? 'member-card studying' : 'member-card';
+    const statusClass = isStudying ? 'member-status-lbl studying' : 'member-status-lbl idle';
+    const statusText = isStudying ? `<span class="pulse-dot"></span>Studying` : 'Idle';
+
+    return `
+      <div class="${cardClass}" data-user-id="${m.userId}" data-timer-start="${m.timerStart || ''}" data-timer-base="${m.timerBase || 0}">
+        <div class="member-card-header">
+          <div class="member-name">${esc(m.name)}${m.isSelf ? ' <span style="font-size:11px;color:var(--blue);font-weight:600">(You)</span>' : ''}</div>
+          <div class="${statusClass}">${statusText}</div>
+        </div>
+        <div style="font-size:12px;color:var(--ink2);font-weight:700;display:flex;align-items:center;gap:6px">
+          <span>📚</span>
+          <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(subjectText)}</span>
+        </div>
+        <div style="font-size:11px;color:var(--ink3);margin-top:-2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${esc(topicText)}">
+          ${esc(topicText)}
+        </div>
+        <div style="font-size:24px;font-weight:800;font-family:monospace;letter-spacing:-0.02em;margin-top:8px;color:${isStudying ? 'var(--green)' : 'var(--ink3)'}" class="member-timer-val">
+          ${timerText}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+async function pollGroupTimers() {
+  if (!window.isInGroup) return;
+  try {
+    const res = await fetch("/api/study-group/timer");
+    if (res.ok) {
+      const data = await res.json();
+      if (data.joined && data.members) {
+        window.activeGroup.members = data.members;
+        const grid = document.getElementById("memberGridEl");
+        if (grid) grid.innerHTML = renderMemberGridHtml();
+      }
+    }
+  } catch (err) {
+    console.error("Group timer polling failed:", err);
+  }
+}
+
+function startGroupTimerTicks() {
+  if (groupTickInterval) clearInterval(groupTickInterval);
+  groupTickInterval = setInterval(() => {
+    const cards = document.querySelectorAll(".member-card");
+    cards.forEach(card => {
+      const startStr = card.dataset.timerStart;
+      if (!startStr) return;
+      
+      const start = new Date(startStr).getTime();
+      const base = parseInt(card.dataset.timerBase) || 0;
+      const elapsed = Math.floor((Date.now() - start) / 1000);
+      const total = Math.max(0, base + elapsed);
+      
+      const th = Math.floor(total / 3600), tm = Math.floor((total % 3600) / 60), ts = total % 60;
+      const tStr = `${String(th).padStart(2,'0')}:${String(tm).padStart(2,'0')}:${String(ts).padStart(2,'0')}`;
+      
+      const el = card.querySelector(".member-timer-val");
+      if (el) el.textContent = tStr;
+    });
+  }, 1000);
+}
+
+async function handleCreateGroup() {
+  const name = document.getElementById("newGroupName")?.value?.trim();
+  if (!name) { alert("Please enter a group name"); return; }
+  try {
+    const res = await fetch("/api/study-group", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "create", name })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      renderGroup();
+    } else {
+      alert(data.message || "Failed to create group");
+    }
+  } catch (err) {
+    alert("Error creating group");
+  }
+}
+
+async function handleJoinGroup() {
+  const code = document.getElementById("groupInviteCode")?.value?.trim()?.toUpperCase();
+  if (!code || code.length !== 6) { alert("Please enter a valid 6-character code"); return; }
+  try {
+    const res = await fetch("/api/study-group", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "join", code })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      renderGroup();
+    } else {
+      alert(data.message || "Failed to join group");
+    }
+  } catch (err) {
+    alert("Error joining group");
+  }
+}
+
+async function handleLeaveGroup() {
+  if (!confirm("Are you sure you want to leave this study group?")) return;
+  try {
+    const res = await fetch("/api/study-group", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "leave" })
+    });
+    if (res.ok) {
+      renderGroup();
+    }
+  } catch (err) {
+    alert("Error leaving group");
+  }
+}
+
+async function handleDeleteGroup(groupId) {
+  if (!confirm("Are you sure you want to delete this study group? All members will be removed.")) return;
+  try {
+    const res = await fetch("/api/study-group", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "delete", groupId })
+    });
+    if (res.ok) {
+      renderGroup();
+    }
+  } catch (err) {
+    alert("Error deleting group");
+  }
+}
+
+function copyGroupCode(code) {
+  navigator.clipboard.writeText(code).then(() => {
+    alert("Invite code copied to clipboard!");
+  }).catch(() => {
+    alert("Failed to copy code. Code is: " + code);
+  });
+}
+
+async function pushGroupTimerState(bid) {
+  if (!window.isInGroup) return;
+  try {
+    let payload = {};
+    if (bid) {
+      const runningTimer = timers[bid];
+      if (runningTimer && runningTimer.running) {
+        let block = null;
+        for (let d of days) {
+          block = d.blocks.find(b => b.id === bid);
+          if (block) break;
+        }
+        if (block) {
+          const s = sj(block.subjectId);
+          payload = {
+            timerBid: bid,
+            timerStart: new Date(runningTimer.start).toISOString(),
+            timerBase: gp(bid).timeSpent || 0,
+            subject: s.name,
+            topic: block.topic || 'No topic set'
+          };
+        }
+      }
+    } else {
+      payload = { timerBid: null };
+    }
+
+    const res = await fetch('/api/study-group/timer', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.joined && data.members) {
+        window.activeGroup.members = data.members;
+        const grid = document.getElementById("memberGridEl");
+        if (grid) grid.innerHTML = renderMemberGridHtml();
+      }
+    }
+  } catch (err) {
+    console.error("Failed to sync group timer:", err);
+  }
+}
 
 document.addEventListener('DOMContentLoaded', async ()=>{
   loadLocalSync();
@@ -2104,6 +2584,36 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   switchView(conf.activeTab || 'daily');
 
   await load();
+  
+  // Fetch active study group status on load
+  try {
+    const groupRes = await fetch("/api/study-group");
+    if (groupRes.ok) {
+      const groupData = await groupRes.json();
+      window.isInGroup = groupData.joined;
+      if (groupData.joined) {
+        window.activeGroup = groupData.group;
+      }
+    }
+  } catch (err) {
+    console.error("Error fetching group status on load:", err);
+  }
+  // ── Restore running timer after refresh ────────────────────────────────
+  // Read BEFORE any render/sync so stale server data gets corrected first.
+  const rtRaw=localStorage.getItem('_runningTimer');
+  let _resumeData=null;
+  if(rtRaw){
+    try{
+      const {bid:rtBid,start,base}=JSON.parse(rtRaw);
+      const elapsed=Math.floor((Date.now()-start)/1000);
+      const p=gp(rtBid);
+      // Use whichever is larger: server's saved value or computed real elapsed
+      p.timeSpent=Math.max(p.timeSpent||0, base+elapsed);
+      _resumeData={bid:rtBid};
+    }catch{}
+  }
+  // Also clear stale sessionStorage key from old approach
+  sessionStorage.removeItem('_resumeTimer');
   applyTheme();
   await loadSyllabusTemplates();
   updateRevisionTabVisibility();
@@ -2112,8 +2622,11 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   if(dateInput&&conf.targetDate)dateInput.value=conf.targetDate;
   updateDaysRemaining();
   switchView(conf.activeTab || 'daily');
-  // Persist current plan to server so mentors can see student has opened tracker
   syncToServer();
+  if(_resumeData){
+    const resumeDay=days.find(d=>d.blocks.some(b=>b.id===_resumeData.bid));
+    if(resumeDay) toggleTimer(_resumeData.bid,resumeDay.id);
+  }
   // Show tutorial on first visit only
   maybeShowTutorial();
 });

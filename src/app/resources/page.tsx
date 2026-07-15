@@ -14,6 +14,11 @@ import {
   Download,
   AlertCircle,
   CheckCircle,
+  Folder,
+  FolderPlus,
+  Edit3,
+  ChevronRight,
+  Plus,
 } from "lucide-react";
 
 interface Resource {
@@ -22,10 +27,19 @@ interface Resource {
   url: string;
   fileSize: number | null;
   uploaderRole: string;
+  folderId: string | null;
   createdAt: string;
   uploadedBy: {
     name: string | null;
     email: string;
+  };
+}
+
+interface FolderType {
+  id: string;
+  name: string;
+  _count?: {
+    resources: number;
   };
 }
 
@@ -35,16 +49,24 @@ export default function ResourcesPage() {
 
   // State
   const [resources, setResources] = useState<Resource[]>([]);
+  const [folders, setFolders] = useState<FolderType[]>([]);
+  const [activeFolderId, setActiveFolderId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [previewResource, setPreviewResource] = useState<Resource | null>(null);
-  
+
+  // Folder creation/renaming states
+  const [showFolderModal, setShowFolderModal] = useState(false);
+  const [folderNameInput, setFolderNameInput] = useState("");
+  const [editingFolder, setEditingFolder] = useState<FolderType | null>(null);
+  const [folderSaving, setFolderSaving] = useState(false);
+
   // Form Upload state
   const [uploadTitle, setUploadTitle] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [dragActive, setDragActive] = useState(false);
-  
+
   // Notification states
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
@@ -58,28 +80,42 @@ export default function ResourcesPage() {
     }
   }, [status, router]);
 
-  // Load Resources
+  // Load Resources and Folders
   useEffect(() => {
     if (status === "authenticated") {
-      fetchResources();
+      fetchData();
     }
   }, [status]);
 
-  const fetchResources = async () => {
+  const fetchData = async () => {
     try {
       setLoading(true);
-      const res = await fetch("/api/resources");
-      if (res.ok) {
-        const data = await res.json();
-        setResources(data);
-      } else {
-        setErrorMsg("Failed to fetch resources list.");
-      }
+      await Promise.all([fetchResources(), fetchFolders()]);
     } catch (err) {
       console.error(err);
-      setErrorMsg("An error occurred while loading resources.");
+      setErrorMsg("An error occurred while loading content.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchResources = async () => {
+    const res = await fetch("/api/resources");
+    if (res.ok) {
+      const data = await res.json();
+      setResources(data);
+    } else {
+      setErrorMsg("Failed to fetch resources list.");
+    }
+  };
+
+  const fetchFolders = async () => {
+    const res = await fetch("/api/folders");
+    if (res.ok) {
+      const data = await res.json();
+      setFolders(data);
+    } else {
+      console.error("Failed to fetch folders list.");
     }
   };
 
@@ -119,7 +155,6 @@ export default function ResourcesPage() {
       setSelectedFile(null);
       return;
     }
-    // Limit file size to 15MB for free tier safety
     const maxSize = 15 * 1024 * 1024;
     if (file.size > maxSize) {
       setErrorMsg("File size exceeds 15 MB limit.");
@@ -127,7 +162,6 @@ export default function ResourcesPage() {
       return;
     }
     setSelectedFile(file);
-    // Check overall 1GB limit on client side
     const totalUsedBytes = resources.reduce((acc, r) => acc + (r.fileSize || 0), 0);
     const limitBytes = 1024 * 1024 * 1024; // 1 GB
     if (totalUsedBytes + file.size > limitBytes) {
@@ -135,7 +169,6 @@ export default function ResourcesPage() {
       setSelectedFile(null);
       return;
     }
-    // Pre-populate title with file name without extension
     if (!uploadTitle) {
       const cleanName = file.name.substring(0, file.name.lastIndexOf(".")) || file.name;
       setUploadTitle(cleanName);
@@ -155,6 +188,9 @@ export default function ResourcesPage() {
       const formData = new FormData();
       formData.append("file", selectedFile);
       formData.append("title", uploadTitle.trim());
+      if (activeFolderId) {
+        formData.append("folderId", activeFolderId);
+      }
 
       const res = await fetch("/api/resources", {
         method: "POST",
@@ -166,7 +202,7 @@ export default function ResourcesPage() {
         setUploadTitle("");
         setSelectedFile(null);
         if (fileInputRef.current) fileInputRef.current.value = "";
-        fetchResources(); // reload the list
+        await fetchData(); // reload list and folders
       } else {
         const errorData = await res.json();
         setErrorMsg(errorData.error || "Failed to upload file.");
@@ -193,6 +229,7 @@ export default function ResourcesPage() {
       if (res.ok) {
         setSuccessMsg("Resource deleted successfully.");
         setResources((prev) => prev.filter((r) => r.id !== id));
+        fetchFolders(); // refresh folder count
       } else {
         const errorData = await res.json();
         setErrorMsg(errorData.error || "Failed to delete resource.");
@@ -200,6 +237,76 @@ export default function ResourcesPage() {
     } catch (err) {
       console.error(err);
       setErrorMsg("An error occurred while deleting the resource.");
+    }
+  };
+
+  // Create or Rename Folder
+  const handleFolderSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!folderNameInput.trim()) return;
+
+    try {
+      setFolderSaving(true);
+      setErrorMsg(null);
+      setSuccessMsg(null);
+
+      const isEdit = !!editingFolder;
+      const url = isEdit ? `/api/folders/${editingFolder.id}` : "/api/folders";
+      const method = isEdit ? "PATCH" : "POST";
+
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: folderNameInput.trim() }),
+      });
+
+      if (res.ok) {
+        setSuccessMsg(`Folder ${isEdit ? "renamed" : "created"} successfully!`);
+        setFolderNameInput("");
+        setEditingFolder(null);
+        setShowFolderModal(false);
+        fetchFolders();
+      } else {
+        const data = await res.json();
+        setErrorMsg(data.error || `Failed to ${isEdit ? "rename" : "create"} folder.`);
+      }
+    } catch (err) {
+      console.error(err);
+      setErrorMsg("An error occurred while saving the folder.");
+    } finally {
+      setFolderSaving(false);
+    }
+  };
+
+  // Delete Folder
+  const handleDeleteFolder = async (id: string, name: string) => {
+    if (
+      !confirm(
+        `Are you sure you want to delete "${name}"? All files stored inside it will be permanently deleted too!`
+      )
+    )
+      return;
+
+    try {
+      setErrorMsg(null);
+      setSuccessMsg(null);
+      const res = await fetch(`/api/folders/${id}`, {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        setSuccessMsg("Folder deleted successfully.");
+        if (activeFolderId === id) {
+          setActiveFolderId(null);
+        }
+        fetchData();
+      } else {
+        const data = await res.json();
+        setErrorMsg(data.error || "Failed to delete folder.");
+      }
+    } catch (err) {
+      console.error(err);
+      setErrorMsg("An error occurred while deleting the folder.");
     }
   };
 
@@ -215,9 +322,13 @@ export default function ResourcesPage() {
   };
 
   // Filters
-  const filteredResources = resources.filter((resource) =>
-    resource.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredResources = resources.filter((resource) => {
+    const matchesSearch = resource.title.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesFolder = resource.folderId === activeFolderId;
+    return matchesSearch && matchesFolder;
+  });
+
+  const activeFolder = folders.find((f) => f.id === activeFolderId);
 
   // Authenticating Loader state
   if (status === "loading") {
@@ -252,13 +363,29 @@ export default function ResourcesPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header Section */}
-        <div className="text-center sm:text-left mb-8">
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">
-            Curated Resources
-          </h1>
-          <p className="mt-2 text-lg text-gray-600">
-            Access and upload high-quality PDF study materials shared by mentors and students.
-          </p>
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
+          <div className="text-center sm:text-left">
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">
+              Curated Resources
+            </h1>
+            <p className="mt-2 text-lg text-gray-600">
+              Access and upload high-quality PDF study materials shared by mentors and students.
+            </p>
+          </div>
+          {/* Create Folder trigger button (only visible on root level) */}
+          {activeFolderId === null && (
+            <button
+              onClick={() => {
+                setEditingFolder(null);
+                setFolderNameInput("");
+                setShowFolderModal(true);
+              }}
+              className="mx-auto sm:mx-0 flex items-center gap-2 px-4 py-2.5 bg-white hover:bg-slate-50 text-indigo-700 hover:text-indigo-800 text-sm font-semibold rounded-xl border border-indigo-200 transition-colors shadow-sm shrink-0"
+            >
+              <FolderPlus className="w-4 h-4" />
+              New Folder
+            </button>
+          )}
         </div>
 
         {/* Notifications */}
@@ -282,7 +409,7 @@ export default function ResourcesPage() {
           </div>
         )}
 
-        {/* Main Grid */}
+        {/* Main Grid Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
           
           {/* ── LEFT: Upload Container ──────────────── */}
@@ -325,6 +452,14 @@ export default function ResourcesPage() {
                 </div>
               );
             })()}
+
+            {/* Upload target indicator */}
+            <div className="mb-4 text-xs font-semibold text-gray-600 bg-indigo-50/50 p-3 rounded-lg border border-indigo-100/50 flex items-center gap-2">
+              <span>📍 Uploading to:</span>
+              <span className="text-indigo-700 font-bold">
+                {activeFolder ? `📁 ${activeFolder.name}` : "📂 Root Level"}
+              </span>
+            </div>
             
             <form onSubmit={handleUploadSubmit} className="space-y-4">
               {/* Drag & Drop Area */}
@@ -378,9 +513,7 @@ export default function ResourcesPage() {
                     <p className="text-sm font-semibold text-gray-700">
                       Drag & drop your PDF here
                     </p>
-                    <p className="text-xs text-gray-500 mt-1 mb-3">
-                      or
-                    </p>
+                    <p className="text-xs text-gray-500 mt-1 mb-3">or</p>
                     <button
                       type="button"
                       className="px-4.5 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-lg border border-indigo-200 transition-colors inline-flex items-center gap-1.5 shadow-sm"
@@ -439,13 +572,31 @@ export default function ResourcesPage() {
           {/* ── RIGHT: List Container ────────────────── */}
           <div className="lg:col-span-2 space-y-6">
             
-            {/* Search Box */}
-            <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col sm:flex-row items-center gap-4">
+            {/* Search Box & Breadcrumbs */}
+            <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+              {/* Breadcrumb Navigation */}
+              <div className="flex items-center gap-1.5 flex-wrap text-sm text-gray-600 font-semibold">
+                <button
+                  onClick={() => setActiveFolderId(null)}
+                  className={`hover:text-indigo-600 transition-colors ${
+                    activeFolderId === null ? "text-indigo-600 font-bold" : ""
+                  }`}
+                >
+                  📁 All Resources
+                </button>
+                {activeFolder && (
+                  <>
+                    <ChevronRight className="w-4 h-4 text-gray-400" />
+                    <span className="text-gray-900 font-bold">📂 {activeFolder.name}</span>
+                  </>
+                )}
+              </div>
+
               <div className="relative w-full">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Search resources by title..."
+                  placeholder={activeFolder ? `Search inside ${activeFolder.name}...` : "Search all resources..."}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm shadow-inner"
@@ -453,114 +604,246 @@ export default function ResourcesPage() {
               </div>
             </div>
 
-            {/* Resources List */}
-            {loading ? (
-              <div className="flex flex-col items-center py-12">
-                <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
-                <p className="text-sm text-gray-500 mt-2">Loading materials...</p>
-              </div>
-            ) : filteredResources.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {filteredResources.map((resource) => {
-                  const isOwner = resource.uploadedBy.email === session.user.email;
-                  const isMentorOrAdmin = session.user.role === "MENTOR" || session.user.role === "ADMIN";
-                  const canDelete = isOwner || isMentorOrAdmin;
-
-                  return (
+            {/* Folders List (only rendered at root level) */}
+            {activeFolderId === null && folders.length > 0 && (
+              <div className="space-y-3">
+                <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Folders</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {folders.map((folder) => (
                     <div
-                      key={resource.id}
-                      className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow flex flex-col justify-between"
+                      key={folder.id}
+                      onClick={() => setActiveFolderId(folder.id)}
+                      className="bg-white p-4.5 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:border-indigo-100 transition-all flex items-center justify-between group cursor-pointer"
                     >
-                      <div>
-                        {/* Type Icon & Action header */}
-                        <div className="flex justify-between items-start gap-2 mb-3">
-                          <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-600">
-                            <FileText className="w-5 h-5" />
-                          </div>
-                          
-                          {/* Role Badge */}
-                          <span
-                            className={`px-2.5 py-0.5 text-[10px] font-bold rounded-full ${
-                              resource.uploaderRole === "MENTOR"
-                                ? "bg-indigo-100 text-indigo-800"
-                                : resource.uploaderRole === "ADMIN"
-                                ? "bg-rose-100 text-rose-800"
-                                : "bg-emerald-100 text-emerald-800"
-                            }`}
-                          >
-                            {resource.uploaderRole}
-                          </span>
+                      <div className="flex items-center gap-3 shrink min-w-0">
+                        <div className="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl">
+                          <Folder className="w-5 h-5" />
                         </div>
-
-                        {/* Title */}
-                        <h3 className="font-semibold text-gray-900 text-sm leading-snug line-clamp-2" title={resource.title}>
-                          {resource.title}
-                        </h3>
-
-                        {/* File Details */}
-                        <div className="mt-2 text-xs text-gray-500 flex flex-col gap-1">
-                          <p>Size: {formatBytes(resource.fileSize)}</p>
-                          <p className="truncate">
-                            By: {resource.uploadedBy.name || resource.uploadedBy.email}
-                          </p>
-                          <p>
-                            Date: {new Date(resource.createdAt).toLocaleDateString(undefined, {
-                              year: "numeric",
-                              month: "short",
-                              day: "numeric",
-                            })}
-                          </p>
+                        <div className="min-w-0">
+                          <h3 className="font-bold text-gray-900 text-sm truncate">{folder.name}</h3>
+                          <p className="text-xs text-gray-500 mt-0.5">{folder._count?.resources || 0} PDFs</p>
                         </div>
                       </div>
-
-                      {/* Action Buttons */}
-                      <div className="mt-5 pt-4 border-t border-gray-50 flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0" onClick={(e) => e.stopPropagation()}>
                         <button
-                          onClick={() => setPreviewResource(resource)}
-                          className="flex items-center gap-1 px-3 py-1.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 text-xs font-semibold rounded-lg transition-colors"
+                          className="p-1 text-gray-400 hover:text-indigo-600 hover:bg-gray-50 rounded"
+                          onClick={() => {
+                            setEditingFolder(folder);
+                            setFolderNameInput(folder.name);
+                            setShowFolderModal(true);
+                          }}
+                          title="Rename Folder"
                         >
-                          <Eye className="w-3.5 h-3.5" /> View
+                          <Edit3 className="w-3.5 h-3.5" />
                         </button>
-                        
-                        <div className="flex gap-2">
-                          <a
-                            href={resource.url}
-                            download={resource.title}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="p-1.5 bg-gray-50 hover:bg-gray-100 text-gray-600 rounded-lg transition-colors"
-                            title="Download PDF"
-                          >
-                            <Download className="w-3.5 h-3.5" />
-                          </a>
-
-                          {canDelete && (
-                            <button
-                              onClick={() => handleDeleteResource(resource.id)}
-                              className="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-colors"
-                              title="Delete file"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          )}
-                        </div>
+                        <button
+                          className="p-1 text-gray-400 hover:text-red-600 hover:bg-gray-50 rounded"
+                          onClick={() => handleDeleteFolder(folder.id, folder.name)}
+                          title="Delete Folder"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 text-center py-16 px-4">
-                <FileText className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                <h3 className="font-semibold text-gray-900 text-base">No resources found</h3>
-                <p className="text-sm text-gray-500 mt-1">
-                  Try adjusting your search query, or upload the first resource to start!
-                </p>
+                  ))}
+                </div>
               </div>
             )}
+
+            {/* Folder Actions header inside folders */}
+            {activeFolder && (
+              <div className="flex items-center justify-between bg-white px-5 py-3 rounded-xl border border-gray-100 shadow-sm">
+                <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Folder Tools</span>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      setEditingFolder(activeFolder);
+                      setFolderNameInput(activeFolder.name);
+                      setShowFolderModal(true);
+                    }}
+                    className="flex items-center gap-1 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg transition-colors border border-indigo-100"
+                  >
+                    <Edit3 className="w-3.5 h-3.5" /> Rename
+                  </button>
+                  <button
+                    onClick={() => handleDeleteFolder(activeFolder.id, activeFolder.name)}
+                    className="flex items-center gap-1 px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-semibold rounded-lg transition-colors border border-red-100"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" /> Delete Folder
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Resources List */}
+            <div className="space-y-3">
+              <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                {activeFolder ? `Files in ${activeFolder.name}` : "Files (Root Level)"}
+              </h2>
+              {loading ? (
+                <div className="flex flex-col items-center py-12">
+                  <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
+                  <p className="text-sm text-gray-500 mt-2">Loading materials...</p>
+                </div>
+              ) : filteredResources.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {filteredResources.map((resource) => {
+                    const isOwner = resource.uploadedBy.email === session.user.email;
+                    const isMentorOrAdmin = session.user.role === "MENTOR" || session.user.role === "ADMIN";
+                    const canDelete = isOwner || isMentorOrAdmin;
+
+                    return (
+                      <div
+                        key={resource.id}
+                        className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow flex flex-col justify-between"
+                      >
+                        <div>
+                          <div className="flex justify-between items-start gap-2 mb-3">
+                            <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-600">
+                              <FileText className="w-5 h-5" />
+                            </div>
+                            
+                            <span
+                              className={`px-2.5 py-0.5 text-[10px] font-bold rounded-full ${
+                                resource.uploaderRole === "MENTOR"
+                                  ? "bg-indigo-100 text-indigo-800"
+                                  : resource.uploaderRole === "ADMIN"
+                                  ? "bg-rose-100 text-rose-800"
+                                  : "bg-emerald-100 text-emerald-800"
+                              }`}
+                            >
+                              {resource.uploaderRole}
+                            </span>
+                          </div>
+
+                          <h3 className="font-semibold text-gray-900 text-sm leading-snug line-clamp-2" title={resource.title}>
+                            {resource.title}
+                          </h3>
+
+                          <div className="mt-2 text-xs text-gray-500 flex flex-col gap-1">
+                            <p>Size: {formatBytes(resource.fileSize)}</p>
+                            <p className="truncate">
+                              By: {resource.uploadedBy.name || resource.uploadedBy.email}
+                            </p>
+                            <p>
+                              Date: {new Date(resource.createdAt).toLocaleDateString(undefined, {
+                                year: "numeric",
+                                month: "short",
+                                day: "numeric",
+                              })}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="mt-5 pt-4 border-t border-gray-50 flex items-center justify-between gap-2">
+                          <button
+                            onClick={() => setPreviewResource(resource)}
+                            className="flex items-center gap-1 px-3 py-1.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 text-xs font-semibold rounded-lg transition-colors"
+                          >
+                            <Eye className="w-3.5 h-3.5" /> View
+                          </button>
+                          
+                          <div className="flex gap-2">
+                            <a
+                              href={resource.url}
+                              download={resource.title}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="p-1.5 bg-gray-50 hover:bg-gray-100 text-gray-600 rounded-lg transition-colors"
+                              title="Download PDF"
+                            >
+                              <Download className="w-3.5 h-3.5" />
+                            </a>
+
+                            {canDelete && (
+                              <button
+                                onClick={() => handleDeleteResource(resource.id)}
+                                className="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-colors"
+                                title="Delete file"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 text-center py-16 px-4">
+                  <FileText className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                  <h3 className="font-semibold text-gray-900 text-base">No resources found</h3>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Upload the first resource inside this section to start!
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
+
+      {/* ── FOLDER CREATION / RENAME MODAL ───────────────────────── */}
+      {showFolderModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between pb-4 border-b border-gray-100">
+              <h2 className="font-bold text-gray-900 text-base">
+                {editingFolder ? "Rename Folder" : "Create New Folder"}
+              </h2>
+              <button
+                onClick={() => setShowFolderModal(false)}
+                className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <form onSubmit={handleFolderSubmit} className="mt-4 space-y-4">
+              <div>
+                <label htmlFor="folderName" className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                  Folder Name
+                </label>
+                <input
+                  id="folderName"
+                  type="text"
+                  required
+                  placeholder="e.g. History Notes, Weekly Quizzes..."
+                  value={folderNameInput}
+                  onChange={(e) => setFolderNameInput(e.target.value)}
+                  className="w-full px-3.5 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                />
+              </div>
+
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowFolderModal(false)}
+                  className="px-4 py-2 text-xs font-bold text-gray-600 hover:bg-slate-50 border border-gray-200 rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={folderSaving || !folderNameInput.trim()}
+                  className="px-4.5 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5"
+                >
+                  {folderSaving ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" /> Saving...
+                    </>
+                  ) : (
+                    <>
+                      <FolderPlus className="w-3.5 h-3.5" /> Save Folder
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* ── PDF PREVIEW MODAL ───────────────────────── */}
       {previewResource && (
