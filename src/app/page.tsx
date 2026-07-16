@@ -101,6 +101,27 @@ export default function HomePage() {
                   Go to Dashboard
                 </Link>
               )}
+
+              {/* App Download Card */}
+              <div className="mt-16 p-6 max-w-xl mx-auto rounded-2xl border border-blue-500/20 bg-gray-900/60 backdrop-blur-md shadow-2xl text-left flex flex-col sm:flex-row items-center gap-6 transform hover:scale-[1.02] transition-all duration-300">
+                <div className="relative flex-shrink-0">
+                  <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-blue-500 to-teal-500 opacity-30 blur"></div>
+                  <img src="/app-icon.png" alt="App Icon" className="relative w-16 h-16 rounded-2xl shadow-lg border border-gray-800" />
+                </div>
+                <div className="flex-1 text-center sm:text-left">
+                  <h4 className="text-lg font-bold text-white mb-1">Get the Android App</h4>
+                  <p className="text-sm text-gray-400">
+                    Access all features, study trackers, timers, and group discussions instantly on your mobile device.
+                  </p>
+                </div>
+                <a
+                  href="/app-release-signed.apk"
+                  download
+                  className="w-full sm:w-auto text-center px-5 py-2.5 text-sm font-bold bg-gradient-to-r from-blue-600 to-teal-500 text-white rounded-xl hover:from-blue-700 hover:to-teal-600 transition-all duration-200 shadow-lg hover:shadow-blue-500/20 active:scale-95 whitespace-nowrap"
+                >
+                  Download APK
+                </a>
+              </div>
             </div>
           </div>
         </section>

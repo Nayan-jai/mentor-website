@@ -61,7 +61,7 @@ body.dark {
    RESET & BASE
    ═══════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { -webkit-text-size-adjust: 100%; }
+html { -webkit-text-size-adjust: 100%; overflow-x: hidden; }
 body {
   font-family: var(--font);
   font-size: 15px;
@@ -72,6 +72,7 @@ body {
   min-height: -webkit-fill-available;
   transition: background .25s, color .25s;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 button { font-family: var(--font); cursor: pointer; }
 input, textarea, select { font-family: var(--font); }
@@ -1145,9 +1146,19 @@ input, textarea, select { font-family: var(--font); }
   .stat-card { padding: 11px 13px; }
   .stat-value { font-size: 20px; }
   .stat-label { font-size: 10px; }
-  .tabs { gap: 1px; }
-  .tab { padding: 4px 7px; font-size: 11px; }
-  .logo { font-size: 14px; }
+  .logo { display: none; }
+  .tabs {
+    gap: 1px;
+    margin-left: 0;
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab { padding: 4px 7px; font-size: 11px; flex-shrink: 0; }
   .hdr-btns { gap: 4px; }
   .hbtn { padding: 0 8px; font-size: 12px; height: 30px; }
   .day-dots { gap: 3px; }

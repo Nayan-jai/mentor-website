@@ -1787,6 +1787,9 @@ function toggleRevisionTracker() {
   conf.revisionActive = !conf.revisionActive;
   sc();
   updateRevisionTabVisibility();
+  if (conf.revisionActive) {
+    switchView('revision');
+  }
 }
 
 function updateRevisionTabVisibility() {
@@ -2341,7 +2344,7 @@ function renderActiveGroupUI(container) {
           <div class="group-title-label">${esc(g.name)}</div>
           <div style="font-size:11px;color:var(--ink3);margin-top:4px">Created by ${userIsOwner ? 'you' : 'group admin'}</div>
         </div>
-        <div style="display:flex;align-items:center;gap:12px">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
           <div class="group-code-badge" title="Share this code with friends to join">
             Invite Code: <strong style="margin-left:4px">${g.code}</strong>
             <button onclick="copyGroupCode('${g.code}')" style="background:none;border:none;color:var(--blue);cursor:pointer;font-size:12px;padding:0;font-weight:700;margin-left:8px">📋 Copy</button>

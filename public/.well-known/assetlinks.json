@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.vercel.mentor_website_kappa.twa",
+      "sha256_cert_fingerprints": [
+        "A5:D0:86:B8:8A:47:12:A6:B3:5F:CE:27:56:06:15:4C:07:9D:9F:0D:86:7D:CE:B8:A0:EF:5B:D5:76:77:ED:54"
+      ]
+    }
+  }
+]
