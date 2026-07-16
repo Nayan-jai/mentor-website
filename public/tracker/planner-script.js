@@ -2,7 +2,15 @@
 /* ══════════════════════════════════════════
    CONSTANTS
 ══════════════════════════════════════════ */
-const COLORS=['var(--blue)','var(--red)','var(--green)','var(--orange)','var(--purple)','var(--teal)','var(--gold)'];
+const COLORS=[
+  'var(--blue)', 'var(--red)', 'var(--green)', 'var(--orange)', 'var(--purple)', 'var(--teal)', 'var(--gold)',
+  'linear-gradient(135deg, #ff5e62, #ff9966)',
+  'linear-gradient(135deg, #00c6ff, #0072ff)',
+  'linear-gradient(135deg, #f107a3, #7b2ff7)',
+  'linear-gradient(135deg, #11998e, #38ef7d)',
+  'linear-gradient(135deg, #8a2387, #e94057, #f27121)',
+  'linear-gradient(135deg, #f12711, #f5af19)'
+];
 const COLOR_NAMES={
   'var(--blue)': 'Blue 🔵',
   'var(--red)': 'Red 🔴',
@@ -10,7 +18,13 @@ const COLOR_NAMES={
   'var(--orange)': 'Orange 🟠',
   'var(--purple)': 'Purple 🟣',
   'var(--teal)': 'Teal 💎',
-  'var(--gold)': 'Gold 🟡'
+  'var(--gold)': 'Gold 🟡',
+  'linear-gradient(135deg, #ff5e62, #ff9966)': 'Sunset Glow 🌅',
+  'linear-gradient(135deg, #00c6ff, #0072ff)': 'Ocean Breeze 🌊',
+  'linear-gradient(135deg, #f107a3, #7b2ff7)': 'Neon Purple 🌌',
+  'linear-gradient(135deg, #11998e, #38ef7d)': 'Forest Fresh 🌿',
+  'linear-gradient(135deg, #8a2387, #e94057, #f27121)': 'Aurora Lights 🎆',
+  'linear-gradient(135deg, #f12711, #f5af19)': 'Citrus Punch 🍊'
 };
 const ICONS=['⚖️','📈','🗺️','🔁','📝','🧮','💡','📖','🏛️','🎯','📊','✏️','🏆','🔬','💰','🌍','⚡','🎓','📋','🗞️'];
 const SK='ias6_data', SP='ias6_prog', SC='ias6_conf';
@@ -123,6 +137,15 @@ function getDd(i){const d=days[i];if(d?.dateOverride)return new Date(d.dateOverr
 function isToday(d){const t=new Date();t.setHours(0,0,0,0);return d.getTime()===t.getTime();}
 function fd(d){return d.toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'});}
 function gid(){return 'b'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);}
+function getSolidColor(c) {
+  if (!c) return 'var(--blue)';
+  if (c.includes('gradient')) {
+    const match = c.match(/#(?:[0-9a-fA-F]{3}){1,2}/);
+    return match ? match[0] : 'var(--blue)';
+  }
+  return c;
+}
+
 function getVibrantColor(c) {
   const mapping = {
     '#3b7dd8': 'var(--blue)',
@@ -607,6 +630,10 @@ function renderDots(){
     if(i===curDay)c+=' active';
     return `<div class="${c}" onclick="jumpTo(${i})" title="Day ${i+1} — ${p}%">${i+1}</div>`;
   }).join('');
+  
+  setTimeout(() => {
+    document.querySelector('.dot.active')?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  }, 40);
 }
 
 function renderDayContent(){
@@ -660,7 +687,7 @@ function buildBlockReadOnly(dayId,block,bi){
       <input class="st-text" value="${esc(ct.text)}" onchange="editCT('${block.id}',${j},this.value)">
       <button class="st-del" onclick="delCT('${block.id}',${j},'${dayId}')">✕</button>
     </div>`).join('');
-  return `<div class="block-card" id="sb-${block.id}" style="border-left-color:${s.color}; box-shadow:0 4px 14px ${s.color}15">
+  return `<div class="block-card" id="sb-${block.id}" style="border-left-color:${s.color}; box-shadow:0 4px 14px ${s.color}15; animation-delay:${bi*0.05}s; --subj-color-solid:${getSolidColor(s.color)}; --subj-color-bg:${s.color}">
     <div class="block-head" onclick="toggleBlock('${block.id}')">
       <div class="block-icon" style="background:${s.color}20">${s.icon}</div>
       <div class="block-info">
@@ -744,7 +771,7 @@ function buildBlock(dayId,block,bi){
       <input class="st-text" value="${esc(ct.text)}" onchange="editCT('${block.id}',${j},this.value)">
       <button class="st-del" onclick="delCT('${block.id}',${j},'${dayId}')">✕</button>
     </div>`).join('');
-  return `<div class="block-card" id="sb-${block.id}" style="border-left-color:${s.color}; box-shadow:0 4px 14px ${s.color}15">
+  return `<div class="block-card" id="sb-${block.id}" style="border-left-color:${s.color}; box-shadow:0 4px 14px ${s.color}15; animation-delay:${bi*0.05}s; --subj-color-solid:${getSolidColor(s.color)}; --subj-color-bg:${s.color}">
     <div class="block-head" onclick="toggleBlock('${block.id}')">
       <div class="block-icon" style="background:${s.color}20">${s.icon}</div>
       <div class="block-info">
@@ -984,7 +1011,7 @@ function renderSyllabus(){
     const stT=blocks.reduce((a,b)=>a+b.subtopics.length+(gp(b.id).customTasks?.length||0),0);
     const stD=blocks.reduce((a,b)=>{const p=gp(b.id);return a+b.subtopics.filter((_,j)=>p.subtopics[j]).length+(p.customTasks||[]).filter(t=>t.done).length;},0);
     const pct=stT?Math.round(stD/stT*100):0;
-    html+=`<div class="syl-card" style="animation-delay:${si*.04}s">
+    html+=`<div class="syl-card" style="animation-delay:${si*.04}s; --subj-color-solid:${getSolidColor(s.color)}; --subj-color-bg:${s.color}">
       <div class="syl-head">
         <div class="syl-icon" style="background:${s.color}20">${s.icon}</div>
         <div class="syl-name">${esc(s.name)}</div>
@@ -1122,7 +1149,7 @@ function toggleSyllabusModeView(val) {
 
 async function loadSyllabusTemplates() {
   try {
-    const res = await fetch("/tracker/premade-syllabi.json");
+    const res = await fetch("/api/syllabus?_t=" + Date.now());
     if (res.ok) {
       PREMADE_SYLLABI = await res.json();
       rebuildSyllabusDropdown();
@@ -1430,7 +1457,7 @@ function renderManage(){
   }
 
   document.getElementById('subjListEl').innerHTML=subj.map(s=>`
-    <div class="subj-row" onclick="openSubjModal('${s.id}')">
+    <div class="subj-row" onclick="openSubjModal('${s.id}')" style="--subj-color-solid:${getSolidColor(s.color)}; --subj-color-bg:${s.color}">
       <div class="sdot" style="background:${s.color}"></div>
       <span style="font-size:15px">${s.icon}</span>
       <span class="srow-name">${esc(s.name)}</span>

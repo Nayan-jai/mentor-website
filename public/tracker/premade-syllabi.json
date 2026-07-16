@@ -1,797 +1,2335 @@
 {
+  "bpsc": {
+    "days": [
+      {
+        "id": "d_bp1",
+        "title": "Day 1 Focus: Polity & Ancient Bihar",
+        "blocks": [
+          {
+            "id": "b_bp1a",
+            "topic": "Constitutional Framework & Preamble",
+            "subjectId": "s_polity",
+            "subtopics": [
+              "Preamble text and significance",
+              "Salient features of Indian Constitution"
+            ],
+            "targetHrs": 3
+          },
+          {
+            "id": "b_bp1b",
+            "topic": "Ancient History: Buddhism & Jainism",
+            "subjectId": "s_history",
+            "subtopics": [
+              "Life and teachings of Gautama Buddha",
+              "Mahavira and Jainism rules",
+              "Buddhist Councils held in Rajgir, Vaishali, Pataliputra"
+            ],
+            "targetHrs": 3
+          },
+          {
+            "id": "b_bp1c",
+            "topic": "Bihar Special: Ancient History",
+            "subjectId": "s_bihspl",
+            "subtopics": [
+              "Rise of Magadha Empire & Haryanka dynasty",
+              "Mauryan rule in Pataliputra",
+              "Nalanda & Vikramshila universities"
+            ],
+            "targetHrs": 2
+          }
+        ],
+        "targetHrs": 8,
+        "dateOverride": null
+      },
+      {
+        "id": "d_bp2",
+        "title": "Day 2 Focus: Indian Geography & Physics",
+        "blocks": [
+          {
+            "id": "b_bp2a",
+            "topic": "Physical Divisions of India",
+            "subjectId": "s_geography",
+            "subtopics": [
+              "Himalayan mountain ranges",
+              "Northern fertile plains",
+              "Peninsular hills & coastal systems"
+            ],
+            "targetHrs": 3
+          },
+          {
+            "id": "b_bp2b",
+            "topic": "General Science: Physics Basics",
+            "subjectId": "s_science",
+            "subtopics": [
+              "SI units & dimensions",
+              "Newton's laws of motion",
+              "Work, Energy & Power concepts"
+            ],
+            "targetHrs": 3
+          },
+          {
+            "id": "b_bp2c",
+            "topic": "Bihar Special: Geography",
+            "subjectId": "s_bihspl",
+            "subtopics": [
+              "Bihar location, boundaries and climate",
+              "Soil types in North and South Bihar"
+            ],
+            "targetHrs": 2
+          }
+        ],
+        "targetHrs": 8,
+        "dateOverride": null
+      },
+      {
+        "id": "d_bp3",
+        "title": "Day 3 Focus: Modern India & Bihar Rivers",
+        "blocks": [
+          {
+            "id": "b_bp3a",
+            "topic": "Modern India: Freedom Struggle",
+            "subjectId": "s_history",
+            "subtopics": [
+              "1857 Revolt causes & centers",
+              "Non-Cooperation Movement (1920-22)",
+              "Quit India Movement (1942)"
+            ],
+            "targetHrs": 3
+          },
+          {
+            "id": "b_bp3b",
+            "topic": "Bihar Special: Rivers & Drainage",
+            "subjectId": "s_bihspl",
+            "subtopics": [
+              "Ganges river system in Bihar",
+              "North Bihar rivers (Kosi, Gandak, Bagmati)",
+              "South Bihar rivers (Son, Punpun, Phalgu)",
+              "Kosi river: Cause of floods"
+            ],
+            "targetHrs": 3
+          },
+          {
+            "id": "b_bp3c",
+            "topic": "Fundamental Rights & Duties",
+            "subjectId": "s_polity",
+            "subtopics": [
+              "Articles 14-32 list",
+              "Directive Principles of State Policy"
+            ],
+            "targetHrs": 2
+          }
+        ],
+        "targetHrs": 8,
+        "dateOverride": null
+      },
+      {
+        "id": "d_bp4",
+        "title": "Day 4 Focus: Economy & Chemistry",
+        "blocks": [
+          {
+            "id": "b_bp4a",
+            "topic": "Indian Economy & Planning",
+            "subjectId": "s_economy",
+            "subtopics": [
+              "Economic planning & NITI Aayog",
+              "Budget concepts & deficit indicators"
+            ],
+            "targetHrs": 3
+          },
+          {
+            "id": "b_bp4b",
+            "topic": "General Science: Chemistry Basics",
+            "subjectId": "s_science",
+            "subtopics": [
+              "Elements, mixtures & compounds",
+              "Acids, bases & pH scale",
+              "Metals, non-metals & alloys"
+            ],
+            "targetHrs": 3
+          },
+          {
+            "id": "b_bp4c",
+            "topic": "Bihar Special: Economy & Survey",
+            "subjectId": "s_bihspl",
+            "subtopics": [
+              "Bihar Budget highlights",
+              "Bihar Economic Survey: Agricultural and industrial growth"
+            ],
+            "targetHrs": 2
+          }
+        ],
+        "targetHrs": 8,
+        "dateOverride": null
+      },
+      {
+        "id": "d_bp5",
+        "title": "Day 5 Focus: Biology & Bihar Freedom Movement",
+        "blocks": [
+          {
+            "id": "b_bp5a",
+            "topic": "General Science: Biology",
+            "subjectId": "s_science",
+            "subtopics": [
+              "Cell structure & functions",
+              "Plant and human physiology",
+              "Vitamins & deficiency diseases"
+            ],
+            "targetHrs": 3
+          },
+          {
+            "id": "b_bp5b",
+            "topic": "Bihar Special: Freedom Struggle",
+            "subjectId": "s_bihspl",
+            "subtopics": [
+              "Champaran Satyagraha 1917 & Gandhi",
+              "Role of Kunwar Singh in 1857 Revolt",
+              "Peasant movement in Bihar & Sahajanand Saraswati"
+            ],
+            "targetHrs": 3
+          },
+          {
+            "id": "b_bp5c",
+            "topic": "State Executive & Legislature",
+            "subjectId": "s_polity",
+            "subtopics": [
+              "Governor and CM powers in Bihar",
+              "Bihar State Assembly structure"
+            ],
+            "targetHrs": 2
+          }
+        ],
+        "targetHrs": 8,
+        "dateOverride": null
+      }
+    ],
+    "subj": [
+      {
+        "id": "s_polity",
+        "icon": "⚖️",
+        "name": "Polity",
+        "color": "var(--red)",
+        "defaultHrs": 3
+      },
+      {
+        "id": "s_history",
+        "icon": "🏛️",
+        "name": "History",
+        "color": "var(--orange)",
+        "defaultHrs": 3
+      },
+      {
+        "id": "s_economy",
+        "icon": "📈",
+        "name": "Economy",
+        "color": "var(--green)",
+        "defaultHrs": 3
+      },
+      {
+        "id": "s_geography",
+        "icon": "🗺️",
+        "name": "Geography",
+        "color": "var(--blue)",
+        "defaultHrs": 3
+      },
+      {
+        "id": "s_science",
+        "icon": "🔬",
+        "name": "General Science",
+        "color": "var(--purple)",
+        "defaultHrs": 3
+      },
+      {
+        "id": "s_bihspl",
+        "icon": "🏮",
+        "name": "Bihar Special",
+        "color": "var(--teal)",
+        "defaultHrs": 3
+      }
+    ],
+    "examName": "BPSC Bihar State Services"
+  },
   "upsc": {
     "examName": "UPSC Civil Services",
     "subj": [
       {
         "id": "s_polity",
+        "icon": "⚖️",
         "name": "Polity",
         "color": "var(--red)",
-        "icon": "⚖️",
+        "topics": [
+          {
+            "id": "t_1784209761603y5j",
+            "name": "Evolution of the Constitution",
+            "subtopics": [
+              "The Company Rule (1773-1858)",
+              "Regulating Act 1773",
+              "Amending Act 1781",
+              "Pitt’s India Act 1784",
+              "Amending Act of 1786",
+              "Charter Act 1793",
+              "Charter Act 1813",
+              "Charter Act 1833",
+              "Charter Act 1853",
+              "The Crown Rule (1858-1947)",
+              "Government of India Act 1858",
+              "Indian Councils Act 1861",
+              "Indian Councils Act 1892",
+              "Indian Councils Act 1909",
+              "Government of India Act 1919",
+              "Simon Commission ",
+              "Government of India Act 1935",
+              "Indian Independence Act 1947",
+              "Drafting and Sources of Indian Constitution",
+              "Seminal Sources",
+              "External Sources",
+              "Developmental Sources",
+              "Constitutional Practices",
+              "Important Committees of the Constituent Assembly and their Chairman"
+            ]
+          },
+          {
+            "id": "t_17842097616039hr",
+            "name": "Salient Features of Indian Constitution",
+            "subtopics": [
+              "Constitution and Types",
+              "What is a Constitution?",
+              "Types of Constitution",
+              "Functions of the Constitution",
+              "Historical evolution of the Constitution",
+              "Constituent Assembly",
+              "Objectives of the Constitution",
+              "Unitary features",
+              "Federal features",
+              "Types of Political System",
+              "Types of Political System",
+              "Types of Government",
+              "Parliamentary form of government",
+              "Features of the Presidential System",
+              "Features of Semi-Presidential System",
+              "Types of Majorities as per the Indian Constitution",
+              "Absolute Majority",
+              "Effective Majority",
+              "Simple Majority",
+              "Special Majority",
+              "Preamble and Values in the Constitution",
+              "The objectives laid down in the Preamble",
+              "Whether the Preamble is a partof the Constitution or not?",
+              "Whether Preamble can be amended or not?",
+              "Ideals (mentioned in the Preamble)",
+              "Democratic",
+              "Sovereign",
+              "Socialist",
+              "Secular",
+              "Republic",
+              "Justice",
+              "Equality",
+              "Liberty",
+              "Fraternity",
+              "Integrity",
+              "Amendment of the Constitution",
+              "Procedure for amendment",
+              "Types of Amendments",
+              "Amendability of FR’s",
+              "Ingredients of basic structure",
+              "Doctrine and Terms",
+              "Doctrine of severability",
+              "Validity of Re-Constitutional Laws",
+              "Doctrine of Eclipse",
+              "Doctrine of Harmonious Construction",
+              "Doctrine of Pith and Substance",
+              "Doctrine of Colorable Legislation (Article 246)",
+              "Doctrine of Territorial Nexus",
+              "Doctrine of Laches",
+              "Due Process of Law",
+              "Procedure Established by Law",
+              "Other Constitutional Dimensions",
+              "Schedules and Subjects",
+              "Official Languages"
+            ]
+          },
+          {
+            "id": "t_1784209761603dnr",
+            "name": "Union & Its Territory",
+            "subtopics": [
+              "Article 1: Name and Territory of the Union",
+              "Committee/commission for StateRe-organisation",
+              "The State Reorganization Commission(SRC) 1953",
+              "Article 2: Admit or Establish new State",
+              "Article 3: Formation of new States and alternation of areas",
+              "Article 4: Laws made under articles2 and 3 to provide for the amendment of the First and the Fourth Schedule and Supplemental.",
+              "Delimitation Commission"
+            ]
+          },
+          {
+            "id": "t_1784209761603lme",
+            "name": "Citizenship",
+            "subtopics": [
+              "Constitutional Provisions",
+              "Constitutional provisions of citizenship",
+              "Citizenship Act",
+              "The Citizenship (Amendment) Act",
+              "Methodology of getting citizenship",
+              "Modes of Losing the Citizenship of India",
+              "Concept of dual citizenship",
+              "Special privileges enjoyed bycitizens in India",
+              "Rights and Duties of Citizens",
+              "Indian Diaspora",
+              "Pravasi Bhartiya Divas",
+              "Non-Resident Indians"
+            ]
+          },
+          {
+            "id": "t_17842097616033dp",
+            "name": "Fundamental Rights",
+            "subtopics": [
+              "Evolution Objectives And Features",
+              "Meaning",
+              "Objectives",
+              "Features",
+              "Importance",
+              "Restrictive limitations on fundamental rights",
+              "Article 12 and Article 13",
+              "Definition of state",
+              "Laws Inconsistent with Fundamental Rights",
+              "Right to Equality",
+              "Article 14: Equality before the lawor the Equal protection of Law",
+              "Article 15: Prohibition of Discrimination on the grounds of religion",
+              "Article 16: Equality of Opportunity in matters of Public Employment",
+              "Article 17: Abolition of Untouchability",
+              "Article 18: Abolition of Titles",
+              "Right to Freedom",
+              "Article 19",
+              "Article 20: (Protection in respect of conviction for offenses)",
+              "Article 21: Protection of life and personal liberty",
+              "Article 22: Protection against arrestand detention",
+              "Right against Exploitation",
+              "Article 23: Prohibition of Trafficin human beings and forced labour",
+              "Article 24: Prohibition of employment of children in factories",
+              "Right to Freedom of Religion",
+              "Article 25: Freedom of conscience and free profession",
+              "Article 26: Freedom to manage religious affairs",
+              "Article 27: Freedom from payment of taxes for promotion of any particular religion.",
+              "Article 28: Freedom from attendance religious instruction or worship in educational institutions",
+              "Cultural and Educational Rights",
+              "Article 29: Protection of interest of Minorities",
+              "Article 30: Right of minorities to establish and administer educational institutions",
+              "Right to Constitutional Remedies",
+              "Article 32: Right to Constitutional Remedies:",
+              "Habeas Corpus",
+              "Mandamus",
+              "Certiorari",
+              "Prohibition",
+              "Quo Warranto",
+              "FR’s other Dimensions",
+              "Article 33",
+              "Article 34",
+              "Article 35",
+              "Article 35A"
+            ]
+          },
+          {
+            "id": "t_17842097616030bw",
+            "name": "Directive Principles of State Policy (DPSP)",
+            "subtopics": [
+              "Evolution",
+              "Basic features",
+              "Types",
+              "Amendments",
+              "Implementation",
+              "Socialistic Principles",
+              "Article: 38",
+              "Article:39",
+              "Article: 39A",
+              "Article: 41",
+              "Article: 42",
+              "Article: 43",
+              "Article: 43-A",
+              "Article: 47",
+              "Gandhian Principles",
+              "Article: 40",
+              "Article: 43",
+              "Article: 46",
+              "Article: 47",
+              "Article: 48",
+              "Liberal-Intellectual Principles",
+              "Article: 44",
+              "Article: 45",
+              "Article: 48",
+              "Article: 48A",
+              "Article: 49",
+              "Article: 50",
+              "Article: 51",
+              "Directive Principle Outside Part IV",
+              "ARTICLE 335 IN PART XVI",
+              "ARTICLE 350-A IN PART XVII",
+              "Article 351 in Part XVII"
+            ]
+          },
+          {
+            "id": "t_1784209761603kqq",
+            "name": "Fundamental Duties",
+            "subtopics": [
+              "Article: 51A",
+              "Features",
+              "Relation between of Fundamental Rights and Fundamental Duties",
+              "List Of Fundamental Duties",
+              "86th Constitutional Amendment Act 2003 : RTE",
+              "Recent Developments",
+              "Fundamental Duties – Awareness Campaigns is the Duty of Centre",
+              "National Anthem - Mandatory in Cinema Halls - Article 51(a)",
+              "\"Prevention of Insults toNational Honour Act",
+              "Triple Talaq Issue",
+              "Uniform Civil Code",
+              "MGNREGA: Right to Work",
+              "Making Aadhar mandatory"
+            ]
+          },
+          {
+            "id": "t_1784209761603t0i",
+            "name": "System of Governance",
+            "subtopics": [
+              "Centre-State Relations",
+              "Legislative relations (Articles) 245",
+              "Related to Territorial Powers",
+              "Related to Legislative Powers",
+              "Related to Parliament’s Powers to make Laws in State",
+              "Sarkaria Commission’s Opinion on Legislative Relations",
+              "Administrative Relations",
+              "Delegation of Union Functionsto the States",
+              "Sarkaria Commission’s Opinion on Administrative Relations",
+              "Financial relations",
+              "National Integration Council",
+              "Inter State Relation",
+              "Inter state water dispute",
+              "Inter state councils",
+              "Inter state trade and commerce",
+              "Zonal Councils",
+              "Special Provisoions for some States",
+              "\"Provisions for Maharastra and Gujarat",
+              "Provisions for Jammu and Kashmir (A370) (now abrogated)",
+              "Types of Emergencies",
+              "National Emergency",
+              "Constitutional/State Emergency /President’s Rule",
+              "Financial Emergency"
+            ]
+          },
+          {
+            "id": "t_178420976160310z",
+            "name": "Union Executive",
+            "subtopics": [
+              "President",
+              "Eligibility",
+              "Conditions of Office",
+              "Term of Office",
+              "Election",
+              "Manner of Election",
+              "Impeachment of the President",
+              "Impeachment of the President",
+              "Vacancy in the Office of President",
+              "Powers of the President",
+              "Executive powers (Article 53)",
+              "Legislative Powers",
+              "Financial Powers",
+              "Ordinance Issuing Power (Article 123)",
+              "Judicial/Pardoning Power",
+              "Military",
+              "Diplomatic",
+              "Emergency Powers",
+              "Vice President",
+              "Qualification",
+              "Conditions of Office",
+              "Term of Office",
+              "Election",
+              "Removal",
+              "Vacancy",
+              "Functions of the Vice-President",
+              "The Prime Minister",
+              "Appointment",
+              "Eligibility",
+              "Powers and Functions of Prime Minister",
+              "Relationship between the President",
+              "and the Prime Minister",
+              "Deputy Prime Minister",
+              "Prime Minister’s Office",
+              "Union Council of Minister",
+              "Article 74: Council of Ministers to aid and advice President",
+              "Article 75: Other Provisions as to Ministers",
+              "Article 77: Conduct of Businessof the Government of India",
+              "Article 78: Duties of Prime Minister",
+              "Nature of advice by Ministers",
+              "Strength of the Council",
+              "Appointment of a Non-legislator as a Minister",
+              "Collective responsibility of the Ministers",
+              "Individual Responsibility of Ministers"
+            ]
+          },
+          {
+            "id": "t_17842097616033g3",
+            "name": "Union Legislature",
+            "subtopics": [
+              "Organisation of Parliament",
+              "Organisation of Parliament",
+              "Qualifications and Disqualifications for being a Member of Parliament (Article 84)",
+              "Functions of the Parliament",
+              "Functioning of the Parliament",
+              "Sessions of Parliament",
+              "Devices of Parliamentary Proceedings",
+              "Parliamentary Privileges and Immunities",
+              "Collective Privileges of the House",
+              "Individual Privileges",
+              "Houses of the Parliament",
+              "Parliament",
+              "Lok Sabha Composition",
+              "Rajya Sabha Composition",
+              "Presiding Officers of the Parliament",
+              "Speaker",
+              "Powers & Functions of the speaker",
+              "Deputy Speaker",
+              "Panel of Chairpersons of Lok Sabha",
+              "Speaker Pro Tem",
+              "Chairman of Rajya Sabha",
+              "Deputy Chairman of Rajya Sabha",
+              "Panel of Vice-Chairpersons of Rajya Sabha",
+              "Chairman and Deputy chairman of the Council of States",
+              "Legislative Procedure and Committees of Parliament",
+              "Legislative Procedure in Parliament",
+              "Ordinary Bill",
+              "Money Bill",
+              "Financial Bill",
+              "Constitution Amendment Bill",
+              "Lapsing of Bills",
+              "Annual Financial Statement: Budget (Article 112)",
+              "Demand of Grants",
+              "Appropriation Bill",
+              "Cut motions",
+              "Stages in Enactment of Budget",
+              "Other Grants",
+              "Related Information of Budget",
+              "Parliamentary committees"
+            ]
+          },
+          {
+            "id": "t_1784209761603upr",
+            "name": "State Executive",
+            "subtopics": [
+              "Governor",
+              "Article 152: Definition",
+              "Article 153: Governors of States",
+              "Article 154: Executive power of State",
+              "Powers of Governor",
+              "Executive power",
+              "Legislative power",
+              "Financial Power",
+              "Judicial Power",
+              "Discretionary power",
+              "Article 155: Appointment of Governor",
+              "Article 156: Term of office of Governor",
+              "Article 157: Qualifications for Appointment as Governor",
+              "Article 158: Conditions of Governor’s office",
+              "Article 159: Oath or affirmation by the Governor",
+              "Article 160: Discharge of the functions of the Governor in certain contingencies",
+              "Article 161",
+              "Article 162: Extent of executive power of State",
+              "Recommendations on the office of Governor",
+              "ARC (Administrative Reforms Commission)",
+              "Sarkaria Commission",
+              "National Commission to Review the working of the Constitution",
+              "The Chief Minister and the CoM",
+              "Powers and Functions of Chief Minister",
+              "In Relation to Council of Ministers",
+              "In relation to the Governor",
+              "In Relation to State Legislature",
+              "Other Powers and Functions",
+              "Composition of the Council of Ministers",
+              "Responsibility of Ministers",
+              "Advocate-General for the State"
+            ]
+          },
+          {
+            "id": "t_1784209761603330",
+            "name": "State Legislature",
+            "subtopics": [
+              "Legislative Assembly",
+              "Legislative Assembly (Vidhan Sabha)",
+              "Powers and Functions",
+              "Speaker & Deputy Speaker",
+              "Parliament’s Control over State Legislature",
+              "Legislative Council (Article 169)",
+              "Qualifications",
+              "Powers and Functions"
+            ]
+          },
+          {
+            "id": "t_17842097616035el",
+            "name": "Local Government",
+            "subtopics": [
+              "Panchayati Raj",
+              "Evolution of the Panchayati Raj Institution (PRI)",
+              "73rd Amendment Act of 1992",
+              "Compulsory and Voluntary Provisions",
+              "Urban Local Government",
+              "74th Constitutional Amendment Act",
+              "Types of Urban Governments In India"
+            ]
+          },
+          {
+            "id": "t_1784209761603go8",
+            "name": "Union Territories and special Areas",
+            "subtopics": [
+              "Union Territories",
+              "Creation of Union Territories",
+              "Administration of UT’s",
+              "Special provisions for Delhi",
+              "Special Category Status",
+              "Schedule and Tribal Areas",
+              "Administration of Schedule Areas",
+              "Administration of Tribal areas"
+            ]
+          },
+          {
+            "id": "t_17842097616030u0",
+            "name": "The Judiciary",
+            "subtopics": [
+              "The Supreme Court",
+              "Chief Justice of India",
+              "Acting Chief Justice of India",
+              "Appointment of Supreme Court Judges",
+              "Qualifications for Supreme Court Judges",
+              "Removal of a Supreme Court Judges",
+              "Process of Impeachment",
+              "Ad hoc and Retired Judges",
+              "Salaries and allowances of SupremeCourt Judges",
+              "Chief Justices of India (Since 1951)",
+              "Jurisdiction of the Supreme Court",
+              "Judicial Independence",
+              "Judiciary Executive Relations",
+              "The High Court Subordinate Courts & Lok Adalats",
+              "The High Courts",
+              "Jurisdiction of the High Courts",
+              "Subordinate Courts",
+              "Gram Nyayalayas Act",
+              "Alternative dispute Resolution",
+              "Lok Adalat",
+              "All India Judicial Service",
+              "E-governance in Judiciary",
+              "Judicial Impact Assessment",
+              "\"Judges Standards and AccountabilityBill",
+              "National Legal Services Authority (NALSA)"
+            ]
+          },
+          {
+            "id": "t_1784209761603t6x",
+            "name": "Constitutional & Non Constitutional Bodies",
+            "subtopics": [
+              "Constitutional Bodies",
+              "Finance Commission",
+              "Constitution",
+              "Functions",
+              "Comptrollerand Auditor General of India",
+              "Comptroller and Auditor-General",
+              "Attorney-General of India",
+              "Appointment",
+              "Functions and Responsibilities",
+              "Other Constitutional Bodies",
+              "All India Services",
+              "Union Public Service Commission (UPSC)",
+              "State Public Service Commission (SPSC)",
+              "Joint State public Service Commission (JSPSC)",
+              "National Commission For SCs",
+              "National Commission For STs",
+              "Special Officer for Linguistic Minority",
+              "The Advocate General (Article 165)",
+              "Non Constitutional",
+              "Special officer for linguistic Minorities",
+              "Central Information Commission",
+              "State Information Commission",
+              "Lokpal and Lok Ayukta",
+              "National Human Rights Commission",
+              "State Human Right Commission",
+              "CVC (Central Vigillance Commission)"
+            ]
+          },
+          {
+            "id": "t_1784209761603p43",
+            "name": "Political Dynamics",
+            "subtopics": [
+              "Political Parties and Election",
+              "Electoral System in India",
+              "Electoral Reforms Since 1988",
+              "Salient features of the Representation of People Act",
+              "Salient features of Representation of Peoples Act",
+              "Elections in India",
+              "Electoral reforms since 1988",
+              "Criminalization of politics",
+              "Negative or neutral voting",
+              "State funding of Election",
+              "Irregularities in polling",
+              "Types of Political Parties",
+              "Party System in India",
+              "Political Parties in India",
+              "Problems in the working of parties",
+              "Casteism and Politic",
+              "Strengthening of Anti-defection measures",
+              "Pressure Groups",
+              "Meaning and Techniques",
+              "Pressure Groups in India",
+              "Types of pressure groups",
+              "Role of pressure groupin developing countries",
+              "Functions of pressure groups in India",
+              "Pressure groups methods",
+              "Pressure groups and Democracy",
+              "Criticism of pressure groups"
+            ]
+          },
+          {
+            "id": "t_178420976160327q",
+            "name": "Governance",
+            "subtopics": [
+              "Governing Institutions in India",
+              "Structure of Ministries/departments",
+              "Political head",
+              "Secretariat organization secretary",
+              "Functions of the secretariat",
+              "Functions of attached and subordinate office",
+              "Other organizations",
+              "Public sector undertakings",
+              "The Executive organization",
+              "Advantages of the separation ofsecretariat and executive organization.",
+              "Strengths and weaknesses of theexisting structure",
+              "Recommendations for improvingthe Organizational structure",
+              "Audit and other Transparency initiatives",
+              "CVC",
+              "CAG",
+              "Lokpal",
+              "Lok Ayukta",
+              "\"Role of SHG",
+              "SHGs",
+              "Characteristics",
+              "Role of SHGs in development",
+              "NGOs",
+              "Functions",
+              "Role of NGOs in development",
+              "Micro Finance Institutions",
+              "Salient features",
+              "Role of MFIs in development",
+              "Social Sector Bills",
+              "The Juvenile Justice (Care andProtection of Children) Act",
+              "Surrogacy (Regulation) Bill",
+              "Child Labour (Prohibition and Amendment) Bill",
+              "Maternity Benefit Bill",
+              "Pre-Conception & Pre-Natal Diagnostic Techniques (PNDT) Act",
+              "Mental Health Care Bill",
+              "Protection of Children from Sexual Offenses (POCSO)",
+              "Anti Trafficking Bill with Stringent Penalty",
+              "HIV and AIDS (Prevention and Control)Bill- 2014 - Amendments",
+              "Domestic Violence Act",
+              "Rights of Persons with Disabilities Bill",
+              "Transgender Persons (Protection of Rights)Bill 2016",
+              "The Scheduled Castes and the Scheduled Tribes (Prevention of Atrocities) Amendment Act",
+              "Welfare Schemes",
+              "Health",
+              "National Health Mission",
+              "National Ayush Mission",
+              "Jan Aushadhi Scheme",
+              "Mission Indradhanush",
+              "NFHS-4 survey",
+              "Education",
+              "Padhe Bharat Badhe Bharat",
+              "Mid Day Meal Scheme",
+              "GIAN (Global Initiative ofAcademic Networks)",
+              "SWAYAM (Study Webs of Active –Learning for Young Aspiring Minds)",
+              "Start-up and Skill Development",
+              "Start Up India Scheme",
+              "Stand up India Scheme",
+              "National Student Start-up Policy",
+              "National Skill Development Mission",
+              "Pradhan Mantri Kaushal Vikas Yojana",
+              "Deen Dayal Antyodaya Yojana",
+              "Skill Development Initiative Scheme",
+              "Self-Employment & Talent Utilisation (SETU)",
+              "Atal Innovation Mission",
+              "Vulnerable Sector",
+              "Social Security",
+              "Atal Pension Yojana",
+              "Pradhan Mantri Jeevan Jyoti Bima Yojana",
+              "Pradhan Mantri Suraksha Bima Yojana",
+              "Nai Roshni Scheme",
+              "USTAAD Scheme (Upgrading the Skills and Training in Traditional Arts/Crafts for Development)",
+              "Nai Manzil Scheme",
+              "Women and Child Development",
+              "Beti Bachao Beti Padhao",
+              "Sukanya Samriddhi Yojana",
+              "Digital Gudda Guddi Board",
+              "Ujjawala Scheme",
+              "Janani Suraksha Yojana",
+              "Janani Shishu Suraksha Karyakram",
+              "SC/ST",
+              "Vanbandhu Kalyan Yojana",
+              "Pradhan Mantri Adarsh Gram Yojana",
+              "Disability",
+              "Accessible India Campaign (Sugamya Bharat Abhiyan)",
+              "Rural and Urban Development",
+              "Sansad Adarsh Gram Yojana",
+              "Gram Uday Se Bharat Uday Abhiyan",
+              "Shyama Prasad Mukharjee Rurban Mission",
+              "Deendayal Upadhyaya Gram Jyoti Yojana",
+              "Pradhan Mantri Gram Sadak Yojana",
+              "Swachch Bharat Abhiyan",
+              "Pradhan Mantri Awas Yojana- Gramin",
+              "Pradhan Mantri Awas Yojana - Urban",
+              "Housing for all by 2022",
+              "Smart Cities Mission",
+              "Hriday - National Heritage City Development and Augmentation Yojana",
+              "Amrut (Atal Mission for Rejuvenation and Urban Transformation)",
+              "Inclusive growth",
+              "Measurement criteria",
+              "Government initiatives for inclusive growth",
+              "Basic Amenities: Housing/Drinking Waters/Sanitations",
+              "Sustainable Development",
+              "Rural Development",
+              "Rural development and poverty alleviation",
+              "Review of the existing Programmes",
+              "Development Administration",
+              "Panchayati Raj",
+              "Agriculture and Rural Development",
+              "Miscellaneous schemes",
+              "Digilocker",
+              "Bharatnet Project (National Optical Fibre Network)",
+              "INSPIRE (Innovation in Science Pursuit for Inspired Research)",
+              "SAKAAR",
+              "Digital India",
+              "Namami Gange Project (Integrated Ganga Conservation Mission Project)",
+              "Ganga Gram Yojana",
+              "Khelo India",
+              "PRAGATI (Pro-Active Governance and Timely Implementation)",
+              "Indian Community Welfare Fund (ICWF)"
+            ]
+          },
+          {
+            "id": "t_178420976160305r",
+            "name": "International Relations",
+            "subtopics": [
+              "India’s Foreign Policy",
+              "Evolution of India’s Foreign Policy",
+              "Post 1990 Scenario",
+              "Global Issues",
+              "South Asia",
+              "India – Nepal Relations",
+              "India and Bhutan",
+              "India-Afghanislam Relations",
+              "India-Bangladesh Relations",
+              "India-Maldives Relations",
+              "India-Sri Lanka Relations",
+              "India-Myanmar Relations",
+              "India-Pakistan Relations",
+              "SAARC",
+              "NAM (Non-Alignment Movement): Relevance",
+              "Central Asia",
+              "Mongolia",
+              "Kazakhastan",
+              "Tukmenistan",
+              "Uzbekistan",
+              "West Asia",
+              "India – UAE Relations",
+              "India IRAN Relations",
+              "Israel and Palestine Relations",
+              "India – Israel Relations",
+              "India – Saudi Arabia",
+              "Asia – Pacific",
+              "Asia-Pacific Region",
+              "India-South East Asia Relations",
+              "India-Asean Cooperation",
+              "Indo-Japan Relations",
+              "Indo-Australia Relations",
+              "India – South Korea Relations",
+              "India-Vietnam",
+              "Africa",
+              "India-South Africa Relations",
+              "India-Nigeria Relations",
+              "India-Kenya Relations",
+              "India-Sudan Relations",
+              "Europe",
+              "India-Russia Relations",
+              "India-France Relations",
+              "India-Germany Relations",
+              "India-United Kingdom Relations",
+              "India-EU Kingdom Relations",
+              "US-China",
+              "India-USA Relations",
+              "India-China Relations",
+              "Indian Ocean Region",
+              "Seychelles",
+              "Mauritius",
+              "Maldives",
+              "Indian Diaspora",
+              "Indian Diaspora in West",
+              "Indian Diaspora in Gulf",
+              "Indian Diaspora in Eastand Middle East"
+            ]
+          }
+        ],
         "defaultHrs": 3
       },
       {
         "id": "s_history",
+        "icon": "🏛️",
         "name": "History",
         "color": "var(--orange)",
-        "icon": "🏛️",
-        "defaultHrs": 3
+        "defaultHrs": 3,
+        "topics": [
+          {
+            "id": "t_1784211739519xtc",
+            "name": "International Relations",
+            "subtopics": [
+              "India’s Foreign Policy",
+              "Evolution of India’s Foreign Policy",
+              "Post 1990 Scenario",
+              "Global Issues",
+              "South Asia",
+              "India – Nepal Relations",
+              "India and Bhutan",
+              "India-Afghanislam Relations",
+              "India-Bangladesh Relations",
+              "India-Maldives Relations",
+              "India-Sri Lanka Relations",
+              "India-Myanmar Relations",
+              "India-Pakistan Relations",
+              "SAARC",
+              "NAM (Non-Alignment Movement): Relevance",
+              "Central Asia",
+              "Mongolia",
+              "Kazakhastan",
+              "Tukmenistan",
+              "Uzbekistan",
+              "West Asia",
+              "India – UAE Relations",
+              "India IRAN Relations",
+              "Israel and Palestine Relations",
+              "India – Israel Relations",
+              "India – Saudi Arabia",
+              "Asia – Pacific",
+              "Asia-Pacific Region",
+              "India-South East Asia Relations",
+              "India-Asean Cooperation",
+              "Indo-Japan Relations",
+              "Indo-Australia Relations",
+              "India – South Korea Relations",
+              "India-Vietnam",
+              "Africa",
+              "India-South Africa Relations",
+              "India-Nigeria Relations",
+              "India-Kenya Relations",
+              "India-Sudan Relations",
+              "Europe",
+              "India-Russia Relations",
+              "India-France Relations",
+              "India-Germany Relations",
+              "India-United Kingdom Relations",
+              "India-EU Kingdom Relations",
+              "US-China",
+              "India-USA Relations",
+              "India-China Relations",
+              "Indian Ocean Region",
+              "Seychelles",
+              "Mauritius",
+              "Maldives",
+              "Indian Diaspora",
+              "Indian Diaspora in West",
+              "Indian Diaspora in Gulf",
+              "Indian Diaspora in Eastand Middle East"
+            ]
+          }
+        ]
       },
       {
         "id": "s_economy",
+        "icon": "📈",
         "name": "Economy",
         "color": "var(--green)",
-        "icon": "📈",
         "defaultHrs": 3
       },
       {
         "id": "s_geography",
+        "icon": "🗺️",
         "name": "Geography",
         "color": "var(--blue)",
-        "icon": "🗺️",
         "defaultHrs": 3
       },
       {
         "id": "s_env",
+        "icon": "🌿",
         "name": "Environment & Ecology",
         "color": "var(--teal)",
-        "icon": "🌿",
         "defaultHrs": 2
       },
       {
         "id": "s_csat",
+        "icon": "🔢",
         "name": "CSAT",
         "color": "var(--gold)",
-        "icon": "🔢",
         "defaultHrs": 2
+      },
+      {
+        "id": "s_1784207731614",
+        "icon": "📚",
+        "name": "Art and Culture",
+        "color": "var(--purple)",
+        "defaultHrs": 3
       }
     ],
     "days": [
       {
         "id": "d_u1",
         "title": "Day 1 Focus: Constitutional Framework",
-        "dateOverride": null,
-        "targetHrs": 8,
         "blocks": [
           {
-            "id": "b_u1a",
+            "id": "b_1784208677619e01",
+            "topic": "Evolution of the Constitution",
             "subjectId": "s_polity",
-            "targetHrs": 3,
-            "topic": "Historical Underpinnings & Preamble",
             "subtopics": [
-              "Regulating Act 1773 to Independence Act 1947",
-              "Constituent Assembly composition",
-              "Preamble keywords & significance"
-            ]
+              "The Company Rule (1773-1858)",
+              "Regulating Act 1773",
+              "Amending Act 1781",
+              "Pitt’s India Act 1784",
+              "Amending Act of 1786",
+              "Charter Act 1793",
+              "Charter Act 1813",
+              "Charter Act 1833",
+              "Charter Act 1853",
+              "The Crown Rule (1858-1947)",
+              "Government of India Act 1858",
+              "Indian Councils Act 1861",
+              "Indian Councils Act 1892",
+              "Indian Councils Act 1909",
+              "Government of India Act 1919",
+              "Simon Commission",
+              "Government of India Act 1935",
+              "Indian Independence Act 1947",
+              "Drafting and Sources of Indian Constitution",
+              "Seminal Sources",
+              "External Sources",
+              "Developmental Sources",
+              "Constitutional Practices",
+              "Important Committees of the Constituent Assembly and their Chairman"
+            ],
+            "targetHrs": 3
           },
           {
-            "id": "b_u1b",
+            "id": "b_1784211262008phw",
+            "topic": "Salient Features of Indian Constitution",
+            "subjectId": "s_polity",
+            "subtopics": [
+              "Constitution and Types",
+              "What is a Constitution?",
+              "Types of Constitution",
+              "Functions of the Constitution",
+              "Historical evolution of the Constitution",
+              "Constituent Assembly",
+              "Objectives of the Constitution",
+              "Unitary features",
+              "Federal features",
+              "Types of Political System",
+              "Types of Political System",
+              "Types of Government",
+              "Parliamentary form of government",
+              "Features of the Presidential System",
+              "Features of Semi-Presidential System",
+              "Types of Majorities as per the Indian Constitution",
+              "Absolute Majority",
+              "Effective Majority",
+              "Simple Majority",
+              "Special Majority",
+              "Preamble and Values in the Constitution",
+              "The objectives laid down in the Preamble",
+              "Whether the Preamble is a partof the Constitution or not?",
+              "Whether Preamble can be amended or not?",
+              "Ideals (mentioned in the Preamble)",
+              "Democratic",
+              "Sovereign",
+              "Socialist",
+              "Secular",
+              "Republic",
+              "Justice",
+              "Equality",
+              "Liberty",
+              "Fraternity",
+              "Integrity",
+              "Amendment of the Constitution",
+              "Procedure for amendment",
+              "Types of Amendments",
+              "Amendability of FR’s",
+              "Ingredients of basic structure",
+              "Doctrine and Terms",
+              "Doctrine of severability",
+              "Validity of Re-Constitutional Laws",
+              "Doctrine of Eclipse",
+              "Doctrine of Harmonious Construction",
+              "Doctrine of Pith and Substance",
+              "Doctrine of Colorable Legislation (Article 246)",
+              "Doctrine of Territorial Nexus",
+              "Doctrine of Laches",
+              "Due Process of Law",
+              "Procedure Established by Law",
+              "Other Constitutional Dimensions",
+              "Schedules and Subjects",
+              "Official Languages"
+            ],
+            "targetHrs": 3
+          },
+          {
+            "id": "b_178421176810329a",
             "subjectId": "s_history",
             "targetHrs": 3,
-            "topic": "Ancient India: Indus Valley Civilization",
+            "topic": "International Relations",
             "subtopics": [
-              "IVC major sites & excavations",
-              "Town planning, agriculture & trade",
-              "Decline of Indus Valley Civilization"
-            ]
-          },
-          {
-            "id": "b_u1c",
-            "subjectId": "s_csat",
-            "targetHrs": 2,
-            "topic": "Number System: Divisibility",
-            "subtopics": [
-              "Divisibility rules & prime factorization",
-              "HCF & LCM base rules"
+              "India’s Foreign Policy",
+              "Evolution of India’s Foreign Policy",
+              "Post 1990 Scenario",
+              "Global Issues",
+              "South Asia",
+              "India – Nepal Relations",
+              "India and Bhutan",
+              "India-Afghanislam Relations",
+              "India-Bangladesh Relations",
+              "India-Maldives Relations",
+              "India-Sri Lanka Relations",
+              "India-Myanmar Relations",
+              "India-Pakistan Relations",
+              "SAARC",
+              "NAM (Non-Alignment Movement): Relevance",
+              "Central Asia",
+              "Mongolia",
+              "Kazakhastan",
+              "Tukmenistan",
+              "Uzbekistan",
+              "West Asia",
+              "India – UAE Relations",
+              "India IRAN Relations",
+              "Israel and Palestine Relations",
+              "India – Israel Relations",
+              "India – Saudi Arabia",
+              "Asia – Pacific",
+              "Asia-Pacific Region",
+              "India-South East Asia Relations",
+              "India-Asean Cooperation",
+              "Indo-Japan Relations",
+              "Indo-Australia Relations",
+              "India – South Korea Relations",
+              "India-Vietnam",
+              "Africa",
+              "India-South Africa Relations",
+              "India-Nigeria Relations",
+              "India-Kenya Relations",
+              "India-Sudan Relations",
+              "Europe",
+              "India-Russia Relations",
+              "India-France Relations",
+              "India-Germany Relations",
+              "India-United Kingdom Relations",
+              "India-EU Kingdom Relations",
+              "US-China",
+              "India-USA Relations",
+              "India-China Relations",
+              "Indian Ocean Region",
+              "Seychelles",
+              "Mauritius",
+              "Maldives",
+              "Indian Diaspora",
+              "Indian Diaspora in West",
+              "Indian Diaspora in Gulf",
+              "Indian Diaspora in Eastand Middle East"
             ]
           }
-        ]
+        ],
+        "targetHrs": 8,
+        "dateOverride": null
       },
       {
         "id": "d_u2",
         "title": "Day 2 Focus: Geography & National Income",
-        "dateOverride": null,
-        "targetHrs": 8,
         "blocks": [
           {
-            "id": "b_u2a",
-            "subjectId": "s_geography",
-            "targetHrs": 3,
-            "topic": "Physical Geography: Earth Interior",
+            "id": "b_1784211262009agr",
+            "topic": "Union & Its Territory",
+            "subjectId": "s_polity",
             "subtopics": [
-              "Crust, Mantle, Core boundaries",
-              "Continental Drift theory",
-              "Plate Tectonics mechanism"
-            ]
-          },
-          {
-            "id": "b_u2b",
-            "subjectId": "s_economy",
-            "targetHrs": 3,
-            "topic": "National Income Accounting",
-            "subtopics": [
-              "GDP, GNP, NDP, NNP formulas",
-              "Real vs Nominal GDP",
-              "National Income estimation methods"
-            ]
-          },
-          {
-            "id": "b_u2c",
-            "subjectId": "s_env",
-            "targetHrs": 2,
-            "topic": "Ecology: Ecosystem Basics",
-            "subtopics": [
-              "Biotic & abiotic components",
-              "Trophic levels & energy flow"
-            ]
+              "Article 1: Name and Territory of the Union",
+              "Committee/commission for StateRe-organisation",
+              "The State Reorganization Commission(SRC) 1953",
+              "Article 2: Admit or Establish new State",
+              "Article 3: Formation of new States and alternation of areas",
+              "Article 4: Laws made under articles2 and 3 to provide for the amendment of the First and the Fourth Schedule and Supplemental.",
+              "Delimitation Commission"
+            ],
+            "targetHrs": 3
           }
-        ]
+        ],
+        "targetHrs": 8,
+        "dateOverride": null
       },
       {
         "id": "d_u3",
         "title": "Day 3 Focus: Fundamental Rights",
-        "dateOverride": null,
-        "targetHrs": 8,
         "blocks": [
           {
-            "id": "b_u3a",
+            "id": "b_1784211262010ofl",
+            "topic": "Citizenship",
             "subjectId": "s_polity",
-            "targetHrs": 3,
-            "topic": "Fundamental Rights (Part III)",
             "subtopics": [
-              "Articles 14-18 (Equality)",
-              "Articles 19-22 (Freedom)",
-              "Writs & Constitutional Remedies (Article 32)"
-            ]
-          },
-          {
-            "id": "b_u3b",
-            "subjectId": "s_history",
-            "targetHrs": 3,
-            "topic": "Ancient India: Vedic Era",
-            "subtopics": [
-              "Early vs Later Vedic period",
-              "Vedic literature & Upanishads",
-              "Social organization & assemblies (Sabha, Samiti)"
-            ]
-          },
-          {
-            "id": "b_u3c",
-            "subjectId": "s_economy",
-            "targetHrs": 2,
-            "topic": "Inflation Concept & Measurement",
-            "subtopics": [
-              "WPI vs CPI metrics",
-              "Demand-pull vs Cost-push inflation",
-              "Monetary measures to control inflation"
-            ]
+              "Constitutional Provisions",
+              "Constitutional provisions of citizenship",
+              "Citizenship Act",
+              "The Citizenship (Amendment) Act",
+              "Methodology of getting citizenship",
+              "Modes of Losing the Citizenship of India",
+              "Concept of dual citizenship",
+              "Special privileges enjoyed bycitizens in India",
+              "Rights and Duties of Citizens",
+              "Indian Diaspora",
+              "Pravasi Bhartiya Divas",
+              "Non-Resident Indians"
+            ],
+            "targetHrs": 3
           }
-        ]
+        ],
+        "targetHrs": 8,
+        "dateOverride": null
       },
       {
         "id": "d_u4",
         "title": "Day 4 Focus: Geomorphology & Biodiversity",
-        "dateOverride": null,
-        "targetHrs": 8,
         "blocks": [
           {
-            "id": "b_u4a",
-            "subjectId": "s_geography",
-            "targetHrs": 3,
-            "topic": "Geomorphology: Landforms",
+            "id": "b_1784211262011uez",
+            "topic": "Fundamental Rights",
+            "subjectId": "s_polity",
             "subtopics": [
-              "Fluvial & Aeolian landforms",
-              "Karst & Glacial landforms",
-              "Volcanism & Earthquake waves"
-            ]
-          },
-          {
-            "id": "b_u4b",
-            "subjectId": "s_env",
-            "targetHrs": 3,
-            "topic": "Biodiversity & Conservation",
-            "subtopics": [
-              "In-situ conservation (National Parks, WLS)",
-              "Ex-situ conservation (Zoo, Seed banks)",
-              "Biodiversity Hotspots in India"
-            ]
-          },
-          {
-            "id": "b_u4c",
-            "subjectId": "s_csat",
-            "targetHrs": 2,
-            "topic": "Number System: Remainders",
-            "subtopics": [
-              "Euler's theorem & remainder rules",
-              "Simplification techniques"
-            ]
+              "Evolution Objectives And Features",
+              "Meaning",
+              "Objectives",
+              "Features",
+              "Importance",
+              "Restrictive limitations on fundamental rights",
+              "Article 12 and Article 13",
+              "Definition of state",
+              "Laws Inconsistent with Fundamental Rights",
+              "Right to Equality",
+              "Article 14: Equality before the lawor the Equal protection of Law",
+              "Article 15: Prohibition of Discrimination on the grounds of religion",
+              "Article 16: Equality of Opportunity in matters of Public Employment",
+              "Article 17: Abolition of Untouchability",
+              "Article 18: Abolition of Titles",
+              "Right to Freedom",
+              "Article 19",
+              "Article 20: (Protection in respect of conviction for offenses)",
+              "Article 21: Protection of life and personal liberty",
+              "Article 22: Protection against arrestand detention",
+              "Right against Exploitation",
+              "Article 23: Prohibition of Trafficin human beings and forced labour",
+              "Article 24: Prohibition of employment of children in factories",
+              "Right to Freedom of Religion",
+              "Article 25: Freedom of conscience and free profession",
+              "Article 26: Freedom to manage religious affairs",
+              "Article 27: Freedom from payment of taxes for promotion of any particular religion.",
+              "Article 28: Freedom from attendance religious instruction or worship in educational institutions",
+              "Cultural and Educational Rights",
+              "Article 29: Protection of interest of Minorities",
+              "Article 30: Right of minorities to establish and administer educational institutions",
+              "Right to Constitutional Remedies",
+              "Article 32: Right to Constitutional Remedies:",
+              "Habeas Corpus",
+              "Mandamus",
+              "Certiorari",
+              "Prohibition",
+              "Quo Warranto",
+              "FR’s other Dimensions",
+              "Article 33",
+              "Article 34",
+              "Article 35",
+              "Article 35A"
+            ],
+            "targetHrs": 3
           }
-        ]
+        ],
+        "targetHrs": 8,
+        "dateOverride": null
       },
       {
         "id": "d_u5",
         "title": "Day 5 Focus: State Policy & Maurya Empire",
-        "dateOverride": null,
-        "targetHrs": 8,
         "blocks": [
           {
-            "id": "b_u5a",
+            "id": "b_1784211262012p4g",
+            "topic": "Directive Principles of State Policy (DPSP)",
             "subjectId": "s_polity",
-            "targetHrs": 3,
-            "topic": "DPSP & Fundamental Duties",
             "subtopics": [
-              "Socialist, Gandhian & Liberal principles",
-              "Relationship between FR and DPSP",
-              "List of 11 Fundamental Duties"
-            ]
-          },
-          {
-            "id": "b_u5b",
-            "subjectId": "s_history",
-            "targetHrs": 3,
-            "topic": "Ancient India: Buddhism & Jainism",
-            "subtopics": [
-              "Life & Teachings of Gautama Buddha",
-              "Teachings of Mahavira",
-              "Buddhist and Jain councils"
-            ]
-          },
-          {
-            "id": "b_u5c",
-            "subjectId": "s_economy",
-            "targetHrs": 2,
-            "topic": "Banking & RBI Controls",
-            "subtopics": [
-              "Quantitative instruments (CRR, SLR, Repo)",
-              "Qualitative credit control instruments"
-            ]
+              "Evolution",
+              "Basic features",
+              "Types",
+              "Amendments",
+              "Implementation",
+              "Socialistic Principles",
+              "Article: 38",
+              "Article:39",
+              "Article: 39A",
+              "Article: 41",
+              "Article: 42",
+              "Article: 43",
+              "Article: 43-A",
+              "Article: 47",
+              "Gandhian Principles",
+              "Article: 40",
+              "Article: 43",
+              "Article: 46",
+              "Article: 47",
+              "Article: 48",
+              "Liberal-Intellectual Principles",
+              "Article: 44",
+              "Article: 45",
+              "Article: 48",
+              "Article: 48A",
+              "Article: 49",
+              "Article: 50",
+              "Article: 51",
+              "Directive Principle Outside Part IV",
+              "ARTICLE 335 IN PART XVI",
+              "ARTICLE 350-A IN PART XVII",
+              "Article 351 in Part XVII"
+            ],
+            "targetHrs": 3
           }
-        ]
+        ],
+        "targetHrs": 8,
+        "dateOverride": null
+      },
+      {
+        "id": "d_1784211262013",
+        "title": "Day 6",
+        "blocks": [
+          {
+            "id": "b_17842112620130xy",
+            "topic": "Fundamental Duties",
+            "subjectId": "s_polity",
+            "subtopics": [
+              "Article: 51A",
+              "Features",
+              "Relation between of Fundamental Rights and Fundamental Duties",
+              "List Of Fundamental Duties",
+              "86th Constitutional Amendment Act 2003 : RTE",
+              "Recent Developments",
+              "Fundamental Duties – Awareness Campaigns is the Duty of Centre",
+              "National Anthem - Mandatory in Cinema Halls - Article 51(a)",
+              "\"Prevention of Insults toNational Honour Act",
+              "Triple Talaq Issue",
+              "Uniform Civil Code",
+              "MGNREGA: Right to Work",
+              "Making Aadhar mandatory"
+            ],
+            "targetHrs": 3
+          }
+        ],
+        "targetHrs": 8,
+        "dateOverride": null
+      },
+      {
+        "id": "d_1784211262014",
+        "title": "Day 7",
+        "blocks": [
+          {
+            "id": "b_17842112620149km",
+            "topic": "System of Governance",
+            "subjectId": "s_polity",
+            "subtopics": [
+              "Centre-State Relations",
+              "Legislative relations (Articles) 245",
+              "Related to Territorial Powers",
+              "Related to Legislative Powers",
+              "Related to Parliament’s Powers to make Laws in State",
+              "Sarkaria Commission’s Opinion on Legislative Relations",
+              "Administrative Relations",
+              "Delegation of Union Functionsto the States",
+              "Sarkaria Commission’s Opinion on Administrative Relations",
+              "Financial relations",
+              "National Integration Council",
+              "Inter State Relation",
+              "Inter state water dispute",
+              "Inter state councils",
+              "Inter state trade and commerce",
+              "Zonal Councils",
+              "Special Provisoions for some States",
+              "\"Provisions for Maharastra and Gujarat",
+              "Provisions for Jammu and Kashmir (A370) (now abrogated)",
+              "Types of Emergencies",
+              "National Emergency",
+              "Constitutional/State Emergency /President’s Rule",
+              "Financial Emergency"
+            ],
+            "targetHrs": 3
+          }
+        ],
+        "targetHrs": 8,
+        "dateOverride": null
+      },
+      {
+        "id": "d_1784211262015",
+        "title": "Day 8",
+        "blocks": [
+          {
+            "id": "b_1784211262015y3e",
+            "topic": "Union Executive",
+            "subjectId": "s_polity",
+            "subtopics": [
+              "President",
+              "Eligibility",
+              "Conditions of Office",
+              "Term of Office",
+              "Election",
+              "Manner of Election",
+              "Impeachment of the President",
+              "Impeachment of the President",
+              "Vacancy in the Office of President",
+              "Powers of the President",
+              "Executive powers (Article 53)",
+              "Legislative Powers",
+              "Financial Powers",
+              "Ordinance Issuing Power (Article 123)",
+              "Judicial/Pardoning Power",
+              "Military",
+              "Diplomatic",
+              "Emergency Powers",
+              "Vice President",
+              "Qualification",
+              "Conditions of Office",
+              "Term of Office",
+              "Election",
+              "Removal",
+              "Vacancy",
+              "Functions of the Vice-President",
+              "The Prime Minister",
+              "Appointment",
+              "Eligibility",
+              "Powers and Functions of Prime Minister",
+              "Relationship between the President",
+              "and the Prime Minister",
+              "Deputy Prime Minister",
+              "Prime Minister’s Office",
+              "Union Council of Minister",
+              "Article 74: Council of Ministers to aid and advice President",
+              "Article 75: Other Provisions as to Ministers",
+              "Article 77: Conduct of Businessof the Government of India",
+              "Article 78: Duties of Prime Minister",
+              "Nature of advice by Ministers",
+              "Strength of the Council",
+              "Appointment of a Non-legislator as a Minister",
+              "Collective responsibility of the Ministers",
+              "Individual Responsibility of Ministers"
+            ],
+            "targetHrs": 3
+          }
+        ],
+        "targetHrs": 8,
+        "dateOverride": null
+      },
+      {
+        "id": "d_1784211262016",
+        "title": "Day 9",
+        "blocks": [
+          {
+            "id": "b_1784211262016jx7",
+            "topic": "Union Legislature",
+            "subjectId": "s_polity",
+            "subtopics": [
+              "Organisation of Parliament",
+              "Organisation of Parliament",
+              "Qualifications and Disqualifications for being a Member of Parliament (Article 84)",
+              "Functions of the Parliament",
+              "Functioning of the Parliament",
+              "Sessions of Parliament",
+              "Devices of Parliamentary Proceedings",
+              "Parliamentary Privileges and Immunities",
+              "Collective Privileges of the House",
+              "Individual Privileges",
+              "Houses of the Parliament",
+              "Parliament",
+              "Lok Sabha Composition",
+              "Rajya Sabha Composition",
+              "Presiding Officers of the Parliament",
+              "Speaker",
+              "Powers & Functions of the speaker",
+              "Deputy Speaker",
+              "Panel of Chairpersons of Lok Sabha",
+              "Speaker Pro Tem",
+              "Chairman of Rajya Sabha",
+              "Deputy Chairman of Rajya Sabha",
+              "Panel of Vice-Chairpersons of Rajya Sabha",
+              "Chairman and Deputy chairman of the Council of States",
+              "Legislative Procedure and Committees of Parliament",
+              "Legislative Procedure in Parliament",
+              "Ordinary Bill",
+              "Money Bill",
+              "Financial Bill",
+              "Constitution Amendment Bill",
+              "Lapsing of Bills",
+              "Annual Financial Statement: Budget (Article 112)",
+              "Demand of Grants",
+              "Appropriation Bill",
+              "Cut motions",
+              "Stages in Enactment of Budget",
+              "Other Grants",
+              "Related Information of Budget",
+              "Parliamentary committees"
+            ],
+            "targetHrs": 3
+          }
+        ],
+        "targetHrs": 8,
+        "dateOverride": null
+      },
+      {
+        "id": "d_1784211262017",
+        "title": "Day 10",
+        "blocks": [
+          {
+            "id": "b_1784211262017ugh",
+            "topic": "State Executive",
+            "subjectId": "s_polity",
+            "subtopics": [
+              "Governor",
+              "Article 152: Definition",
+              "Article 153: Governors of States",
+              "Article 154: Executive power of State",
+              "Powers of Governor",
+              "Executive power",
+              "Legislative power",
+              "Financial Power",
+              "Judicial Power",
+              "Discretionary power",
+              "Article 155: Appointment of Governor",
+              "Article 156: Term of office of Governor",
+              "Article 157: Qualifications for Appointment as Governor",
+              "Article 158: Conditions of Governor’s office",
+              "Article 159: Oath or affirmation by the Governor",
+              "Article 160: Discharge of the functions of the Governor in certain contingencies",
+              "Article 161",
+              "Article 162: Extent of executive power of State",
+              "Recommendations on the office of Governor",
+              "ARC (Administrative Reforms Commission)",
+              "Sarkaria Commission",
+              "National Commission to Review the working of the Constitution",
+              "The Chief Minister and the CoM",
+              "Powers and Functions of Chief Minister",
+              "In Relation to Council of Ministers",
+              "In relation to the Governor",
+              "In Relation to State Legislature",
+              "Other Powers and Functions",
+              "Composition of the Council of Ministers",
+              "Responsibility of Ministers",
+              "Advocate-General for the State"
+            ],
+            "targetHrs": 3
+          }
+        ],
+        "targetHrs": 8,
+        "dateOverride": null
+      },
+      {
+        "id": "d_1784211262018",
+        "title": "Day 11",
+        "blocks": [
+          {
+            "id": "b_17842112620188ts",
+            "topic": "State Legislature",
+            "subjectId": "s_polity",
+            "subtopics": [
+              "Legislative Assembly",
+              "Legislative Assembly (Vidhan Sabha)",
+              "Powers and Functions",
+              "Speaker & Deputy Speaker",
+              "Parliament’s Control over State Legislature",
+              "Legislative Council (Article 169)",
+              "Qualifications",
+              "Powers and Functions"
+            ],
+            "targetHrs": 3
+          }
+        ],
+        "targetHrs": 8,
+        "dateOverride": null
+      },
+      {
+        "id": "d_1784211262019",
+        "title": "Day 12",
+        "blocks": [
+          {
+            "id": "b_1784211262019eoa",
+            "topic": "Local Government",
+            "subjectId": "s_polity",
+            "subtopics": [
+              "Panchayati Raj",
+              "Evolution of the Panchayati Raj Institution (PRI)",
+              "73rd Amendment Act of 1992",
+              "Compulsory and Voluntary Provisions",
+              "Urban Local Government",
+              "74th Constitutional Amendment Act",
+              "Types of Urban Governments In India"
+            ],
+            "targetHrs": 3
+          }
+        ],
+        "targetHrs": 8,
+        "dateOverride": null
+      },
+      {
+        "id": "d_1784211262020",
+        "title": "Day 13",
+        "blocks": [
+          {
+            "id": "b_178421126202047j",
+            "topic": "Union Territories and special Areas",
+            "subjectId": "s_polity",
+            "subtopics": [
+              "Union Territories",
+              "Creation of Union Territories",
+              "Administration of UT’s",
+              "Special provisions for Delhi",
+              "Special Category Status",
+              "Schedule and Tribal Areas",
+              "Administration of Schedule Areas",
+              "Administration of Tribal areas"
+            ],
+            "targetHrs": 3
+          }
+        ],
+        "targetHrs": 8,
+        "dateOverride": null
+      },
+      {
+        "id": "d_1784211262021",
+        "title": "Day 14",
+        "blocks": [
+          {
+            "id": "b_17842112620219tl",
+            "topic": "The Judiciary",
+            "subjectId": "s_polity",
+            "subtopics": [
+              "The Supreme Court",
+              "Chief Justice of India",
+              "Acting Chief Justice of India",
+              "Appointment of Supreme Court Judges",
+              "Qualifications for Supreme Court Judges",
+              "Removal of a Supreme Court Judges",
+              "Process of Impeachment",
+              "Ad hoc and Retired Judges",
+              "Salaries and allowances of SupremeCourt Judges",
+              "Chief Justices of India (Since 1951)",
+              "Jurisdiction of the Supreme Court",
+              "Judicial Independence",
+              "Judiciary Executive Relations",
+              "The High Court Subordinate Courts & Lok Adalats",
+              "The High Courts",
+              "Jurisdiction of the High Courts",
+              "Subordinate Courts",
+              "Gram Nyayalayas Act",
+              "Alternative dispute Resolution",
+              "Lok Adalat",
+              "All India Judicial Service",
+              "E-governance in Judiciary",
+              "Judicial Impact Assessment",
+              "\"Judges Standards and AccountabilityBill",
+              "National Legal Services Authority (NALSA)"
+            ],
+            "targetHrs": 3
+          }
+        ],
+        "targetHrs": 8,
+        "dateOverride": null
+      },
+      {
+        "id": "d_1784211262022",
+        "title": "Day 15",
+        "blocks": [
+          {
+            "id": "b_1784211262022za5",
+            "topic": "Constitutional & Non Constitutional Bodies",
+            "subjectId": "s_polity",
+            "subtopics": [
+              "Constitutional Bodies",
+              "Finance Commission",
+              "Constitution",
+              "Functions",
+              "Comptrollerand Auditor General of India",
+              "Comptroller and Auditor-General",
+              "Attorney-General of India",
+              "Appointment",
+              "Functions and Responsibilities",
+              "Other Constitutional Bodies",
+              "All India Services",
+              "Union Public Service Commission (UPSC)",
+              "State Public Service Commission (SPSC)",
+              "Joint State public Service Commission (JSPSC)",
+              "National Commission For SCs",
+              "National Commission For STs",
+              "Special Officer for Linguistic Minority",
+              "The Advocate General (Article 165)",
+              "Non Constitutional",
+              "Special officer for linguistic Minorities",
+              "Central Information Commission",
+              "State Information Commission",
+              "Lokpal and Lok Ayukta",
+              "National Human Rights Commission",
+              "State Human Right Commission",
+              "CVC (Central Vigillance Commission)"
+            ],
+            "targetHrs": 3
+          }
+        ],
+        "targetHrs": 8,
+        "dateOverride": null
+      },
+      {
+        "id": "d_1784211262023",
+        "title": "Day 16",
+        "blocks": [
+          {
+            "id": "b_1784211262023t5x",
+            "topic": "Political Dynamics",
+            "subjectId": "s_polity",
+            "subtopics": [
+              "Political Parties and Election",
+              "Electoral System in India",
+              "Electoral Reforms Since 1988",
+              "Salient features of the Representation of People Act",
+              "Salient features of Representation of Peoples Act",
+              "Elections in India",
+              "Electoral reforms since 1988",
+              "Criminalization of politics",
+              "Negative or neutral voting",
+              "State funding of Election",
+              "Irregularities in polling",
+              "Types of Political Parties",
+              "Party System in India",
+              "Political Parties in India",
+              "Problems in the working of parties",
+              "Casteism and Politic",
+              "Strengthening of Anti-defection measures",
+              "Pressure Groups",
+              "Meaning and Techniques",
+              "Pressure Groups in India",
+              "Types of pressure groups",
+              "Role of pressure groupin developing countries",
+              "Functions of pressure groups in India",
+              "Pressure groups methods",
+              "Pressure groups and Democracy",
+              "Criticism of pressure groups"
+            ],
+            "targetHrs": 3
+          }
+        ],
+        "targetHrs": 8,
+        "dateOverride": null
+      },
+      {
+        "id": "d_1784211262024",
+        "title": "Day 17",
+        "blocks": [
+          {
+            "id": "b_1784211262024hsw",
+            "topic": "Governance",
+            "subjectId": "s_polity",
+            "subtopics": [
+              "Governing Institutions in India",
+              "Structure of Ministries/departments",
+              "Political head",
+              "Secretariat organization secretary",
+              "Functions of the secretariat",
+              "Functions of attached and subordinate office",
+              "Other organizations",
+              "Public sector undertakings",
+              "The Executive organization",
+              "Advantages of the separation ofsecretariat and executive organization.",
+              "Strengths and weaknesses of theexisting structure",
+              "Recommendations for improvingthe Organizational structure",
+              "Audit and other Transparency initiatives",
+              "CVC",
+              "CAG",
+              "Lokpal",
+              "Lok Ayukta",
+              "\"Role of SHG",
+              "SHGs",
+              "Characteristics",
+              "Role of SHGs in development",
+              "NGOs",
+              "Functions",
+              "Role of NGOs in development",
+              "Micro Finance Institutions",
+              "Salient features",
+              "Role of MFIs in development",
+              "Social Sector Bills",
+              "The Juvenile Justice (Care andProtection of Children) Act",
+              "Surrogacy (Regulation) Bill",
+              "Child Labour (Prohibition and Amendment) Bill",
+              "Maternity Benefit Bill",
+              "Pre-Conception & Pre-Natal Diagnostic Techniques (PNDT) Act",
+              "Mental Health Care Bill",
+              "Protection of Children from Sexual Offenses (POCSO)",
+              "Anti Trafficking Bill with Stringent Penalty",
+              "HIV and AIDS (Prevention and Control)Bill- 2014 - Amendments",
+              "Domestic Violence Act",
+              "Rights of Persons with Disabilities Bill",
+              "Transgender Persons (Protection of Rights)Bill 2016",
+              "The Scheduled Castes and the Scheduled Tribes (Prevention of Atrocities) Amendment Act",
+              "Welfare Schemes",
+              "Health",
+              "National Health Mission",
+              "National Ayush Mission",
+              "Jan Aushadhi Scheme",
+              "Mission Indradhanush",
+              "NFHS-4 survey",
+              "Education",
+              "Padhe Bharat Badhe Bharat",
+              "Mid Day Meal Scheme",
+              "GIAN (Global Initiative ofAcademic Networks)",
+              "SWAYAM (Study Webs of Active –Learning for Young Aspiring Minds)",
+              "Start-up and Skill Development",
+              "Start Up India Scheme",
+              "Stand up India Scheme",
+              "National Student Start-up Policy",
+              "National Skill Development Mission",
+              "Pradhan Mantri Kaushal Vikas Yojana",
+              "Deen Dayal Antyodaya Yojana",
+              "Skill Development Initiative Scheme",
+              "Self-Employment & Talent Utilisation (SETU)",
+              "Atal Innovation Mission",
+              "Vulnerable Sector",
+              "Social Security",
+              "Atal Pension Yojana",
+              "Pradhan Mantri Jeevan Jyoti Bima Yojana",
+              "Pradhan Mantri Suraksha Bima Yojana",
+              "Nai Roshni Scheme",
+              "USTAAD Scheme (Upgrading the Skills and Training in Traditional Arts/Crafts for Development)",
+              "Nai Manzil Scheme",
+              "Women and Child Development",
+              "Beti Bachao Beti Padhao",
+              "Sukanya Samriddhi Yojana",
+              "Digital Gudda Guddi Board",
+              "Ujjawala Scheme",
+              "Janani Suraksha Yojana",
+              "Janani Shishu Suraksha Karyakram",
+              "SC/ST",
+              "Vanbandhu Kalyan Yojana",
+              "Pradhan Mantri Adarsh Gram Yojana",
+              "Disability",
+              "Accessible India Campaign (Sugamya Bharat Abhiyan)",
+              "Rural and Urban Development",
+              "Sansad Adarsh Gram Yojana",
+              "Gram Uday Se Bharat Uday Abhiyan",
+              "Shyama Prasad Mukharjee Rurban Mission",
+              "Deendayal Upadhyaya Gram Jyoti Yojana",
+              "Pradhan Mantri Gram Sadak Yojana",
+              "Swachch Bharat Abhiyan",
+              "Pradhan Mantri Awas Yojana- Gramin",
+              "Pradhan Mantri Awas Yojana - Urban",
+              "Housing for all by 2022",
+              "Smart Cities Mission",
+              "Hriday - National Heritage City Development and Augmentation Yojana",
+              "Amrut (Atal Mission for Rejuvenation and Urban Transformation)",
+              "Inclusive growth",
+              "Measurement criteria",
+              "Government initiatives for inclusive growth",
+              "Basic Amenities: Housing/Drinking Waters/Sanitations",
+              "Sustainable Development",
+              "Rural Development",
+              "Rural development and poverty alleviation",
+              "Review of the existing Programmes",
+              "Development Administration",
+              "Panchayati Raj",
+              "Agriculture and Rural Development",
+              "Miscellaneous schemes",
+              "Digilocker",
+              "Bharatnet Project (National Optical Fibre Network)",
+              "INSPIRE (Innovation in Science Pursuit for Inspired Research)",
+              "SAKAAR",
+              "Digital India",
+              "Namami Gange Project (Integrated Ganga Conservation Mission Project)",
+              "Ganga Gram Yojana",
+              "Khelo India",
+              "PRAGATI (Pro-Active Governance and Timely Implementation)",
+              "Indian Community Welfare Fund (ICWF)"
+            ],
+            "targetHrs": 3
+          }
+        ],
+        "targetHrs": 8,
+        "dateOverride": null
+      },
+      {
+        "id": "d_1784211262025",
+        "title": "Day 18",
+        "blocks": [
+          {
+            "id": "b_1784211262025api",
+            "topic": "International Relations",
+            "subjectId": "s_polity",
+            "subtopics": [
+              "India’s Foreign Policy",
+              "Evolution of India’s Foreign Policy",
+              "Post 1990 Scenario",
+              "Global Issues",
+              "South Asia",
+              "India – Nepal Relations",
+              "India and Bhutan",
+              "India-Afghanislam Relations",
+              "India-Bangladesh Relations",
+              "India-Maldives Relations",
+              "India-Sri Lanka Relations",
+              "India-Myanmar Relations",
+              "India-Pakistan Relations",
+              "SAARC",
+              "NAM (Non-Alignment Movement): Relevance",
+              "Central Asia",
+              "Mongolia",
+              "Kazakhastan",
+              "Tukmenistan",
+              "Uzbekistan",
+              "West Asia",
+              "India – UAE Relations",
+              "India IRAN Relations",
+              "Israel and Palestine Relations",
+              "India – Israel Relations",
+              "India – Saudi Arabia",
+              "Asia – Pacific",
+              "Asia-Pacific Region",
+              "India-South East Asia Relations",
+              "India-Asean Cooperation",
+              "Indo-Japan Relations",
+              "Indo-Australia Relations",
+              "India – South Korea Relations",
+              "India-Vietnam",
+              "Africa",
+              "India-South Africa Relations",
+              "India-Nigeria Relations",
+              "India-Kenya Relations",
+              "India-Sudan Relations",
+              "Europe",
+              "India-Russia Relations",
+              "India-France Relations",
+              "India-Germany Relations",
+              "India-United Kingdom Relations",
+              "India-EU Kingdom Relations",
+              "US-China",
+              "India-USA Relations",
+              "India-China Relations",
+              "Indian Ocean Region",
+              "Seychelles",
+              "Mauritius",
+              "Maldives",
+              "Indian Diaspora",
+              "Indian Diaspora in West",
+              "Indian Diaspora in Gulf",
+              "Indian Diaspora in Eastand Middle East"
+            ],
+            "targetHrs": 3
+          }
+        ],
+        "targetHrs": 8,
+        "dateOverride": null
       }
     ]
   },
   "uppsc": {
-    "examName": "UPPSC Uttar Pradesh State Services",
-    "subj": [
-      {
-        "id": "s_polity",
-        "name": "Polity",
-        "color": "var(--red)",
-        "icon": "⚖️",
-        "defaultHrs": 3
-      },
-      {
-        "id": "s_history",
-        "name": "History",
-        "color": "var(--orange)",
-        "icon": "🏛️",
-        "defaultHrs": 3
-      },
-      {
-        "id": "s_economy",
-        "name": "Economy",
-        "color": "var(--green)",
-        "icon": "📈",
-        "defaultHrs": 3
-      },
-      {
-        "id": "s_geography",
-        "name": "Geography",
-        "color": "var(--blue)",
-        "icon": "🗺️",
-        "defaultHrs": 3
-      },
-      {
-        "id": "s_upspl",
-        "name": "UP Special",
-        "color": "var(--teal)",
-        "icon": "🕌",
-        "defaultHrs": 3
-      },
-      {
-        "id": "s_csat",
-        "name": "CSAT",
-        "color": "var(--gold)",
-        "icon": "🔢",
-        "defaultHrs": 2
-      }
-    ],
     "days": [
       {
         "id": "d_up1",
         "title": "Day 1 Focus: Constitutional Underpinnings",
-        "dateOverride": null,
-        "targetHrs": 8,
         "blocks": [
           {
             "id": "b_up1a",
-            "subjectId": "s_polity",
-            "targetHrs": 3,
             "topic": "Historical Framework & Preamble",
+            "subjectId": "s_polity",
             "subtopics": [
               "Regulating Act 1773 to Independence Act 1947",
               "Preamble keywords & key cases"
-            ]
+            ],
+            "targetHrs": 3
           },
           {
             "id": "b_up1b",
-            "subjectId": "s_history",
-            "targetHrs": 3,
             "topic": "Modern India: Revolt of 1857",
+            "subjectId": "s_history",
             "subtopics": [
               "Political, economic & social causes",
               "UP Centers of Revolt (Agra, Kanpur, Lucknow, Jhansi)",
               "Key leaders from UP & consequences"
-            ]
+            ],
+            "targetHrs": 3
           },
           {
             "id": "b_up1c",
-            "subjectId": "s_upspl",
-            "targetHrs": 2,
             "topic": "Uttar Pradesh Special: History",
+            "subjectId": "s_upspl",
             "subtopics": [
               "Ancient sites in UP (Atranjikhera, Sravasti)",
               "Medieval history of UP (Agra Fort, Fatehpur Sikri)"
-            ]
+            ],
+            "targetHrs": 2
           }
-        ]
+        ],
+        "targetHrs": 8,
+        "dateOverride": null
       },
       {
         "id": "d_up2",
         "title": "Day 2 Focus: Geography & State Policy",
-        "dateOverride": null,
-        "targetHrs": 8,
         "blocks": [
           {
             "id": "b_up2a",
-            "subjectId": "s_geography",
-            "targetHrs": 3,
             "topic": "Physical Geography of India",
+            "subjectId": "s_geography",
             "subtopics": [
               "Himalayan physiographic divisions",
               "Northern Plains structure",
               "Peninsular Plateau relief features"
-            ]
+            ],
+            "targetHrs": 3
           },
           {
             "id": "b_up2b",
-            "subjectId": "s_polity",
-            "targetHrs": 3,
             "topic": "Fundamental Rights (Part III)",
+            "subjectId": "s_polity",
             "subtopics": [
               "Articles 14-18 (Equality)",
               "Articles 19-22 (Freedom)",
               "Right to Constitutional Remedies"
-            ]
+            ],
+            "targetHrs": 3
           },
           {
             "id": "b_up2c",
-            "subjectId": "s_upspl",
-            "targetHrs": 2,
             "topic": "UP Special: Geography",
+            "subjectId": "s_upspl",
             "subtopics": [
               "Bordering states and international borders of UP",
               "Soils and climate zones in UP"
-            ]
+            ],
+            "targetHrs": 2
           }
-        ]
+        ],
+        "targetHrs": 8,
+        "dateOverride": null
       },
       {
         "id": "d_up3",
         "title": "Day 3 Focus: Indian Rivers & UP Special",
-        "dateOverride": null,
-        "targetHrs": 8,
         "blocks": [
           {
             "id": "b_up3a",
-            "subjectId": "s_geography",
-            "targetHrs": 3,
             "topic": "Indian Drainage System",
+            "subjectId": "s_geography",
             "subtopics": [
               "Ganges river basin & tributaries",
               "Indus & Brahmaputra river systems",
               "Peninsular rivers (Narmada, Godavari, Krishna)"
-            ]
+            ],
+            "targetHrs": 3
           },
           {
             "id": "b_up3b",
-            "subjectId": "s_upspl",
-            "targetHrs": 3,
             "topic": "UP Special: Rivers & Irrigation",
+            "subjectId": "s_upspl",
             "subtopics": [
               "Major rivers in UP (Yamuna, Ganga, Ghaghara, Betwa)",
               "Canal systems in UP (Sharda Canal)",
               "Dams & Reservoirs in UP"
-            ]
+            ],
+            "targetHrs": 3
           },
           {
             "id": "b_up3c",
-            "subjectId": "s_history",
-            "targetHrs": 2,
             "topic": "Indian National Congress & Extremist Phase",
+            "subjectId": "s_history",
             "subtopics": [
               "Foundation of INC (1885)",
               "Moderate vs Extremist leaders",
               "Partition of Bengal (1905)"
-            ]
+            ],
+            "targetHrs": 2
           }
-        ]
+        ],
+        "targetHrs": 8,
+        "dateOverride": null
       },
       {
         "id": "d_up4",
         "title": "Day 4 Focus: Economy & UP Special",
-        "dateOverride": null,
-        "targetHrs": 8,
         "blocks": [
           {
             "id": "b_up4a",
-            "subjectId": "s_economy",
-            "targetHrs": 3,
             "topic": "Economic Planning & Poverty",
+            "subjectId": "s_economy",
             "subtopics": [
               "History of planning in India",
               "Five Year Plans achievements",
               "Poverty estimation committees"
-            ]
+            ],
+            "targetHrs": 3
           },
           {
             "id": "b_up4b",
-            "subjectId": "s_upspl",
-            "targetHrs": 3,
             "topic": "UP Special: Economy & Schemes",
+            "subjectId": "s_upspl",
             "subtopics": [
               "One District One Product (ODOP) initiative",
               "UP Industrial Corridors & Expressway projects",
               "UP Budget allocation highlights"
-            ]
+            ],
+            "targetHrs": 3
           },
           {
             "id": "b_up4c",
-            "subjectId": "s_csat",
-            "targetHrs": 2,
             "topic": "CSAT: Hindi & English Basics",
+            "subjectId": "s_csat",
             "subtopics": [
               "Hindi grammar (Sandhi, Samas, Vyakaran)",
               "English reading comprehension"
-            ]
+            ],
+            "targetHrs": 2
           }
-        ]
+        ],
+        "targetHrs": 8,
+        "dateOverride": null
       },
       {
         "id": "d_up5",
         "title": "Day 5 Focus: State Legislature & culture",
-        "dateOverride": null,
-        "targetHrs": 8,
         "blocks": [
           {
             "id": "b_up5a",
-            "subjectId": "s_polity",
-            "targetHrs": 3,
             "topic": "State Executive & Legislature",
+            "subjectId": "s_polity",
             "subtopics": [
               "Governor's appointment & discretionary powers",
               "Chief Minister & Council of Ministers",
               "Bicameral legislature in UP (Vidhan Sabha & Council)"
-            ]
+            ],
+            "targetHrs": 3
           },
           {
             "id": "b_up5b",
-            "subjectId": "s_upspl",
-            "targetHrs": 3,
             "topic": "UP Special: Culture & Festivals",
+            "subjectId": "s_upspl",
             "subtopics": [
               "Folk dances (Kathak, Charkula, Karma)",
               "Folk music & theatrical forms (Nautanki, Raslila)",
               "Major fairs and festivals in UP"
-            ]
+            ],
+            "targetHrs": 3
           },
           {
             "id": "b_up5c",
-            "subjectId": "s_economy",
-            "targetHrs": 2,
             "topic": "Inflation & Public Finance",
+            "subjectId": "s_economy",
             "subtopics": [
               "CPI & WPI trends",
               "GST council composition & tax slabs"
-            ]
+            ],
+            "targetHrs": 2
           }
-        ]
+        ],
+        "targetHrs": 8,
+        "dateOverride": null
       }
-    ]
-  },
-  "bpsc": {
-    "examName": "BPSC Bihar State Services",
+    ],
     "subj": [
       {
         "id": "s_polity",
+        "icon": "⚖️",
         "name": "Polity",
         "color": "var(--red)",
-        "icon": "⚖️",
         "defaultHrs": 3
       },
       {
         "id": "s_history",
+        "icon": "🏛️",
         "name": "History",
         "color": "var(--orange)",
-        "icon": "🏛️",
         "defaultHrs": 3
       },
       {
         "id": "s_economy",
+        "icon": "📈",
         "name": "Economy",
         "color": "var(--green)",
-        "icon": "📈",
         "defaultHrs": 3
       },
       {
         "id": "s_geography",
+        "icon": "🗺️",
         "name": "Geography",
         "color": "var(--blue)",
-        "icon": "🗺️",
         "defaultHrs": 3
       },
       {
-        "id": "s_science",
-        "name": "General Science",
-        "color": "var(--purple)",
-        "icon": "🔬",
-        "defaultHrs": 3
-      },
-      {
-        "id": "s_bihspl",
-        "name": "Bihar Special",
+        "id": "s_upspl",
+        "icon": "🕌",
+        "name": "UP Special",
         "color": "var(--teal)",
-        "icon": "🏮",
         "defaultHrs": 3
+      },
+      {
+        "id": "s_csat",
+        "icon": "🔢",
+        "name": "CSAT",
+        "color": "var(--gold)",
+        "defaultHrs": 2
       }
     ],
-    "days": [
-      {
-        "id": "d_bp1",
-        "title": "Day 1 Focus: Polity & Ancient Bihar",
-        "dateOverride": null,
-        "targetHrs": 8,
-        "blocks": [
-          {
-            "id": "b_bp1a",
-            "subjectId": "s_polity",
-            "targetHrs": 3,
-            "topic": "Constitutional Framework & Preamble",
-            "subtopics": [
-              "Preamble text and significance",
-              "Salient features of Indian Constitution"
-            ]
-          },
-          {
-            "id": "b_bp1b",
-            "subjectId": "s_history",
-            "targetHrs": 3,
-            "topic": "Ancient History: Buddhism & Jainism",
-            "subtopics": [
-              "Life and teachings of Gautama Buddha",
-              "Mahavira and Jainism rules",
-              "Buddhist Councils held in Rajgir, Vaishali, Pataliputra"
-            ]
-          },
-          {
-            "id": "b_bp1c",
-            "subjectId": "s_bihspl",
-            "targetHrs": 2,
-            "topic": "Bihar Special: Ancient History",
-            "subtopics": [
-              "Rise of Magadha Empire & Haryanka dynasty",
-              "Mauryan rule in Pataliputra",
-              "Nalanda & Vikramshila universities"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "d_bp2",
-        "title": "Day 2 Focus: Indian Geography & Physics",
-        "dateOverride": null,
-        "targetHrs": 8,
-        "blocks": [
-          {
-            "id": "b_bp2a",
-            "subjectId": "s_geography",
-            "targetHrs": 3,
-            "topic": "Physical Divisions of India",
-            "subtopics": [
-              "Himalayan mountain ranges",
-              "Northern fertile plains",
-              "Peninsular hills & coastal systems"
-            ]
-          },
-          {
-            "id": "b_bp2b",
-            "subjectId": "s_science",
-            "targetHrs": 3,
-            "topic": "General Science: Physics Basics",
-            "subtopics": [
-              "SI units & dimensions",
-              "Newton's laws of motion",
-              "Work, Energy & Power concepts"
-            ]
-          },
-          {
-            "id": "b_bp2c",
-            "subjectId": "s_bihspl",
-            "targetHrs": 2,
-            "topic": "Bihar Special: Geography",
-            "subtopics": [
-              "Bihar location, boundaries and climate",
-              "Soil types in North and South Bihar"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "d_bp3",
-        "title": "Day 3 Focus: Modern India & Bihar Rivers",
-        "dateOverride": null,
-        "targetHrs": 8,
-        "blocks": [
-          {
-            "id": "b_bp3a",
-            "subjectId": "s_history",
-            "targetHrs": 3,
-            "topic": "Modern India: Freedom Struggle",
-            "subtopics": [
-              "1857 Revolt causes & centers",
-              "Non-Cooperation Movement (1920-22)",
-              "Quit India Movement (1942)"
-            ]
-          },
-          {
-            "id": "b_bp3b",
-            "subjectId": "s_bihspl",
-            "targetHrs": 3,
-            "topic": "Bihar Special: Rivers & Drainage",
-            "subtopics": [
-              "Ganges river system in Bihar",
-              "North Bihar rivers (Kosi, Gandak, Bagmati)",
-              "South Bihar rivers (Son, Punpun, Phalgu)",
-              "Kosi river: Cause of floods"
-            ]
-          },
-          {
-            "id": "b_bp3c",
-            "subjectId": "s_polity",
-            "targetHrs": 2,
-            "topic": "Fundamental Rights & Duties",
-            "subtopics": [
-              "Articles 14-32 list",
-              "Directive Principles of State Policy"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "d_bp4",
-        "title": "Day 4 Focus: Economy & Chemistry",
-        "dateOverride": null,
-        "targetHrs": 8,
-        "blocks": [
-          {
-            "id": "b_bp4a",
-            "subjectId": "s_economy",
-            "targetHrs": 3,
-            "topic": "Indian Economy & Planning",
-            "subtopics": [
-              "Economic planning & NITI Aayog",
-              "Budget concepts & deficit indicators"
-            ]
-          },
-          {
-            "id": "b_bp4b",
-            "subjectId": "s_science",
-            "targetHrs": 3,
-            "topic": "General Science: Chemistry Basics",
-            "subtopics": [
-              "Elements, mixtures & compounds",
-              "Acids, bases & pH scale",
-              "Metals, non-metals & alloys"
-            ]
-          },
-          {
-            "id": "b_bp4c",
-            "subjectId": "s_bihspl",
-            "targetHrs": 2,
-            "topic": "Bihar Special: Economy & Survey",
-            "subtopics": [
-              "Bihar Budget highlights",
-              "Bihar Economic Survey: Agricultural and industrial growth"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "d_bp5",
-        "title": "Day 5 Focus: Biology & Bihar Freedom Movement",
-        "dateOverride": null,
-        "targetHrs": 8,
-        "blocks": [
-          {
-            "id": "b_bp5a",
-            "subjectId": "s_science",
-            "targetHrs": 3,
-            "topic": "General Science: Biology",
-            "subtopics": [
-              "Cell structure & functions",
-              "Plant and human physiology",
-              "Vitamins & deficiency diseases"
-            ]
-          },
-          {
-            "id": "b_bp5b",
-            "subjectId": "s_bihspl",
-            "targetHrs": 3,
-            "topic": "Bihar Special: Freedom Struggle",
-            "subtopics": [
-              "Champaran Satyagraha 1917 & Gandhi",
-              "Role of Kunwar Singh in 1857 Revolt",
-              "Peasant movement in Bihar & Sahajanand Saraswati"
-            ]
-          },
-          {
-            "id": "b_bp5c",
-            "subjectId": "s_polity",
-            "targetHrs": 2,
-            "topic": "State Executive & Legislature",
-            "subtopics": [
-              "Governor and CM powers in Bihar",
-              "Bihar State Assembly structure"
-            ]
-          }
-        ]
-      }
-    ]
+    "examName": "UPPSC Uttar Pradesh State Services"
   },
   "new_exam_key": {
-    "examName": "nayan exam",
-    "subj": [
-      {
-        "id": "s1",
-        "name": "Polity s1",
-        "color": "var(--red)",
-        "icon": "⚖️",
-        "defaultHrs": 4
-      }
-    ],
     "days": [
       {
         "id": "d1",
         "title": "Day 1 Focus",
-        "dateOverride": null,
-        "targetHrs": 5,
         "blocks": [
           {
             "id": "b1",
-            "subjectId": "s1",
-            "targetHrs": 3,
             "topic": "Preamble & Basics",
+            "subjectId": "s1",
             "subtopics": [
               "Subtopic 1",
               "Subtopic 2",
               "sub3"
-            ]
+            ],
+            "targetHrs": 3
           },
           {
             "id": "b_1783947126275yn4",
-            "subjectId": "s1",
-            "targetHrs": 3,
             "topic": "New Topic",
-            "subtopics": []
+            "subjectId": "s1",
+            "subtopics": [],
+            "targetHrs": 3
           }
-        ]
+        ],
+        "targetHrs": 5,
+        "dateOverride": null
       },
       {
         "id": "d_1783947139942",
         "title": "Day 2",
-        "dateOverride": null,
+        "blocks": [],
         "targetHrs": 8,
-        "blocks": []
+        "dateOverride": null
       }
-    ]
+    ],
+    "subj": [
+      {
+        "id": "s1",
+        "icon": "⚖️",
+        "name": "Polity s1",
+        "color": "var(--red)",
+        "defaultHrs": 4
+      }
+    ],
+    "examName": "nayan exam"
   }
 }

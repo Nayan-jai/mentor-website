@@ -9,6 +9,11 @@ interface Subject {
   color: string;
   icon: string;
   defaultHrs: number;
+  topics?: {
+    id: string;
+    name: string;
+    subtopics: string[];
+  }[];
 }
 
 interface Block {
@@ -42,7 +47,14 @@ const PRESET_COLORS = [
   { value: "var(--orange)", label: "Orange 🟠" },
   { value: "var(--purple)", label: "Purple 🟣" },
   { value: "var(--teal)", label: "Teal 💎" },
-  { value: "var(--gold)", label: "Gold 🟡" }
+  { value: "var(--gold)", label: "Gold 🟡" },
+  // Gradients
+  { value: "linear-gradient(135deg, #ff5e62, #ff9966)", label: "Sunset Glow 🌅" },
+  { value: "linear-gradient(135deg, #00c6ff, #0072ff)", label: "Ocean Breeze 🌊" },
+  { value: "linear-gradient(135deg, #f107a3, #7b2ff7)", label: "Neon Purple 🌌" },
+  { value: "linear-gradient(135deg, #11998e, #38ef7d)", label: "Forest Fresh 🌿" },
+  { value: "linear-gradient(135deg, #8a2387, #e94057, #f27121)", label: "Aurora Lights 🎆" },
+  { value: "linear-gradient(135deg, #f12711, #f5af19)", label: "Citrus Punch 🍊" }
 ];
 
 const PRESET_ICONS = ["⚖️","🏛️","📈","🗺️","🌿","🚀","🔢","📚","📖","📝","✏️","🔬","🏮","🕌","💡","🎯","📊","🌍","⚡","🎓"];
@@ -63,6 +75,8 @@ export default function AdminSyllabusPage() {
   const [editSubjects, setEditSubjects] = useState<Subject[]>([]);
   const [editDays, setEditDays] = useState<Day[]>([]);
   const [newSubtopicTexts, setNewSubtopicTexts] = useState<Record<string, string>>({});
+  const [collapsedSubjects, setCollapsedSubjects] = useState<Record<string, boolean>>({});
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
   useEffect(() => {
     fetchSyllabi();
@@ -180,6 +194,155 @@ export default function AdminSyllabusPage() {
     setEditSubjects(editSubjects.filter((_, i) => i !== idx));
   };
 
+  const handleAddSyllabusTopic = (idx: number) => {
+    const list = [...editSubjects];
+    const topics = [...(list[idx].topics || [])];
+    topics.push({
+      id: "t_" + Date.now() + Math.random().toString(36).slice(2, 5),
+      name: "",
+      subtopics: [""]
+    });
+    list[idx] = { ...list[idx], topics };
+    setEditSubjects(list);
+  };
+
+  const handleUpdateSyllabusTopic = (idx: number, tIdx: number, val: string) => {
+    const list = [...editSubjects];
+    const topics = [...(list[idx].topics || [])];
+    topics[tIdx] = { ...topics[tIdx], name: val };
+    list[idx] = { ...list[idx], topics };
+    setEditSubjects(list);
+  };
+
+  const handleDeleteSyllabusTopic = (idx: number, tIdx: number) => {
+    const list = [...editSubjects];
+    const topics = (list[idx].topics || []).filter((_, i) => i !== tIdx);
+    list[idx] = { ...list[idx], topics };
+    setEditSubjects(list);
+  };
+
+  const handleAddSyllabusSubtopic = (idx: number, tIdx: number) => {
+    const list = [...editSubjects];
+    const topics = [...(list[idx].topics || [])];
+    const subtopics = [...topics[tIdx].subtopics];
+    subtopics.push("");
+    topics[tIdx] = { ...topics[tIdx], subtopics };
+    list[idx] = { ...list[idx], topics };
+    setEditSubjects(list);
+  };
+
+  const handleUpdateSyllabusSubtopic = (idx: number, tIdx: number, stIdx: number, val: string) => {
+    const list = [...editSubjects];
+    const topics = [...(list[idx].topics || [])];
+    const subtopics = [...topics[tIdx].subtopics];
+    subtopics[stIdx] = val;
+    topics[tIdx] = { ...topics[tIdx], subtopics };
+    list[idx] = { ...list[idx], topics };
+    setEditSubjects(list);
+  };
+
+  const handleDeleteSyllabusSubtopic = (idx: number, tIdx: number, stIdx: number) => {
+    const list = [...editSubjects];
+    const topics = [...(list[idx].topics || [])];
+    const subtopics = topics[tIdx].subtopics.filter((_, i) => i !== stIdx);
+    topics[tIdx] = { ...topics[tIdx], subtopics };
+    list[idx] = { ...list[idx], topics };
+    setEditSubjects(list);
+  };
+
+  const handleGenerateBlocksFromForm = (idx: number) => {
+    const s = editSubjects[idx];
+    const topics = s.topics || [];
+    const validTopics = topics.filter(t => t.name.trim());
+    if (validTopics.length === 0) {
+      alert("Please fill in at least one topic name first.");
+      return;
+    }
+
+    const confirmGen = confirm(`Generate and append ${validTopics.length} topic blocks for "${s.name}" to the schedule? (This will add blocks to existing days or create new days if needed)`);
+    if (!confirmGen) return;
+
+    const list = [...editDays];
+    validTopics.forEach((t, pIdx) => {
+      let day = list[pIdx];
+      if (!day) {
+        const nextId = "d_" + (Date.now() + pIdx);
+        day = {
+          id: nextId,
+          title: `Day ${list.length + 1}`,
+          dateOverride: null,
+          targetHrs: 8,
+          blocks: []
+        };
+        list.push(day);
+      }
+      
+      const blockId = "b_" + (Date.now() + pIdx) + Math.random().toString(36).slice(2, 5);
+      const cleanSubtopics = t.subtopics.map(st => st.trim()).filter(Boolean);
+      day.blocks.push({
+        id: blockId,
+        subjectId: s.id,
+        targetHrs: s.defaultHrs || 3,
+        topic: t.name.trim(),
+        subtopics: cleanSubtopics
+      });
+    });
+
+    setEditDays(list);
+    alert(`Successfully generated ${validTopics.length} topic blocks across the schedule days!`);
+  };
+
+  const handleImportCSV = (idx: number, file: File) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target?.result as string;
+      if (!text) return;
+
+      const lines = text.split(/\r?\n/);
+      const importedTopicsMap: Record<string, string[]> = {};
+
+      lines.forEach((line, lineIdx) => {
+        if (lineIdx === 0 && (line.toLowerCase().includes("topic") || line.toLowerCase().includes("subtopic"))) {
+          // Skip header row if it contains column labels
+          return;
+        }
+        
+        const cols = line.split(/[,;\t]/); 
+        if (cols.length === 0) return;
+
+        const topicName = cols[0]?.trim();
+        const subtopicName = cols[1]?.trim();
+
+        if (topicName) {
+          if (!importedTopicsMap[topicName]) {
+            importedTopicsMap[topicName] = [];
+          }
+          if (subtopicName) {
+            importedTopicsMap[topicName].push(subtopicName);
+          }
+        }
+      });
+
+      const parsedTopics = Object.keys(importedTopicsMap).map(name => ({
+        id: "t_" + Date.now() + Math.random().toString(36).slice(2, 5),
+        name,
+        subtopics: importedTopicsMap[name].length > 0 ? importedTopicsMap[name] : [""]
+      }));
+
+      if (parsedTopics.length === 0) {
+        alert("No valid topics found in the CSV. Make sure Column 1 has Topic names and Column 2 has Subtopics.");
+        return;
+      }
+
+      const list = [...editSubjects];
+      const currentTopics = [...(list[idx].topics || [])];
+      list[idx] = { ...list[idx], topics: [...currentTopics, ...parsedTopics] };
+      setEditSubjects(list);
+      alert(`Imported ${parsedTopics.length} topics from CSV successfully!`);
+    };
+    reader.readAsText(file);
+  };
+
   // Day actions
   const handleAddDay = () => {
     const nextId = "d_" + Date.now();
@@ -262,6 +425,62 @@ export default function AdminSyllabusPage() {
     setError(null);
     setSuccess(null);
 
+    // Sync days' blocks with subjects' topics structures
+    const syncedDays = JSON.parse(JSON.stringify(editDays));
+    editSubjects.forEach(s => {
+      const sTopics = s.topics || [];
+      const sTopicNames = sTopics.map(t => t.name.trim()).filter(Boolean);
+
+      // 1. Remove blocks for this subject whose topic is no longer present in sTopics
+      syncedDays.forEach((day: Day) => {
+        day.blocks = day.blocks.filter(b => {
+          if (b.subjectId !== s.id) return true;
+          return sTopicNames.includes(b.topic.trim());
+        });
+      });
+
+      // 2. Update existing blocks' subtopics, and find which topics are missing
+      const existingTopicsInBlocks = new Set<string>();
+      syncedDays.forEach((day: Day) => {
+        day.blocks.forEach(b => {
+          if (b.subjectId === s.id) {
+            existingTopicsInBlocks.add(b.topic.trim());
+            const matchedTopic = sTopics.find(t => t.name.trim() === b.topic.trim());
+            if (matchedTopic) {
+              b.subtopics = matchedTopic.subtopics.map(st => st.trim()).filter(Boolean);
+            }
+          }
+        });
+      });
+
+      // 3. For any missing topics, append a new block to the days list
+      const missingTopics = sTopics.filter(t => t.name.trim() && !existingTopicsInBlocks.has(t.name.trim()));
+      missingTopics.forEach((t, mIdx) => {
+        let day = syncedDays[mIdx];
+        if (!day) {
+          const nextId = "d_" + (Date.now() + mIdx);
+          day = {
+            id: nextId,
+            title: `Day ${syncedDays.length + 1}`,
+            dateOverride: null,
+            targetHrs: 8,
+            blocks: []
+          };
+          syncedDays.push(day);
+        }
+        const blockId = "b_" + (Date.now() + mIdx) + Math.random().toString(36).slice(2, 5);
+        day.blocks.push({
+          id: blockId,
+          subjectId: s.id,
+          targetHrs: s.defaultHrs || 3,
+          topic: t.name.trim(),
+          subtopics: t.subtopics.map(st => st.trim()).filter(Boolean)
+        });
+      });
+    });
+
+    setEditDays(syncedDays);
+
     // Validate key
     const cleanKey = editKey.trim().toLowerCase().replace(/[^a-z0-9_-]/g, "");
     if (!cleanKey) {
@@ -287,7 +506,7 @@ export default function AdminSyllabusPage() {
     }
 
     // Validate schedule blocks
-    const emptyTopic = editDays.some(d => d.blocks.some(b => !b.topic.trim()));
+    const emptyTopic = syncedDays.some((d: Day) => d.blocks.some(b => !b.topic.trim()));
     if (emptyTopic) {
       setError("Scheduled topic titles cannot be empty.");
       return;
@@ -297,7 +516,7 @@ export default function AdminSyllabusPage() {
     const template: SyllabusTemplate = {
       examName: editName.trim() || "My Exam Plan",
       subj: editSubjects,
-      days: editDays
+      days: syncedDays
     };
 
     const updated = { ...syllabi };
@@ -480,64 +699,203 @@ export default function AdminSyllabusPage() {
 
                     <div className="space-y-4">
                       {editSubjects.map((subj, idx) => (
-                        <div key={subj.id} className="p-4 bg-gray-50 border border-gray-200 rounded-md flex flex-wrap gap-4 items-center">
-                          <div className="flex-1 min-w-[150px]">
-                            <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-0.5">Subject Name</label>
-                            <input
-                              type="text"
-                              value={subj.name}
-                              onChange={(e) => handleUpdateSubject(idx, { name: e.target.value })}
-                              placeholder="e.g. History"
-                              className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                            />
-                          </div>
+                        <div
+                          key={subj.id}
+                          onMouseEnter={() => setHoveredIdx(idx)}
+                          onMouseLeave={() => setHoveredIdx(null)}
+                          style={{
+                            borderColor: hoveredIdx === idx ? (subj.color.includes("gradient") ? "#3b82f6" : subj.color) : "rgba(229, 231, 235, 1)",
+                            background: hoveredIdx === idx 
+                              ? (subj.color.includes("gradient") 
+                                ? `${subj.color.replace("linear-gradient(", "linear-gradient(rgba(255,255,255,0.94), rgba(255,255,255,0.94)), linear-gradient(")}` 
+                                : `color-mix(in srgb, ${subj.color} 6%, #f9fafb)`)
+                              : "#f9fafb",
+                            boxShadow: hoveredIdx === idx ? `0 4px 20px -2px ${subj.color.includes("gradient") ? "rgba(59, 130, 246, 0.15)" : `color-mix(in srgb, ${subj.color} 15%, transparent)`}` : "none",
+                            transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+                          }}
+                          className="p-4 border rounded-md flex flex-col gap-4"
+                        >
+                          <div className="flex flex-wrap gap-4 items-center w-full">
+                            <div className="flex-1 min-w-[150px]">
+                              <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-0.5">Subject Name</label>
+                              <input
+                                type="text"
+                                value={subj.name}
+                                onChange={(e) => handleUpdateSubject(idx, { name: e.target.value })}
+                                placeholder="e.g. History"
+                                className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                              />
+                            </div>
 
-                          <div className="w-[120px]">
-                            <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-0.5">Theme Color</label>
-                            <select
-                              value={subj.color}
-                              onChange={(e) => handleUpdateSubject(idx, { color: e.target.value })}
-                              className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            <div className="w-[120px]">
+                              <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-0.5">Theme Color</label>
+                              <select
+                                value={subj.color}
+                                onChange={(e) => handleUpdateSubject(idx, { color: e.target.value })}
+                                className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                              >
+                                {PRESET_COLORS.map(c => (
+                                  <option key={c.value} value={c.value}>{c.label}</option>
+                                ))}
+                              </select>
+                            </div>
+
+                            <div className="w-[90px]">
+                              <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-0.5">Icon Emoji</label>
+                              <select
+                                value={subj.icon}
+                                onChange={(e) => handleUpdateSubject(idx, { icon: e.target.value })}
+                                className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                              >
+                                {PRESET_ICONS.map(i => (
+                                  <option key={i} value={i}>{i}</option>
+                                ))}
+                              </select>
+                            </div>
+
+                            <div className="w-[100px]">
+                              <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-0.5">Default Hrs</label>
+                              <input
+                                type="number"
+                                value={subj.defaultHrs}
+                                min={1}
+                                max={24}
+                                onChange={(e) => handleUpdateSubject(idx, { defaultHrs: Math.max(1, parseInt(e.target.value) || 3) })}
+                                className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 text-center"
+                              />
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteSubject(idx)}
+                              className="p-1.5 text-gray-400 hover:text-red-600 rounded hover:bg-red-50 mt-4 transition-colors shrink-0"
+                              title="Delete Subject"
                             >
-                              {PRESET_COLORS.map(c => (
-                                <option key={c.value} value={c.value}>{c.label}</option>
-                              ))}
-                            </select>
+                              <Trash2 className="h-4 w-4" />
+                            </button>
                           </div>
 
-                          <div className="w-[90px]">
-                            <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-0.5">Icon Emoji</label>
-                            <select
-                              value={subj.icon}
-                              onChange={(e) => handleUpdateSubject(idx, { icon: e.target.value })}
-                              className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                            >
-                              {PRESET_ICONS.map(i => (
-                                <option key={i} value={i}>{i}</option>
-                              ))}
-                            </select>
-                          </div>
+                          <div className="w-full border-t border-gray-200 pt-3 space-y-3">
+                            <div className="flex items-center justify-between flex-wrap gap-2">
+                              <div className="flex items-center gap-2">
+                                <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                                  Topics &amp; Subtopics Structure
+                                </label>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setCollapsedSubjects({
+                                      ...collapsedSubjects,
+                                      [subj.id]: !collapsedSubjects[subj.id]
+                                    });
+                                  }}
+                                  className="text-[10px] text-blue-600 font-semibold hover:underline"
+                                >
+                                  {collapsedSubjects[subj.id] ? "🔽 Expand" : "🔼 Collapse"}
+                                </button>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <a
+                                  href="data:text/csv;charset=utf-8,Topic,Subtopic%0APolity%20Basics,Preamble%0APolity%20Basics,Fundamental%20Rights%0AUnion%20Executive,President"
+                                  download="syllabus_template.csv"
+                                  className="text-[10px] text-gray-500 hover:text-blue-600 font-semibold underline shrink-0"
+                                >
+                                  📄 Sample CSV
+                                </a>
+                                <label className="text-[10px] text-gray-500 font-semibold shrink-0 cursor-pointer flex items-center bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded transition-colors">
+                                  <span>📥 Import CSV</span>
+                                  <input
+                                    type="file"
+                                    accept=".csv,.txt"
+                                    onChange={(e) => {
+                                      const file = e.target.files?.[0];
+                                      if (file) handleImportCSV(idx, file);
+                                      e.target.value = "";
+                                    }}
+                                    className="hidden"
+                                  />
+                                </label>
+                                <button
+                                  type="button"
+                                  onClick={() => handleAddSyllabusTopic(idx)}
+                                  className="inline-flex items-center px-2 py-1 bg-blue-50 text-blue-700 hover:bg-blue-100 text-[10px] font-semibold rounded"
+                                >
+                                  <Plus className="h-3 w-3 mr-1" /> Add Topic
+                                </button>
+                              </div>
+                            </div>
 
-                          <div className="w-[100px]">
-                            <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-0.5">Default Hrs</label>
-                            <input
-                              type="number"
-                              value={subj.defaultHrs}
-                              min={1}
-                              max={24}
-                              onChange={(e) => handleUpdateSubject(idx, { defaultHrs: Math.max(1, parseInt(e.target.value) || 3) })}
-                              className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 text-center"
-                            />
-                          </div>
+                            {!collapsedSubjects[subj.id] && (
+                              <>
+                                <div className="space-y-3">
+                                  {(subj.topics || []).map((t, tIdx) => (
+                                    <div key={t.id} className="p-3 bg-white border border-gray-200 rounded-md space-y-2">
+                                      <div className="flex items-center gap-2">
+                                        <input
+                                          type="text"
+                                          value={t.name}
+                                          onChange={(e) => handleUpdateSyllabusTopic(idx, tIdx, e.target.value)}
+                                          placeholder="Topic Name (e.g. Chapter 1)"
+                                          className="flex-1 px-2.5 py-1 border border-gray-300 rounded text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 font-semibold"
+                                        />
+                                        <button
+                                          type="button"
+                                          onClick={() => handleAddSyllabusSubtopic(idx, tIdx)}
+                                          className="p-1 text-gray-500 hover:text-blue-600 rounded hover:bg-gray-100"
+                                          title="Add Subtopic"
+                                        >
+                                          <PlusCircle className="h-3.5 w-3.5" />
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => handleDeleteSyllabusTopic(idx, tIdx)}
+                                          className="p-1 text-gray-500 hover:text-red-600 rounded hover:bg-gray-100"
+                                          title="Delete Topic"
+                                        >
+                                          <X className="h-3.5 w-3.5" />
+                                        </button>
+                                      </div>
 
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteSubject(idx)}
-                            className="p-1.5 text-gray-400 hover:text-red-600 rounded hover:bg-red-50 mt-4 transition-colors shrink-0"
-                            title="Delete Subject"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
+                                      {/* Subtopics */}
+                                      <div className="pl-4 space-y-1.5 border-l-2 border-gray-150">
+                                        {t.subtopics.map((st, stIdx) => (
+                                          <div key={stIdx} className="flex items-center gap-2">
+                                            <input
+                                              type="text"
+                                              value={st}
+                                              onChange={(e) => handleUpdateSyllabusSubtopic(idx, tIdx, stIdx, e.target.value)}
+                                              placeholder="Subtopic Name"
+                                              className="flex-1 px-2 py-0.5 border border-gray-200 rounded text-[11px] focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            />
+                                            <button
+                                              type="button"
+                                              onClick={() => handleDeleteSyllabusSubtopic(idx, tIdx, stIdx)}
+                                              className="p-1 text-gray-400 hover:text-red-500"
+                                              title="Delete Subtopic"
+                                            >
+                                              <X className="h-3 w-3" />
+                                            </button>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+
+                                {(subj.topics || []).length > 0 && (
+                                  <div className="mt-2 flex justify-end">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleGenerateBlocksFromForm(idx)}
+                                      className="inline-flex items-center px-3 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 font-semibold text-xs rounded transition-colors"
+                                    >
+                                      <PlusCircle className="h-3.5 w-3.5 mr-1" /> Generate Schedule Blocks
+                                    </button>
+                                  </div>
+                                )}
+                              </>
+                            )}
+                          </div>
                         </div>
                       ))}
                     </div>

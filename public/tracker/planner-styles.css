@@ -347,10 +347,22 @@ input, textarea, select { font-family: var(--font); }
 }
 .nav-date { font-size: 12px; font-weight: 400; color: var(--ink3); margin-left: 6px; }
 
-/* Day dots */
 .day-dots {
-  display: flex; flex-wrap: wrap; gap: 4px;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 6px;
   margin-bottom: 14px;
+  overflow-x: auto;
+  padding: 4px 2px;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+.day-dots::-webkit-scrollbar {
+  height: 4px;
+}
+.day-dots::-webkit-scrollbar-thumb {
+  background: var(--border2);
+  border-radius: 4px;
 }
 .dot {
   width: 28px; height: 28px;
@@ -448,6 +460,8 @@ input, textarea, select { font-family: var(--font); }
 .day-blocks { display: flex; flex-direction: column; gap: 10px; }
 
 .block-card {
+  --subj-color-solid: var(--blue);
+  --subj-color-bg: var(--blue);
   background: var(--card);
   border: 1px solid var(--border);
   border-left: 4px solid var(--border);
@@ -455,10 +469,13 @@ input, textarea, select { font-family: var(--font); }
   box-shadow: var(--sh);
   overflow: hidden;
   animation: slideIn .25s var(--ease) both;
-  transition: transform 0.2s var(--ease), box-shadow 0.2s ease;
+  transition: transform 0.2s var(--ease), box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
 }
 .block-card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3.5px);
+  border-color: var(--subj-color-solid);
+  background-color: color-mix(in srgb, var(--subj-color-solid) 4%, var(--card));
+  box-shadow: 0 8px 24px -2px color-mix(in srgb, var(--subj-color-solid) 16%, transparent);
 }
 @keyframes slideIn {
   from { opacity: 0; transform: translateY(6px); }
@@ -551,8 +568,42 @@ input, textarea, select { font-family: var(--font); }
   transition: all .18s;
 }
 .timer-start.idle  { background: var(--bg2); color: var(--ink2); border: 1px solid var(--border); }
-.timer-start.running { background: var(--red); color: #fff; }
+.timer-start.running {
+  background: var(--subj-color-solid, var(--red));
+  color: #fff;
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--subj-color-solid, var(--red)) 40%, transparent);
+  animation: pulse-timer-glow 2s infinite;
+}
 .timer-start:active { transform: scale(.95); }
+
+.block-card:has(.timer-start.running) .timer-display {
+  animation: timer-text-glow 1.5s ease-in-out infinite alternate;
+  color: var(--subj-color-solid, var(--red));
+  font-weight: 800;
+}
+
+@keyframes pulse-timer-glow {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--subj-color-solid, var(--red)) 50%, transparent);
+  }
+  70% {
+    box-shadow: 0 0 0 6px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+@keyframes timer-text-glow {
+  from {
+    text-shadow: 0 0 2px color-mix(in srgb, var(--subj-color-solid, var(--red)) 25%, transparent);
+    opacity: 0.9;
+  }
+  to {
+    text-shadow: 0 0 8px color-mix(in srgb, var(--subj-color-solid, var(--red)) 55%, transparent);
+    opacity: 1;
+  }
+}
 .target-badge {
   font-size: 11px; color: var(--ink3);
   margin-left: auto;
@@ -588,12 +639,16 @@ input, textarea, select { font-family: var(--font); }
 .manual-btn:hover { background: var(--border); }
 .manual-btn:active { transform: scale(.94); }
 
-/* Block body */
 .block-body {
-  padding: 14px;
-  display: none;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s cubic-bezier(0.23, 1, 0.32, 1), padding 0.35s ease;
+  padding: 0 14px;
 }
-.block-body.open { display: block; }
+.block-body.open {
+  max-height: 1200px;
+  padding: 14px;
+}
 
 .sect-subj-sel {
   display: flex; align-items: center; gap: 8px;
@@ -720,6 +775,8 @@ input, textarea, select { font-family: var(--font); }
   border-radius: var(--radius-sm);
 }
 .syl-card {
+  --subj-color-solid: var(--blue);
+  --subj-color-bg: var(--blue);
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -731,9 +788,9 @@ input, textarea, select { font-family: var(--font); }
   transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease), border-color 0.2s var(--ease);
 }
 .syl-card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--sh2);
-  border-color: var(--blue);
+  transform: translateY(-3.5px);
+  border-color: var(--subj-color-solid);
+  box-shadow: 0 10px 25px -4px color-mix(in srgb, var(--subj-color-solid) 20%, transparent);
 }
 .syl-body {
   flex: 1;
@@ -909,9 +966,15 @@ input, textarea, select { font-family: var(--font); }
 .subj-row {
   display: flex; align-items: center; gap: 10px;
   padding: 10px 14px; border-bottom: 1px solid var(--border);
-  cursor: pointer; transition: background .12s;
+  cursor: pointer;
+  transition: transform 0.2s var(--ease), border-color 0.2s var(--ease), box-shadow 0.2s var(--ease), background-color 0.2s var(--ease);
 }
-.subj-row:hover { background: var(--bg2); }
+.subj-row:hover {
+  transform: translateY(-1.5px);
+  border-color: var(--subj-color-solid);
+  background-color: color-mix(in srgb, var(--subj-color-solid) 6%, var(--card));
+  box-shadow: 0 4px 12px -2px color-mix(in srgb, var(--subj-color-solid) 15%, transparent);
+}
 .subj-row:active { background: var(--bg2); }
 .subj-row:last-child { border-bottom: none; }
 .sdot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
@@ -1431,5 +1494,49 @@ input, textarea, select { font-family: var(--font); }
 }
 .group-inp:focus {
   border-color: var(--blue);
+}
+
+/* ═══════════════════════════════════════
+   SMOOTH TRANSITIONS & ANIMATIONS
+   ═══════════════════════════════════════ */
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(12px) scale(0.99);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.block-card {
+  animation: fadeInUp 0.35s cubic-bezier(0.23, 1, 0.32, 1) both;
+  will-change: transform, opacity;
+}
+
+/* Progress ring transition */
+.mr-fg {
+  transition: stroke-dashoffset 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Timer bar fill transition */
+.timer-bar-fill {
+  transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Tactile checklist item transitions */
+.st-row {
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+.st-row.done .st-text {
+  color: var(--ink3);
+  text-decoration: line-through;
+  transition: color 0.2s ease, text-decoration 0.2s ease;
+}
+.st-check {
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+}
+.st-check:active {
+  transform: scale(0.92);
 }
 
