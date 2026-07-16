@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   // TODO: Add admin authentication/authorization check
   try {
-    const { name, email, password, role, studyTracker } = await request.json();
+    const { name, email, password, role, studyTracker, deleted } = await request.json();
 
     if (!email?.trim()) {
       return NextResponse.json({ message: "Email is required" }, { status: 400 });
@@ -21,6 +21,10 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
     if (studyTracker !== undefined) {
       data.studyTracker = studyTracker;
+    }
+
+    if (deleted !== undefined) {
+      data.deleted = deleted;
     }
 
     if (password) {
@@ -65,6 +69,24 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   // TODO: Add admin authentication/authorization check
   try {
+    const { searchParams } = new URL(request.url);
+    const permanent = searchParams.get("permanent") === "true";
+
+    if (permanent) {
+      try {
+        await prisma.user.delete({
+          where: { id: params.id },
+        });
+        return NextResponse.json({ message: "User permanently deleted" });
+      } catch (err: any) {
+        console.error("Failed to permanently delete user:", err);
+        return NextResponse.json(
+          { message: "Cannot permanently delete user because they have associated records (discussions, bookings, etc.). Please deactivate them instead." },
+          { status: 400 }
+        );
+      }
+    }
+
     const user = await prisma.user.update({
       where: { id: params.id },
       data: { deleted: true },

@@ -217,6 +217,57 @@ export default function AdminUsersPage() {
     }
   };
 
+  const handleActivate = async (user: User) => {
+    if (!window.confirm(`Are you sure you want to activate ${user.email}?`)) return;
+
+    setError(null);
+
+    try {
+      const res = await fetch(`/api/admin/users/${user.id}/`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          deleted: false,
+        }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to activate user");
+      }
+
+      await fetchUsers();
+    } catch (err) {
+      console.error("Error activating user:", err);
+      setError(err instanceof Error ? err.message : "Failed to activate user");
+    }
+  };
+
+  const handlePermanentDelete = async (user: User) => {
+    if (!window.confirm(`Are you sure you want to PERMANENTLY delete ${user.email}? This action CANNOT be undone.`)) return;
+
+    setError(null);
+
+    try {
+      const res = await fetch(`/api/admin/users/${user.id}/?permanent=true`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to permanently delete user");
+      }
+
+      await fetchUsers();
+    } catch (err) {
+      console.error("Error permanently deleting user:", err);
+      setError(err instanceof Error ? err.message : "Failed to permanently delete user");
+    }
+  };
+
   const filteredUsers = (users || []).filter(u =>
     (u.name?.toLowerCase().includes(search.toLowerCase()) ||
       u.email?.toLowerCase().includes(search.toLowerCase())) &&
@@ -409,15 +460,35 @@ export default function AdminUsersPage() {
                             <Edit className="h-3 w-3 mr-1" />
                             Edit
                           </Button>
+                          {user.deleted ? (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleActivate(user)}
+                              className="h-8 px-3 bg-green-50 text-green-700 border-green-200 hover:bg-green-100 hover:text-green-800"
+                            >
+                              <Shield className="h-3 w-3 mr-1" />
+                              Activate
+                            </Button>
+                          ) : (
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => handleDelete(user)}
+                              className="h-8 px-3"
+                            >
+                              <Trash2 className="h-3 w-3 mr-1" />
+                              Deactivate
+                            </Button>
+                          )}
                           <Button
                             size="sm"
                             variant="destructive"
-                            onClick={() => handleDelete(user)}
-                            disabled={user.deleted}
-                            className="h-8 px-3"
+                            onClick={() => handlePermanentDelete(user)}
+                            className="h-8 px-3 bg-red-600 hover:bg-red-700 text-white"
                           >
                             <Trash2 className="h-3 w-3 mr-1" />
-                            Deactivate
+                            Delete
                           </Button>
                         </div>
                       </td>
@@ -473,14 +544,14 @@ export default function AdminUsersPage() {
                     </div>
                   </div>
 
-                  <div className="flex space-x-2">
+                  <div className="flex flex-wrap gap-2">
                     {user.role === "STUDENT" && (
                       <Button
                         size="sm"
                         variant="outline"
                         onClick={() => handleOpenTrackerManager(user)}
                         disabled={user.deleted}
-                        className="flex-1 bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100 hover:text-amber-800"
+                        className="flex-1 min-w-[80px] bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100 hover:text-amber-800"
                       >
                         <BookOpen className="h-3 w-3 mr-1" />
                         Tracker
@@ -491,20 +562,40 @@ export default function AdminUsersPage() {
                       variant="outline"
                       onClick={() => handleEdit(user)}
                       disabled={user.deleted}
-                      className="flex-1"
+                      className="flex-1 min-w-[60px]"
                     >
                       <Edit className="h-3 w-3 mr-1" />
                       Edit
                     </Button>
+                    {user.deleted ? (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleActivate(user)}
+                        className="flex-1 min-w-[80px] bg-green-50 text-green-700 border-green-200 hover:bg-green-100 hover:text-green-800"
+                      >
+                        <Shield className="h-3 w-3 mr-1" />
+                        Activate
+                      </Button>
+                    ) : (
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => handleDelete(user)}
+                        className="flex-1 min-w-[80px]"
+                      >
+                        <Trash2 className="h-3 w-3 mr-1" />
+                        Deactivate
+                      </Button>
+                    )}
                     <Button
                       size="sm"
                       variant="destructive"
-                      onClick={() => handleDelete(user)}
-                      disabled={user.deleted}
-                      className="flex-1"
+                      onClick={() => handlePermanentDelete(user)}
+                      className="flex-1 min-w-[65px] bg-red-600 hover:bg-red-700 text-white"
                     >
                       <Trash2 className="h-3 w-3 mr-1" />
-                      Deactivate
+                      Delete
                     </Button>
                   </div>
                 </Card>

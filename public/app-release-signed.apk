@@ -1,0 +1,6 @@
+This is a placeholder for your compiled Android APK.
+
+Once you compile your app using the Bubblewrap CLI or PWABuilder (as documented in twa_build_guide.md):
+1. Copy your compiled signed APK file (app-release-signed.apk).
+2. Paste it into the 'public' directory of this project, replacing this placeholder file.
+3. Your website download link will then serve the actual installer file to users.
