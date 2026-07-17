@@ -1232,7 +1232,8 @@ input, textarea, select { font-family: var(--font); }
   .block-name { font-size: 13px; }
   .block-timer { padding: 9px 12px; }
   .timer-display { font-size: 16px; min-width: 62px; }
-  .block-body { padding: 12px; }
+  .block-body { padding: 0 12px; }
+  .block-body.open { padding: 12px; }
   .nav-label { font-size: 14px; }
   .hb-track { height: 20px; }
   .hb-seg { font-size: 9px; }
@@ -1533,10 +1534,59 @@ input, textarea, select { font-family: var(--font); }
   text-decoration: line-through;
   transition: color 0.2s ease, text-decoration 0.2s ease;
 }
-.st-check {
-  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
-}
 .st-check:active {
   transform: scale(0.92);
+}
+
+/* Calendar Custom Styles */
+#calendarTable {
+  border-collapse: collapse;
+  width: 100%;
+}
+#calendarTable td {
+  padding: 4px 0;
+  vertical-align: middle;
+}
+.cal-day {
+  height: 36px;
+  width: 36px;
+  margin: 0 auto;
+  cursor: pointer;
+  font-weight: 600;
+  border-radius: 50%;
+  color: var(--ink);
+  transition: background 0.15s, color 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+.cal-day:hover:not(.empty) {
+  background: var(--border);
+}
+.cal-day.empty {
+  cursor: default;
+}
+/* Selected start/end day: solid blue circle matching main theme color */
+.cal-day.sel-endpoint {
+  background: var(--blue) !important;
+  color: #fff !important;
+  border-radius: 50% !important;
+  font-weight: 700;
+}
+/* Day inside selected range: light blue background on the td container */
+#calendarGridBody td.in-range {
+  background: #eff6ff !important;
+}
+#calendarGridBody td.in-range .cal-day {
+  color: #1e40af !important;
+  border-radius: 0;
+}
+/* Rounding transitions of endpoints on the td container */
+#calendarGridBody td.range-start {
+  background: linear-gradient(to right, transparent 50%, #eff6ff 50%) !important;
+}
+#calendarGridBody td.range-end {
+  background: linear-gradient(to right, #eff6ff 50%, transparent 50%) !important;
 }
 

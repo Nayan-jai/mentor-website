@@ -74,6 +74,10 @@ function loadLocalSync() {
   try{const d=JSON.parse(localStorage.getItem(SK));if(d&&d.subj&&d.days){subj=d.subj;days=d.days;}else defReset();}catch{defReset();}
   try{prog=JSON.parse(localStorage.getItem(SP))||{};}catch{prog={};}
   try{const c=JSON.parse(localStorage.getItem(SC));if(c)conf={...conf,...c};}catch{}
+  if (days && days.length > 0) {
+    if(!conf.startDate){conf.startDate=formatDateLocal(new Date());}
+    for(let i=0;i<days.length;i++){if(isToday(getDd(i))){curDay=i;break;}}
+  }
 }
 
 async function load() {
@@ -96,9 +100,8 @@ async function load() {
     console.error("Error loading study tracker from server:", err);
   }
 
-  if(!conf.startDate){const n=new Date();n.setHours(0,0,0,0);conf.startDate=n.toISOString();}
-  const today=new Date();today.setHours(0,0,0,0);
-  for(let i=0;i<days.length;i++){if(getDd(i).getTime()===today.getTime()){curDay=i;break;}}
+  if(!conf.startDate){conf.startDate=formatDateLocal(new Date());}
+  for(let i=0;i<days.length;i++){if(isToday(getDd(i))){curDay=i;break;}}
 }
 
 function defReset(){
@@ -133,8 +136,23 @@ function sd(){ syncToServer(); }
 function sp(){ syncToServer(); }
 function sc(){ syncToServer(); }
 function gp(bid){if(!prog[bid])prog[bid]={subtopics:{},customTasks:[],notes:'',timeSpent:0};return prog[bid];}
-function getDd(i){const d=days[i];if(d?.dateOverride)return new Date(d.dateOverride);const dt=new Date(conf.startDate);dt.setDate(dt.getDate()+i);return dt;}
-function isToday(d){const t=new Date();t.setHours(0,0,0,0);return d.getTime()===t.getTime();}
+function parseDateLocal(strOrDate) {
+  if (!strOrDate) return new Date();
+  if (strOrDate instanceof Date) return new Date(strOrDate);
+  const parts = strOrDate.split('T')[0].split('-');
+  if (parts.length === 3) {
+    return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+  }
+  return new Date(strOrDate);
+}
+function formatDateLocal(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const r = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${r}`;
+}
+function getDd(i){const d=days[i];if(d?.dateOverride)return parseDateLocal(d.dateOverride);const dt=parseDateLocal(conf.startDate);dt.setDate(dt.getDate()+i);return dt;}
+function isToday(d){const t=new Date();return d.getFullYear()===t.getFullYear()&&d.getMonth()===t.getMonth()&&d.getDate()===t.getDate();}
 function fd(d){return d.toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'});}
 function gid(){return 'b'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);}
 function getSolidColor(c) {
@@ -174,8 +192,8 @@ function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').
 
 /* Target date calculation functions */
 function getDaysCount(start, end) {
-  const s = new Date(start);
-  const e = new Date(end);
+  const s = parseDateLocal(start);
+  const e = parseDateLocal(end);
   s.setHours(0,0,0,0);
   e.setHours(0,0,0,0);
   return Math.ceil((e.getTime() - s.getTime()) / (1000 * 60 * 60 * 24)) + 1;
@@ -193,6 +211,14 @@ function updateDaysRemaining() {
   const textEl = document.getElementById('daysRemainingText');
   const repeatBtn = document.getElementById('repeatPatternBtn');
   if (!textEl) return;
+
+  const dateRangeBtn = document.getElementById('dateRangeBtn');
+  if (dateRangeBtn) {
+    const startStr = conf.startDate ? fd(parseDateLocal(conf.startDate)) : fd(new Date());
+    const endStr = conf.targetDate ? fd(parseDateLocal(conf.targetDate)) : 'Select date…';
+    dateRangeBtn.textContent = `📅 ${startStr} → ${endStr}`;
+  }
+
   if (!conf.targetDate) {
     textEl.textContent = '-';
     if (repeatBtn) repeatBtn.style.display = 'none';
@@ -200,7 +226,7 @@ function updateDaysRemaining() {
   }
   const today = new Date();
   today.setHours(0,0,0,0);
-  const exam = new Date(conf.targetDate);
+  const exam = parseDateLocal(conf.targetDate);
   exam.setHours(0,0,0,0);
   const prefix = conf.examName ? `${conf.examName}: ` : '';
   if (exam < today) {
@@ -213,12 +239,289 @@ function updateDaysRemaining() {
   }
 }
 
-function updateTargetDate(val) {
-  conf.targetDate = val ? new Date(val).toISOString().split('T')[0] : null;
+function updateStartDate(val) {
+  conf.startDate = val || null;
   sc();
   updateDaysRemaining();
   renderManage();
   renderAll();
+}
+
+function updateTargetDate(val) {
+  conf.targetDate = val || null;
+  sc();
+  updateDaysRemaining();
+  renderManage();
+  renderAll();
+}
+
+let calCurrentMonth = new Date();
+let rangeStartDate = null;
+let rangeEndDate = null;
+
+function openDateRangePicker() {
+  rangeStartDate = conf.startDate ? parseDateLocal(conf.startDate) : new Date();
+  rangeStartDate.setHours(0,0,0,0);
+  
+  rangeEndDate = conf.targetDate ? parseDateLocal(conf.targetDate) : null;
+  if (rangeEndDate) rangeEndDate.setHours(0,0,0,0);
+
+  calCurrentMonth = new Date(rangeStartDate);
+  
+  // Ensure calendar grid is visible and selector is hidden
+  const table = document.getElementById('calendarTable');
+  const selector = document.getElementById('monthYearSelector');
+  if (table) table.style.display = 'table';
+  if (selector) selector.style.display = 'none';
+
+  openModal('dateRangeOverlay');
+  renderCalendar();
+}
+
+function prevCalendarMonth() {
+  calCurrentMonth.setMonth(calCurrentMonth.getMonth() - 1);
+  renderCalendar();
+}
+
+function nextCalendarMonth() {
+  calCurrentMonth.setMonth(calCurrentMonth.getMonth() + 1);
+  renderCalendar();
+}
+
+function clickCalendarDay(dateStr) {
+  const clickedDate = parseDateLocal(dateStr);
+  clickedDate.setHours(0,0,0,0);
+
+  if (!rangeStartDate || (rangeStartDate && rangeEndDate)) {
+    rangeStartDate = clickedDate;
+    rangeEndDate = null;
+  } else if (rangeStartDate && !rangeEndDate) {
+    if (clickedDate < rangeStartDate) {
+      rangeStartDate = clickedDate;
+    } else {
+      rangeEndDate = clickedDate;
+    }
+  }
+  renderCalendar();
+}
+
+function changeModalStartDate(val) {
+  if (!val) return;
+  rangeStartDate = parseDateLocal(val);
+  rangeStartDate.setHours(0,0,0,0);
+  calCurrentMonth = new Date(rangeStartDate);
+  renderCalendar();
+}
+
+function changeModalEndDate(val) {
+  if (!val) return;
+  rangeEndDate = parseDateLocal(val);
+  rangeEndDate.setHours(0,0,0,0);
+  calCurrentMonth = new Date(rangeEndDate);
+  renderCalendar();
+}
+
+let selectorSelMonth = null;
+
+function toggleMonthYearSelector() {
+  const table = document.getElementById('calendarTable');
+  const selector = document.getElementById('monthYearSelector');
+  if (!table || !selector) return;
+
+  if (selector.style.display === 'block') {
+    table.style.display = 'table';
+    selector.style.display = 'none';
+  } else {
+    table.style.display = 'none';
+    selector.style.display = 'block';
+
+    const yearInput = document.getElementById('selectorYearInput');
+    if (yearInput) yearInput.value = calCurrentMonth.getFullYear();
+
+    selectorSelMonth = calCurrentMonth.getMonth();
+    renderMonthsGrid();
+  }
+}
+
+function renderMonthsGrid() {
+  const grid = document.getElementById('monthsGrid');
+  if (!grid) return;
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  grid.innerHTML = monthNames.map((name, i) => {
+    const isSelected = i === selectorSelMonth;
+    const style = isSelected 
+      ? 'background:var(--blue);color:#fff;border-color:var(--blue);'
+      : 'background:var(--bg2);color:var(--ink);border:1px solid var(--border);';
+    return `<button onclick="selectSelectorMonth(${i})" style="${style}padding:6px;border-radius:4px;cursor:pointer;font-size:11px;font-weight:600;outline:none;">${name}</button>`;
+  }).join('');
+}
+
+function selectSelectorMonth(idx) {
+  selectorSelMonth = idx;
+  renderMonthsGrid();
+}
+
+function applyMonthYearSelector() {
+  const yearInput = document.getElementById('selectorYearInput');
+  const year = parseInt(yearInput.value) || new Date().getFullYear();
+  calCurrentMonth.setFullYear(year);
+  if (selectorSelMonth !== null) {
+    calCurrentMonth.setMonth(selectorSelMonth);
+  }
+  
+  document.getElementById('calendarTable').style.display = 'table';
+  document.getElementById('monthYearSelector').style.display = 'none';
+  
+  renderCalendar();
+}
+
+function hoverCalendarDay(dateStr) {
+  if (!rangeStartDate || rangeEndDate) return;
+  const targetDate = parseDateLocal(dateStr);
+  targetDate.setHours(0,0,0,0);
+  if (targetDate < rangeStartDate) return;
+  
+  const cells = document.querySelectorAll('#calendarGridBody td');
+  cells.forEach(td => {
+    const el = td.querySelector('.cal-day:not(.empty)');
+    if (!el) return;
+    
+    const dt = parseDateLocal(el.getAttribute('data-date'));
+    dt.setHours(0,0,0,0);
+    const isStart = dt.getTime() === rangeStartDate.getTime();
+    const isHover = dt.getTime() === targetDate.getTime();
+    const inBetween = dt > rangeStartDate && dt < targetDate;
+
+    // Reset classes
+    td.className = '';
+    el.className = 'cal-day';
+    
+    if (isStart) {
+      el.className += ' sel-endpoint';
+      td.className = 'range-start';
+    } else if (isHover) {
+      el.className += ' sel-endpoint';
+      td.className = 'range-end';
+    } else if (inBetween) {
+      td.className = 'in-range';
+    }
+  });
+
+  const totalDays = Math.ceil((targetDate.getTime() - rangeStartDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+  const btn = document.getElementById('selectRangeBtn');
+  if (btn) {
+    btn.disabled = false;
+    btn.textContent = `Select ${totalDays} days`;
+  }
+}
+
+function updateSelectRangeButton() {
+  const btn = document.getElementById('selectRangeBtn');
+  if (!btn) return;
+
+  if (rangeStartDate && rangeEndDate) {
+    const totalDays = Math.ceil((rangeEndDate.getTime() - rangeStartDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    btn.disabled = false;
+    btn.textContent = `Select ${totalDays} days`;
+  } else if (rangeStartDate) {
+    btn.disabled = true;
+    btn.textContent = 'Select target date';
+  } else {
+    btn.disabled = true;
+    btn.textContent = 'Select date range';
+  }
+}
+
+function renderCalendar() {
+  const container = document.getElementById('calendarGridBody');
+  const monthYearEl = document.getElementById('calMonthYear');
+  if (!container || !monthYearEl) return;
+
+  // Sync manual date inputs in the modal
+  const mStartInput = document.getElementById('modalStartDate');
+  if (mStartInput) {
+    mStartInput.value = rangeStartDate ? formatDateLocal(rangeStartDate) : '';
+  }
+  const mEndInput = document.getElementById('modalEndDate');
+  if (mEndInput) {
+    mEndInput.value = rangeEndDate ? formatDateLocal(rangeEndDate) : '';
+  }
+
+  const year = calCurrentMonth.getFullYear();
+  const month = calCurrentMonth.getMonth();
+
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  monthYearEl.textContent = `${monthNames[month]} ${year}`;
+
+  const firstDay = new Date(year, month, 1).getDay();
+  const numDays = new Date(year, month + 1, 0).getDate();
+
+  container.innerHTML = '';
+  let row = document.createElement('tr');
+  
+  for (let i = 0; i < firstDay; i++) {
+    const td = document.createElement('td');
+    td.innerHTML = '<div class="cal-day empty"></div>';
+    row.appendChild(td);
+  }
+
+  for (let day = 1; day <= numDays; day++) {
+    if (row.children.length === 7) {
+      container.appendChild(row);
+      row = document.createElement('tr');
+    }
+
+    const td = document.createElement('td');
+    const dayDate = new Date(year, month, day);
+    dayDate.setHours(0,0,0,0);
+
+    const isStart = rangeStartDate && dayDate.getTime() === rangeStartDate.getTime();
+    const isEnd = rangeEndDate && dayDate.getTime() === rangeEndDate.getTime();
+    
+    let inRange = false;
+    if (rangeStartDate && rangeEndDate) {
+      inRange = dayDate > rangeStartDate && dayDate < rangeEndDate;
+    }
+
+    let tdClass = '';
+    let dayClass = 'cal-day';
+
+    if (isStart) {
+      dayClass += ' sel-endpoint';
+      if (rangeEndDate) tdClass = 'range-start';
+    } else if (isEnd) {
+      dayClass += ' sel-endpoint';
+      if (rangeStartDate) tdClass = 'range-end';
+    } else if (inRange) {
+      tdClass = 'in-range';
+    }
+
+    const dateStr = formatDateLocal(dayDate);
+    td.className = tdClass;
+    td.innerHTML = `<div class="${dayClass}" data-date="${dateStr}" onclick="clickCalendarDay('${dateStr}')" onmouseenter="hoverCalendarDay('${dateStr}')">${day}</div>`;
+    row.appendChild(td);
+  }
+
+  while (row.children.length < 7) {
+    const td = document.createElement('td');
+    td.innerHTML = '<div class="cal-day empty"></div>';
+    row.appendChild(td);
+  }
+  container.appendChild(row);
+
+  updateSelectRangeButton();
+}
+
+function applySelectedDateRange() {
+  if (!rangeStartDate || !rangeEndDate) return;
+  conf.startDate = formatDateLocal(rangeStartDate);
+  conf.targetDate = formatDateLocal(rangeEndDate);
+  sc();
+  
+  updateDaysRemaining();
+  closeModal('dateRangeOverlay');
+  renderAll();
+  renderManage();
 }
 
 function generatePlanTillTargetDate() {
@@ -1007,7 +1310,14 @@ function renderSyllabus(){
   </div>`;
   subj.forEach((s,si)=>{
     const blocks=[];
-    days.forEach(d=>d.blocks.filter(b=>b.subjectId===s.id).forEach(b=>blocks.push({...b,dayId:d.id,dayIdx:days.indexOf(d)})));
+    days.forEach(d=>d.blocks.filter(b=>b.subjectId===s.id).forEach(b=>{
+      const hasTopic=b.topic&&b.topic.trim()!=='';
+      const hasSub=b.subtopics&&b.subtopics.length>0;
+      const hasTasks=gp(b.id).customTasks&&gp(b.id).customTasks.length>0;
+      if(hasTopic||hasSub||hasTasks) {
+        blocks.push({...b,dayId:d.id,dayIdx:days.indexOf(d)});
+      }
+    }));
     const stT=blocks.reduce((a,b)=>a+b.subtopics.length+(gp(b.id).customTasks?.length||0),0);
     const stD=blocks.reduce((a,b)=>{const p=gp(b.id);return a+b.subtopics.filter((_,j)=>p.subtopics[j]).length+(p.customTasks||[]).filter(t=>t.done).length;},0);
     const pct=stT?Math.round(stD/stT*100):0;
@@ -1195,7 +1505,7 @@ function loadCustomSyllabusDefaults() {
   timers = {};
   
   conf.examName = "My Study Plan";
-  conf.startDate = new Date().toISOString();
+  conf.startDate = formatDateLocal(new Date());
   conf.syllabusType = "custom";
   
   sd();
@@ -1242,7 +1552,7 @@ function loadSelectedPremadeSyllabus(templateKey) {
   
   // Set default configurations
   conf.examName = template.examName;
-  conf.startDate = new Date().toISOString();
+  conf.startDate = formatDateLocal(new Date());
   conf.syllabusType = templateKey;
   
   // Save to localStorage and API
@@ -2608,6 +2918,8 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   renderAll();
   const nameInput=document.getElementById('targetExamName');
   if(nameInput&&conf.examName)nameInput.value=conf.examName;
+  const startDateInput=document.getElementById('planStartDate');
+  if(startDateInput)startDateInput.value=conf.startDate||formatDateLocal(new Date());
   const dateInput=document.getElementById('targetExamDate');
   if(dateInput&&conf.targetDate)dateInput.value=conf.targetDate;
   updateDaysRemaining();
@@ -2649,6 +2961,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   updateRevisionTabVisibility();
   renderAll();
   if(nameInput&&conf.examName)nameInput.value=conf.examName;
+  if(startDateInput)startDateInput.value=conf.startDate||formatDateLocal(new Date());
   if(dateInput&&conf.targetDate)dateInput.value=conf.targetDate;
   updateDaysRemaining();
   switchView(conf.activeTab || 'daily');
@@ -2659,4 +2972,27 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   }
   // Show tutorial on first visit only
   maybeShowTutorial();
+
+  // Sync days with current day when page becomes visible or focused (minimizing/restoring window, switching tabs)
+  const syncToCurrentDay = () => {
+    if (!days || days.length === 0) return;
+    if (!conf.startDate) {
+      conf.startDate = formatDateLocal(new Date());
+    }
+    for (let i = 0; i < days.length; i++) {
+      if (isToday(getDd(i))) {
+        if (curDay !== i) {
+          curDay = i;
+          refreshAllViews();
+        }
+        break;
+      }
+    }
+  };
+  window.addEventListener('focus', syncToCurrentDay);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      syncToCurrentDay();
+    }
+  });
 });

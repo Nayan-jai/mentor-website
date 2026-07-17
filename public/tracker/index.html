@@ -86,9 +86,10 @@
               style="padding:6px 10px;background:var(--bg2);color:var(--ink);border:1px solid var(--border);border-radius:6px;outline:none;font-size:13px;width:180px" />
           </div>
           <div style="display:flex;flex-direction:column;gap:4px">
-            <label style="font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase">Exam Date</label>
-            <input type="date" id="targetExamDate" onchange="updateTargetDate(this.value)"
-              style="padding:6px 10px;background:var(--bg2);color:var(--ink);border:1px solid var(--border);border-radius:6px;outline:none;font-size:13px" />
+            <label style="font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase">Study Date Range</label>
+            <button onclick="openDateRangePicker()" id="dateRangeBtn" style="padding:6px 12px;background:var(--bg2);color:var(--ink);border:1px solid var(--border);border-radius:6px;outline:none;font-size:13px;height:32px;display:flex;align-items:center;gap:6px;cursor:pointer;font-weight:600">
+              📅 Select dates…
+            </button>
           </div>
           <div style="display:flex;flex-direction:column;gap:4px">
             <label style="font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase">Days
@@ -332,6 +333,70 @@
       </div>
       <div class="modal-footer">
         <button class="hbtn" onclick="closeModal('statsDetailOverlay')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DATE RANGE PICKER OVERLAY -->
+  <div class="overlay" id="dateRangeOverlay" onclick="if(event.target===this)closeModal('dateRangeOverlay')">
+    <div class="modal" style="max-width: 340px; padding: 16px;">
+      <div class="modal-hd">
+        <div class="modal-title">📅 Select Date Range</div>
+        <button class="modal-close" onclick="closeModal('dateRangeOverlay')">✕</button>
+      </div>
+      
+      <!-- Manual Inputs -->
+      <div style="display:flex;gap:8px;margin:12px 0 6px;">
+        <div style="flex:1;display:flex;flex-direction:column;gap:3px">
+          <span style="font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:0.04em">From</span>
+          <input type="date" id="modalStartDate" onchange="changeModalStartDate(this.value)" style="padding:6px;background:var(--bg2);color:var(--ink);border:1px solid var(--border);border-radius:6px;outline:none;font-size:11px" />
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:3px">
+          <span style="font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:0.04em">To</span>
+          <input type="date" id="modalEndDate" onchange="changeModalEndDate(this.value)" style="padding:6px;background:var(--bg2);color:var(--ink);border:1px solid var(--border);border-radius:6px;outline:none;font-size:11px" />
+        </div>
+      </div>
+      
+      <!-- Calendar Header -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin:12px 0 8px;">
+        <button onclick="prevCalendarMonth()" style="background:none;border:none;color:var(--ink2);cursor:pointer;font-weight:bold;font-size:14px;padding:4px 8px;">◀</button>
+        <span id="calMonthYear" onclick="toggleMonthYearSelector()" style="font-weight:700;font-size:13px;color:var(--ink);cursor:pointer;text-decoration:underline;" title="Jump to Month/Year">Feb 2024</span>
+        <button onclick="nextCalendarMonth()" style="background:none;border:none;color:var(--ink2);cursor:pointer;font-weight:bold;font-size:14px;padding:4px 8px;">▶</button>
+      </div>
+
+      <!-- Month/Year Selector View -->
+      <div id="monthYearSelector" style="display:none;margin-bottom:12px;">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px;" id="monthsGrid"></div>
+        <div style="display:flex;align-items:center;gap:8px;border-top:1px solid var(--border);padding-top:10px;">
+          <span style="font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase;">Year:</span>
+          <input type="number" id="selectorYearInput" style="padding:6px;width:70px;background:var(--bg2);color:var(--ink);border:1px solid var(--border);border-radius:6px;outline:none;font-size:12px" min="2000" max="2100" />
+          <button class="hbtn" onclick="applyMonthYearSelector()" style="background:var(--blue);color:#fff;border-color:var(--blue);font-size:11px;padding:5px 12px;margin-left:auto;height:28px;">Apply</button>
+        </div>
+      </div>
+
+      <!-- Calendar Table -->
+      <table style="width:100%;border-collapse:collapse;text-align:center;font-size:12px;margin-bottom:12px;" id="calendarTable">
+        <thead>
+          <tr style="color:var(--ink3);font-weight:700;">
+            <th style="padding:4px 0;width:14.28%;">Su</th>
+            <th style="padding:4px 0;width:14.28%;">Mo</th>
+            <th style="padding:4px 0;width:14.28%;">Tu</th>
+            <th style="padding:4px 0;width:14.28%;">We</th>
+            <th style="padding:4px 0;width:14.28%;">Th</th>
+            <th style="padding:4px 0;width:14.28%;">Fr</th>
+            <th style="padding:4px 0;width:14.28%;">Sa</th>
+          </tr>
+        </thead>
+        <tbody id="calendarGridBody" onmouseleave="renderCalendar()">
+          <!-- Dynamically generated days -->
+        </tbody>
+      </table>
+
+      <!-- Footer action -->
+      <div style="display:flex;justify-content:flex-end;margin-top:12px;">
+        <button id="selectRangeBtn" onclick="applySelectedDateRange()" class="hbtn" style="background:var(--blue);color:#fff;border-color:var(--blue);font-weight:800;width:100%;padding:10px;height:auto;font-size:13px;border-radius:8px;" disabled>
+          Select range
+        </button>
       </div>
     </div>
   </div>
