@@ -413,9 +413,9 @@ export default function ResourcesPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
           
           {/* ── LEFT: Upload Container ──────────────── */}
-          <div className="lg:col-span-1 bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-md border border-gray-100 dark:border-slate-800 lg:sticky lg:top-24">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-              <UploadCloud className="w-5 h-5 text-indigo-500" /> Share Resource
+          <div className="lg:col-span-1 bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 lg:sticky lg:top-24">
+            <h2 className="text-xl font-extrabold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+              <UploadCloud className="w-5 h-5 text-blue-600 dark:text-blue-400" /> Share Resource
             </h2>
 
             {/* Storage Progress Bar */}
@@ -425,21 +425,21 @@ export default function ResourcesPage() {
               const usagePercentage = Math.min((totalUsedBytes / limitBytes) * 100, 100);
 
               return (
-                <div className="mb-5 p-3.5 bg-gray-50 dark:bg-slate-800/60 rounded-xl border border-gray-100 dark:border-slate-700">
+                <div className="mb-5 p-3.5 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700/80">
                   <div className="flex justify-between items-center text-xs mb-1.5">
-                    <span className="text-gray-600 dark:text-slate-400 font-medium">Storage Space</span>
-                    <span className="text-gray-900 dark:text-white font-bold">
+                    <span className="text-slate-600 dark:text-slate-400 font-medium">Storage Space</span>
+                    <span className="text-slate-900 dark:text-white font-bold">
                       {formatBytes(totalUsedBytes)} of 1 GB
                     </span>
                   </div>
-                  <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
+                  <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
                     <div
                       className={`h-full rounded-full transition-all duration-500 ${
                         usagePercentage > 90
                           ? "bg-rose-500"
                           : usagePercentage > 70
                           ? "bg-amber-500"
-                          : "bg-indigo-600"
+                          : "bg-blue-600"
                       }`}
                       style={{ width: `${usagePercentage}%` }}
                     />
@@ -454,9 +454,9 @@ export default function ResourcesPage() {
             })()}
 
             {/* Upload target indicator */}
-            <div className="mb-4 text-xs font-semibold text-gray-600 bg-indigo-50/50 p-3 rounded-lg border border-indigo-100/50 flex items-center gap-2">
+            <div className="mb-4 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-blue-50/70 dark:bg-blue-950/60 p-3 rounded-xl border border-blue-100 dark:border-blue-900/60 flex items-center gap-2">
               <span>📍 Uploading to:</span>
-              <span className="text-indigo-700 font-bold">
+              <span className="text-blue-700 dark:text-blue-300 font-bold">
                 {activeFolder ? `📁 ${activeFolder.name}` : "📂 Root Level"}
               </span>
             </div>
@@ -464,12 +464,12 @@ export default function ResourcesPage() {
             <form onSubmit={handleUploadSubmit} className="space-y-4">
               {/* Drag & Drop Area */}
               <div
-                className={`relative border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all duration-200 ${
+                className={`relative border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all duration-200 ${
                   dragActive
-                    ? "border-indigo-500 bg-indigo-50/50 scale-[1.02]"
+                    ? "border-blue-500 bg-blue-50/50 dark:bg-blue-950/50 scale-[1.02]"
                     : selectedFile
-                    ? "border-emerald-400 bg-emerald-50/10"
-                    : "border-gray-300 hover:border-indigo-400 bg-gray-50/30"
+                    ? "border-emerald-400 dark:border-emerald-500 bg-emerald-50/10 dark:bg-emerald-950/20"
+                    : "border-slate-300 dark:border-slate-700 hover:border-blue-500 dark:hover:border-blue-400 bg-slate-50/50 dark:bg-slate-800/40"
                 }`}
                 onDragEnter={handleDrag}
                 onDragOver={handleDrag}
@@ -488,15 +488,15 @@ export default function ResourcesPage() {
                 {selectedFile ? (
                   <div className="flex flex-col items-center">
                     <FileText className="w-12 h-12 text-emerald-500 mb-2" />
-                    <p className="text-sm font-semibold text-gray-700 truncate max-w-[200px]">
+                    <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 truncate max-w-[200px]">
                       {selectedFile.name}
                     </p>
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                       {formatBytes(selectedFile.size)}
                     </p>
                     <button
                       type="button"
-                      className="mt-3 text-xs text-red-500 hover:text-red-700 font-semibold flex items-center gap-1 border border-red-200 bg-red-50 px-2.5 py-1 rounded-full transition-colors"
+                      className="mt-3 text-xs text-red-500 hover:text-red-700 font-semibold flex items-center gap-1 border border-red-200 dark:border-red-900/60 bg-red-50 dark:bg-red-950/60 px-3 py-1 rounded-full transition-colors"
                       onClick={(e) => {
                         e.stopPropagation();
                         setSelectedFile(null);
@@ -509,14 +509,14 @@ export default function ResourcesPage() {
                   </div>
                 ) : (
                   <div className="flex flex-col items-center">
-                    <UploadCloud className="w-12 h-12 text-gray-400 mb-2" />
-                    <p className="text-sm font-semibold text-gray-700">
-                      Drag & drop your PDF here
+                    <UploadCloud className="w-12 h-12 text-blue-500 dark:text-blue-400 mb-2" />
+                    <p className="text-sm font-bold text-slate-800 dark:text-slate-200">
+                      Drag &amp; drop your PDF here
                     </p>
-                    <p className="text-xs text-gray-500 mt-1 mb-3">or</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-3">or</p>
                     <button
                       type="button"
-                      className="px-4.5 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-lg border border-indigo-200 transition-colors inline-flex items-center gap-1.5 shadow-sm"
+                      className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-md transition-all inline-flex items-center gap-1.5"
                       onClick={(e) => {
                         e.stopPropagation();
                         e.preventDefault();
@@ -525,7 +525,7 @@ export default function ResourcesPage() {
                     >
                       Browse Files
                     </button>
-                    <p className="text-[10px] text-gray-400 mt-3">
+                    <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-3">
                       Max file size: 15MB. Only PDF accepted.
                     </p>
                   </div>
@@ -534,7 +534,7 @@ export default function ResourcesPage() {
 
               {/* Title Field */}
               <div>
-                <label htmlFor="title" className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                <label htmlFor="title" className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                   Resource Title
                 </label>
                 <input
@@ -544,7 +544,7 @@ export default function ResourcesPage() {
                   placeholder="Enter descriptive title..."
                   value={uploadTitle}
                   onChange={(e) => setUploadTitle(e.target.value)}
-                  className="w-full px-3.5 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                  className="w-full px-4 py-2.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 text-sm"
                 />
               </div>
 
@@ -552,7 +552,7 @@ export default function ResourcesPage() {
               <button
                 type="submit"
                 disabled={uploading || !selectedFile || !uploadTitle.trim()}
-                className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-semibold flex justify-center items-center gap-2 shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed animate-fade-in"
+                className="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-sm font-bold flex justify-center items-center gap-2 shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed animate-fade-in"
               >
                 {uploading ? (
                   <>
@@ -735,10 +735,10 @@ export default function ResourcesPage() {
                           </div>
                         </div>
 
-                        <div className="mt-5 pt-4 border-t border-gray-50 dark:border-slate-800 flex items-center justify-between gap-2">
+                        <div className="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
                           <button
                             onClick={() => setPreviewResource(resource)}
-                            className="flex items-center gap-1 px-3 py-1.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 text-xs font-semibold rounded-lg transition-colors"
+                            className="flex items-center gap-1 px-3 py-1.5 bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900 border border-blue-100 dark:border-blue-900/60 text-xs font-semibold rounded-lg transition-colors"
                           >
                             <Eye className="w-3.5 h-3.5" /> View
                           </button>
@@ -749,7 +749,7 @@ export default function ResourcesPage() {
                               download={resource.title}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="p-1.5 bg-gray-50 hover:bg-gray-100 text-gray-600 rounded-lg transition-colors"
+                              className="p-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg transition-colors"
                               title="Download PDF"
                             >
                               <Download className="w-3.5 h-3.5" />
@@ -758,7 +758,7 @@ export default function ResourcesPage() {
                             {canDelete && (
                               <button
                                 onClick={() => handleDeleteResource(resource.id)}
-                                className="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-colors"
+                                className="p-1.5 bg-red-50 dark:bg-red-950/60 hover:bg-red-100 dark:hover:bg-red-900 text-red-600 dark:text-red-400 rounded-lg transition-colors"
                                 title="Delete file"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
@@ -771,10 +771,10 @@ export default function ResourcesPage() {
                   })}
                 </div>
               ) : (
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 text-center py-16 px-4">
-                  <FileText className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                  <h3 className="font-semibold text-gray-900 text-base">No resources found</h3>
-                  <p className="text-sm text-gray-500 mt-1">
+                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 text-center py-16 px-4">
+                  <FileText className="w-12 h-12 text-slate-300 dark:text-slate-700 mx-auto mb-3" />
+                  <h3 className="font-semibold text-slate-900 dark:text-white text-base">No resources found</h3>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                     Upload the first resource inside this section to start!
                   </p>
                 </div>
@@ -786,15 +786,15 @@ export default function ResourcesPage() {
 
       {/* ── FOLDER CREATION / RENAME MODAL ───────────────────────── */}
       {showFolderModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between pb-4 border-b border-gray-100">
-              <h2 className="font-bold text-gray-900 text-base">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-md p-6 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+              <h2 className="font-bold text-slate-900 dark:text-white text-base">
                 {editingFolder ? "Rename Folder" : "Create New Folder"}
               </h2>
               <button
                 onClick={() => setShowFolderModal(false)}
-                className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg"
+                className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -802,7 +802,7 @@ export default function ResourcesPage() {
             
             <form onSubmit={handleFolderSubmit} className="mt-4 space-y-4">
               <div>
-                <label htmlFor="folderName" className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                <label htmlFor="folderName" className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                   Folder Name
                 </label>
                 <input
@@ -812,7 +812,7 @@ export default function ResourcesPage() {
                   placeholder="e.g. History Notes, Weekly Quizzes..."
                   value={folderNameInput}
                   onChange={(e) => setFolderNameInput(e.target.value)}
-                  className="w-full px-3.5 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                  className="w-full px-4 py-2.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 text-sm"
                 />
               </div>
 
@@ -820,14 +820,14 @@ export default function ResourcesPage() {
                 <button
                   type="button"
                   onClick={() => setShowFolderModal(false)}
-                  className="px-4 py-2 text-xs font-bold text-gray-600 hover:bg-slate-50 border border-gray-200 rounded-lg transition-colors"
+                  className="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={folderSaving || !folderNameInput.trim()}
-                  className="px-4.5 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5"
+                  className="px-5 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-xs font-bold rounded-xl shadow-md transition-all flex items-center gap-1.5"
                 >
                   {folderSaving ? (
                     <>
@@ -847,13 +847,13 @@ export default function ResourcesPage() {
 
       {/* ── PDF PREVIEW MODAL ───────────────────────── */}
       {previewResource && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl w-full max-w-5xl h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-5xl h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             {/* Modal Header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 bg-gray-50">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
               <div className="flex items-center gap-3 shrink min-w-0 pr-4">
-                <FileText className="w-5 h-5 text-indigo-500 shrink-0" />
-                <h2 className="font-bold text-gray-900 text-sm sm:text-base truncate" title={previewResource.title}>
+                <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0" />
+                <h2 className="font-bold text-slate-900 dark:text-white text-sm sm:text-base truncate" title={previewResource.title}>
                   {previewResource.title}
                 </h2>
               </div>
@@ -863,20 +863,20 @@ export default function ResourcesPage() {
                   download={previewResource.title}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg transition-colors"
+                  className="flex items-center gap-1.5 px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl shadow-md transition-all"
                 >
                   <Download className="w-3.5 h-3.5" /> Download
                 </a>
                 <button
                   onClick={() => setPreviewResource(null)}
-                  className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-all"
+                  className="p-1.5 text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
             </div>
             {/* Modal Iframe (Browser-Native PDF Viewer) */}
-            <div className="flex-1 w-full h-full bg-gray-900 relative">
+            <div className="flex-1 w-full h-full bg-slate-900 relative">
               <iframe
                 src={previewResource.url}
                 className="w-full h-full border-0 relative z-10"

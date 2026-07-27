@@ -22,6 +22,8 @@ import {
   User,
 } from "lucide-react";
 
+import BrandLogo from "@/components/brand-logo";
+
 export default function Navbar() {
   const { data: session } = useSession();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -48,9 +50,8 @@ export default function Navbar() {
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 group">
-            <GraduationCap className="w-8 h-8 text-blue-400 transition-transform duration-300 group-hover:rotate-12" />
-            <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-white via-slate-100 to-indigo-200 bg-clip-text text-transparent">Mentor</span>
+          <Link href="/">
+            <BrandLogo variant="navbar" />
           </Link>
 
           {/* Hamburger for mobile */}
