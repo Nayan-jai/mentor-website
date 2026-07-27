@@ -1156,4 +1156,62 @@ input[type="password"]::-webkit-input-password-toggle-button {
   to {
     transform: rotate(-1turn);
   }
+}
+
+/* Star Wars Toggle Icon Animation for Mobile Navbar */
+.sw-nav-container {
+  font-size: 7px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  padding: 4px;
+}
+
+.sw-toggle-icon {
+  display: block;
+  position: relative;
+  width: 3.8em;
+  height: 2.8em;
+  transition: margin 600ms;
+}
+
+.sw-toggle-icon .bar {
+  display: block;
+  width: 3.8em;
+  height: 0.35em;
+  margin-bottom: 0.75em;
+  border-right: 2.8em solid #ffffff;
+  border-left: 0.6em solid #60a5fa;
+  box-sizing: border-box;
+  transition-property: transform, margin, border-right-color, box-shadow, opacity;
+  transition-duration: 600ms;
+  border-radius: 2px;
+}
+
+.sw-toggle-icon .bar:nth-of-type(1) {
+  transition: opacity 300ms;
+}
+
+.sw-toggle-icon .bar:nth-of-type(2) {
+  transform: rotate(-180deg);
+}
+
+.sw-pushed .sw-toggle-icon .bar:nth-of-type(1) {
+  opacity: 0;
+}
+
+.sw-pushed .sw-toggle-icon .bar:nth-of-type(2) {
+  margin-left: 1.2em;
+  transform: rotate(-137deg) translateY(-1.4em);
+  border-right-color: #f87171;
+  box-shadow: 0.3em 0 0.6em 0.1em rgba(248, 113, 113, 0.75);
+}
+
+.sw-pushed .sw-toggle-icon .bar:nth-of-type(3) {
+  margin-left: 0.4em;
+  transform: rotate(-42deg);
+  border-right-color: #34d399;
+  box-shadow: 0.3em 0 0.6em 0.1em rgba(52, 211, 153, 0.75);
 } 

@@ -56,11 +56,15 @@ export default function Navbar() {
 
           {/* Hamburger for mobile */}
           <button
-            className="lg:hidden p-2 text-slate-300 hover:text-white focus:outline-none transition-colors"
+            className={`lg:hidden sw-nav-container ${mobileMenuOpen ? "sw-pushed" : ""}`}
             onClick={() => setMobileMenuOpen((open) => !open)}
             aria-label="Toggle menu"
           >
-            <span>{mobileMenuOpen ? <LogOut className="w-6 h-6 text-rose-400" /> : <Menu className="w-6 h-6" />}</span>
+            <div className="sw-toggle-icon">
+              <span className="bar"></span>
+              <span className="bar"></span>
+              <span className="bar"></span>
+            </div>
           </button>
 
           {/* Navigation - Desktop */}
