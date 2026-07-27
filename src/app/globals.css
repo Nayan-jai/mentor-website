@@ -1214,4 +1214,22 @@ input[type="password"]::-webkit-input-password-toggle-button {
   transform: rotate(-42deg);
   border-right-color: #34d399;
   box-shadow: 0.3em 0 0.6em 0.1em rgba(52, 211, 153, 0.75);
+}
+
+/* Walkthrough Reveal Animation for Mobile Menu Options */
+@keyframes menuItemReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(-16px) scale(0.95);
+    filter: blur(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+.animate-menu-item-reveal {
+  animation: menuItemReveal 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
 } 

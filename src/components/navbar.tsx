@@ -163,86 +163,118 @@ export default function Navbar() {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <nav className="lg:hidden flex flex-col bg-slate-950/95 text-white border-t border-slate-900/80 backdrop-blur-md shadow-2xl rounded-b-xl px-4 pt-2 pb-6 space-y-1.5 animate-fade-in absolute left-0 right-0 top-16 z-50">
-            {!session && (
-              <Link href="/" className="group flex items-center gap-2 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/50 rounded-lg transition-all duration-200" onClick={() => setMobileMenuOpen(false)}>
-                <Home className="w-5 h-5 text-sky-400 transition-transform duration-200 group-hover:scale-110" /> Home
-              </Link>
-            )}
-            <Link href="/sessions" className="group flex items-center gap-2 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/50 rounded-lg transition-all duration-200" onClick={() => setMobileMenuOpen(false)}>
-              <Calendar className="w-5 h-5 text-violet-400 transition-transform duration-200 group-hover:scale-110" /> Sessions
-            </Link>
-            <Link href="/forum" className="group flex items-center gap-2 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/50 rounded-lg transition-all duration-200" onClick={() => setMobileMenuOpen(false)}>
-              <MessageCircle className="w-5 h-5 text-emerald-400 transition-transform duration-200 group-hover:scale-110" /> Forum
-            </Link>
-            {session && (
-              <Link href="/test" className="group flex items-center gap-2 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/50 rounded-lg transition-all duration-200" onClick={() => setMobileMenuOpen(false)}>
-                <BookOpen className="w-5 h-5 text-amber-400 transition-transform duration-200 group-hover:scale-110" /> Test
-              </Link>
-            )}
-            {session && (
-              <Link href="/resources" className="group flex items-center gap-2 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/50 rounded-lg transition-all duration-200" onClick={() => setMobileMenuOpen(false)}>
-                <BookOpen className="w-5 h-5 text-purple-400 transition-transform duration-200 group-hover:scale-110" /> Resources
-              </Link>
-            )}
-            {session?.user?.role === "STUDENT" && (
-              <Link href="/my-queries?ask=true" className="group flex items-center gap-2 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/50 rounded-lg transition-all duration-200" onClick={() => setMobileMenuOpen(false)}>
-                <HelpCircle className="w-5 h-5 text-rose-400 transition-transform duration-200 group-hover:scale-110" /> Ask Mentor
-              </Link>
-            )}
-            {session?.user?.role === "MENTOR" && (
-              <Link href="/mentor/private-queries" className="group flex items-center gap-2 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/50 rounded-lg transition-all duration-200" onClick={() => setMobileMenuOpen(false)}>
-                <Lock className="w-5 h-5 text-rose-400 transition-transform duration-200 group-hover:scale-110" /> Private Queries
-              </Link>
-            )}
-            {session?.user?.role === "ADMIN" && (
-              <>
-                <Link href="/dashboard/admin/users" className="group flex items-center gap-2 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/50 rounded-lg transition-all duration-200" onClick={() => setMobileMenuOpen(false)}>
-                  <Users className="w-5 h-5 text-cyan-400 transition-transform duration-200 group-hover:scale-110" /> Manage Users
-                </Link>
-                <Link href="/dashboard/admin/sessions" className="group flex items-center gap-2 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/50 rounded-lg transition-all duration-200" onClick={() => setMobileMenuOpen(false)}>
-                  <CalendarCheck className="w-5 h-5 text-purple-400 transition-transform duration-200 group-hover:scale-110" /> Manage Sessions
-                </Link>
-                <Link href="/dashboard/admin/analytics" className="group flex items-center gap-2 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/50 rounded-lg transition-all duration-200" onClick={() => setMobileMenuOpen(false)}>
-                  <LineChart className="w-5 h-5 text-emerald-400 transition-transform duration-200 group-hover:scale-110" /> Analytics
-                </Link>
-              </>
-            )}
-            {session ? (
-              <div className="pt-2 flex flex-col gap-2">
-                {session.user?.role === "STUDENT" && (
-                  <Link href="/dashboard/student" className="group flex items-center gap-2 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/50 rounded-lg transition-all duration-200" onClick={() => setMobileMenuOpen(false)}>
-                    <Gauge className="w-5 h-5 text-sky-400 transition-transform duration-200 group-hover:scale-110" /> Dashboard
-                  </Link>
-                )}
-                {session.user?.role === "MENTOR" && (
-                  <Link href="/dashboard/mentor" className="group flex items-center gap-2 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/50 rounded-lg transition-all duration-200" onClick={() => setMobileMenuOpen(false)}>
-                    <BookOpen className="w-5 h-5 text-emerald-400 transition-transform duration-200 group-hover:scale-110" /> Dashboard
-                  </Link>
-                )}
-                <Link href="/profile" className="group flex items-center gap-3 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/50 rounded-lg transition-all duration-200" onClick={() => setMobileMenuOpen(false)}>
-                  <div className="w-7 h-7 rounded-full overflow-hidden border border-slate-700 bg-slate-900 shrink-0">
-                    <img src={userAvatar} alt="Profile Avatar" className="w-full h-full object-cover" />
-                  </div>
-                  <span>Profile</span>
-                </Link>
-                <button
-                  onClick={() => { setMobileMenuOpen(false); signOut({ callbackUrl: "/" }); }}
-                  className="group flex items-center gap-2 w-full text-left px-4 py-3 bg-rose-600/10 text-rose-400 rounded-lg hover:bg-rose-600 hover:text-white transition-all duration-200 text-base font-semibold"
-                >
-                  <LogOut className="w-5 h-5 text-rose-400 group-hover:text-white transition-colors duration-200" /> Sign Out
-                </button>
-              </div>
-            ) : (
-              <div className="pt-2 flex flex-col gap-2">
-                <Link href="/auth/login" className="group flex items-center justify-center gap-2 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/50 rounded-lg transition-all duration-200" onClick={() => setMobileMenuOpen(false)}>
-                  <LogIn className="w-5 h-5 text-sky-400 transition-transform duration-200 group-hover:scale-110" /> Sign In
-                </Link>
-                <Link href="/auth/register" className="group flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-black bg-white hover:bg-blue-600 hover:text-white transition-all duration-200 text-base font-semibold shadow-md" onClick={() => setMobileMenuOpen(false)}>
-                  <UserPlus className="w-5 h-5 text-blue-600 group-hover:text-white transition-all duration-200" /> Get Started
-                </Link>
-              </div>
-            )}
+          <nav className="lg:hidden flex flex-col bg-slate-950/95 text-white border-t border-slate-900/80 backdrop-blur-md shadow-2xl rounded-b-xl px-4 pt-3 pb-6 space-y-1.5 absolute left-0 right-0 top-16 z-50 overflow-hidden">
+            {(() => {
+              let delayIndex = 0;
+              const items = [
+                ...(!session ? [{ key: "home", href: "/", label: "Home", icon: Home, color: "text-sky-400" }] : []),
+                { key: "sessions", href: "/sessions", label: "Sessions", icon: Calendar, color: "text-violet-400" },
+                { key: "forum", href: "/forum", label: "Forum", icon: MessageCircle, color: "text-emerald-400" },
+                ...(session ? [{ key: "test", href: "/test", label: "Test", icon: BookOpen, color: "text-amber-400" }] : []),
+                ...(session ? [{ key: "resources", href: "/resources", label: "Resources", icon: BookOpen, color: "text-purple-400" }] : []),
+                ...(session?.user?.role === "STUDENT"
+                  ? [{ key: "ask", href: "/my-queries?ask=true", label: "Ask Mentor", icon: HelpCircle, color: "text-rose-400" }]
+                  : []),
+                ...(session?.user?.role === "MENTOR"
+                  ? [{ key: "private", href: "/mentor/private-queries", label: "Private Queries", icon: Lock, color: "text-rose-400" }]
+                  : []),
+                ...(session?.user?.role === "ADMIN"
+                  ? [
+                      { key: "users", href: "/dashboard/admin/users", label: "Manage Users", icon: Users, color: "text-cyan-400" },
+                      { key: "admin-sessions", href: "/dashboard/admin/sessions", label: "Manage Sessions", icon: CalendarCheck, color: "text-purple-400" },
+                      { key: "analytics", href: "/dashboard/admin/analytics", label: "Analytics", icon: LineChart, color: "text-emerald-400" },
+                    ]
+                  : []),
+              ];
+
+              return (
+                <>
+                  {items.map((item) => {
+                    const Icon = item.icon;
+                    const delay = delayIndex++ * 65;
+                    return (
+                      <Link
+                        key={item.key}
+                        href={item.href}
+                        style={{ animationDelay: `${delay}ms` }}
+                        className="animate-menu-item-reveal group flex items-center gap-3 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/60 rounded-xl transition-all duration-200"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <Icon className={`w-5 h-5 ${item.color} transition-transform duration-200 group-hover:scale-110`} />
+                        <span>{item.label}</span>
+                      </Link>
+                    );
+                  })}
+
+                  {session ? (
+                    <div className="pt-2 flex flex-col gap-2 border-t border-slate-900/80 mt-1">
+                      {session.user?.role === "STUDENT" && (
+                        <Link
+                          href="/dashboard/student"
+                          style={{ animationDelay: `${delayIndex++ * 65}ms` }}
+                          className="animate-menu-item-reveal group flex items-center gap-3 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/60 rounded-xl transition-all duration-200"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <Gauge className="w-5 h-5 text-sky-400 transition-transform duration-200 group-hover:scale-110" />
+                          <span>Dashboard</span>
+                        </Link>
+                      )}
+                      {session.user?.role === "MENTOR" && (
+                        <Link
+                          href="/dashboard/mentor"
+                          style={{ animationDelay: `${delayIndex++ * 65}ms` }}
+                          className="animate-menu-item-reveal group flex items-center gap-3 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/60 rounded-xl transition-all duration-200"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <BookOpen className="w-5 h-5 text-emerald-400 transition-transform duration-200 group-hover:scale-110" />
+                          <span>Dashboard</span>
+                        </Link>
+                      )}
+                      <Link
+                        href="/profile"
+                        style={{ animationDelay: `${delayIndex++ * 65}ms` }}
+                        className="animate-menu-item-reveal group flex items-center gap-3 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/60 rounded-xl transition-all duration-200"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <div className="w-7 h-7 rounded-full overflow-hidden border border-slate-700 bg-slate-900 shrink-0">
+                          <img src={userAvatar} alt="Profile Avatar" className="w-full h-full object-cover" />
+                        </div>
+                        <span>Profile</span>
+                      </Link>
+                      <button
+                        style={{ animationDelay: `${delayIndex++ * 65}ms` }}
+                        onClick={() => { setMobileMenuOpen(false); signOut({ callbackUrl: "/" }); }}
+                        className="animate-menu-item-reveal group flex items-center gap-3 w-full text-left px-4 py-3 bg-rose-600/10 text-rose-400 rounded-xl hover:bg-rose-600 hover:text-white transition-all duration-200 text-base font-semibold mt-1"
+                      >
+                        <LogOut className="w-5 h-5 text-rose-400 group-hover:text-white transition-colors duration-200" />
+                        <span>Sign Out</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="pt-2 flex flex-col gap-2 border-t border-slate-900/80 mt-1">
+                      <Link
+                        href="/auth/login"
+                        style={{ animationDelay: `${delayIndex++ * 65}ms` }}
+                        className="animate-menu-item-reveal group flex items-center justify-center gap-2 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/60 rounded-xl transition-all duration-200"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <LogIn className="w-5 h-5 text-sky-400 transition-transform duration-200 group-hover:scale-110" />
+                        <span>Sign In</span>
+                      </Link>
+                      <Link
+                        href="/auth/register"
+                        style={{ animationDelay: `${delayIndex++ * 65}ms` }}
+                        className="animate-menu-item-reveal group flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-black bg-white hover:bg-blue-600 hover:text-white transition-all duration-200 text-base font-semibold shadow-md"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <UserPlus className="w-5 h-5 text-blue-600 group-hover:text-white transition-all duration-200" />
+                        <span>Get Started</span>
+                      </Link>
+                    </div>
+                  )}
+                </>
+              );
+            })()}
           </nav>
         )}
       </div>
