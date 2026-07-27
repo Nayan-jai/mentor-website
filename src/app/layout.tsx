@@ -9,8 +9,16 @@ import { Analytics } from "@vercel/analytics/next";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Mentorship Platform",
-  description: "Connect with experienced mentors for your preparation",
+  title: "Mentor Platform | Learning Lab",
+  description: "Connect with experienced mentors and track your study progress",
+  icons: {
+    icon: [
+      { url: "/app-icon.svg", type: "image/svg+xml" },
+      { url: "/app-icon.png", type: "image/png" },
+    ],
+    shortcut: "/app-icon.svg",
+    apple: "/app-icon.png",
+  },
 };
 
 export default function RootLayout({
@@ -21,8 +29,10 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full" suppressHydrationWarning>
       <head>
+        <link rel="icon" href="/app-icon.svg" type="image/svg+xml" />
+        <link rel="icon" href="/app-icon.png" type="image/png" />
         <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#2563eb" />
+        <meta name="theme-color" content="#0b0f19" />
         <link rel="apple-touch-icon" href="/app-icon.png" />
         <script dangerouslySetInnerHTML={{
           __html: `
