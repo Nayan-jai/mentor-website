@@ -278,25 +278,25 @@ export default function DiscussionPage({ params }: { params: { id: string } }) {
   const isPrivate = discussion.isPrivate;
 
   return (
-    <div className="container mx-auto py-8 pt-24 px-2 sm:px-4 md:px-8 lg:px-24">
-      <Card className={`p-4 sm:p-6 mb-8 bg-white text-slate-800 ${isPrivate ? "border-l-8 border-pink-500 bg-pink-50" : "border border-gray-200"}`}>
+    <div className="container mx-auto py-8 pt-24 px-2 sm:px-4 md:px-8 lg:px-24 min-h-screen text-slate-900 dark:text-slate-100 transition-colors duration-300">
+      <Card className={`p-4 sm:p-6 mb-8 ${isPrivate ? "border-l-8 border-pink-500 bg-pink-50 dark:bg-pink-950/40 text-slate-800 dark:text-slate-100" : "border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100"}`}>
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-4">
           {!isEditingDiscussion ? (
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2 mb-2">
-                <h1 className="text-2xl sm:text-3xl font-bold mb-0 break-words truncate max-w-full text-slate-900">{discussion.title}</h1>
+                <h1 className="text-2xl sm:text-3xl font-bold mb-0 break-words truncate max-w-full text-slate-900 dark:text-white">{discussion.title}</h1>
                 {isPrivate && (
-                  <Badge variant="destructive" className="flex items-center gap-1 bg-pink-100 text-pink-700 border-pink-400"><Lock className="w-4 h-4 mr-1" /> Private</Badge>
+                  <Badge variant="destructive" className="flex items-center gap-1 bg-pink-100 dark:bg-pink-950/80 text-pink-700 dark:text-pink-300 border-pink-400"><Lock className="w-4 h-4 mr-1" /> Private</Badge>
                 )}
               </div>
               <div className="flex flex-wrap gap-2 mb-4">
-                <Badge variant="secondary" className="bg-blue-100 text-blue-800 border-blue-200">{discussion.category}</Badge>
+                <Badge variant="secondary" className="bg-blue-100 dark:bg-blue-900/60 text-blue-800 dark:text-blue-200 border-blue-200 dark:border-blue-800">{discussion.category}</Badge>
                 {discussion.tags.map((tag) => (
-                  <Badge key={tag} variant="outline" className="bg-green-100 text-green-800 border-green-200">{tag}</Badge>
+                  <Badge key={tag} variant="outline" className="bg-green-100 dark:bg-emerald-950/60 text-green-800 dark:text-emerald-300 border-green-200 dark:border-emerald-800">{tag}</Badge>
                 ))}
               </div>
               {isPrivate && (
-                <div className="mb-4 p-3 rounded bg-pink-100 border border-pink-200 text-pink-800 flex items-center gap-2">
+                <div className="mb-4 p-3 rounded bg-pink-100 dark:bg-pink-950/60 border border-pink-200 dark:border-pink-900 text-pink-800 dark:text-pink-300 flex items-center gap-2">
                   <Lock className="w-4 h-4 mr-1" />
                   <span className="truncate">Only you and mentors can see this private query and its replies.</span>
                 </div>

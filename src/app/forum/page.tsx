@@ -90,19 +90,19 @@ export default function ForumPage() {
   }
 
   return (
-    <div className="min-h-screen bg-transparent py-12 mt-8 pt-24">
+    <div className="min-h-screen bg-transparent py-12 mt-8 pt-24 text-slate-900 dark:text-slate-100 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-100 mb-4">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
             Community Forum
           </h1>
-          <p className="text-lg text-gray-300 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-600 dark:text-slate-300 max-w-2xl mx-auto">
             Join the conversation, share your knowledge, and learn from others in
             our vibrant community.
           </p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-xl p-6 mb-8">
+        <div className="bg-white dark:bg-slate-900/90 dark:border dark:border-slate-800 rounded-2xl shadow-xl p-6 mb-8 backdrop-blur-md">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             <div className="md:col-span-2">
               <Input
@@ -110,7 +110,7 @@ export default function ForumPage() {
                 placeholder="Search discussions..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full"
+                className="w-full bg-slate-50 dark:bg-slate-800 dark:text-white dark:border-slate-700 dark:placeholder-slate-400"
               />
             </div>
             <div>
@@ -118,10 +118,10 @@ export default function ForumPage() {
                 value={selectedCategory}
                 onValueChange={setSelectedCategory}
               >
-                <SelectTrigger>
+                <SelectTrigger className="bg-slate-50 dark:bg-slate-800 dark:text-white dark:border-slate-700">
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white dark:bg-slate-800 dark:text-white dark:border-slate-700">
                   <SelectItem value="all">All Categories</SelectItem>
                   <SelectItem value="GS Discussions">GS Discussions</SelectItem>
                   <SelectItem value="Prelims">Prelims</SelectItem>
@@ -137,7 +137,7 @@ export default function ForumPage() {
               />
               <label
                 htmlFor="sticky-only"
-                className="text-sm font-medium text-gray-700"
+                className="text-sm font-medium text-gray-700 dark:text-slate-300"
               >
                 Sticky Only
               </label>
@@ -157,9 +157,9 @@ export default function ForumPage() {
 
           <div className="space-y-4">
             {loading ? (
-              <div className="text-center text-gray-500">Loading discussions...</div>
+              <div className="text-center text-gray-500 dark:text-slate-400 py-8">Loading discussions...</div>
             ) : publicDiscussions.length === 0 ? (
-              <div className="text-center text-gray-500">No discussions found.</div>
+              <div className="text-center text-gray-500 dark:text-slate-400 py-8">No discussions found.</div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {publicDiscussions.map((discussion) => {
@@ -174,29 +174,29 @@ export default function ForumPage() {
                       style={{ textDecoration: 'none' }}
                     >
                       <Card
-                        className={`cursor-pointer w-full h-full p-4 sm:p-6 rounded-xl group-hover:shadow-2xl hover:shadow-xl transition-shadow duration-200 border-l-4 ${isNew ? "border-blue-500 bg-blue-50 text-gray-900" : "border-blue-400 bg-white text-gray-900"} flex flex-col relative`}
+                        className={`cursor-pointer w-full h-full p-4 sm:p-6 rounded-xl group-hover:shadow-2xl hover:shadow-xl transition-shadow duration-200 border-l-4 ${isNew ? "border-blue-500 bg-blue-50 dark:bg-blue-950/40 text-gray-900 dark:text-white" : "border-blue-400 bg-white dark:bg-slate-900 text-gray-900 dark:text-white dark:border-slate-800"} flex flex-col relative`}
                       >
                         {isNew ? (
                           <span className="absolute top-2 right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded">New</span>
                         ) : (
-                          <span className="absolute top-2 right-2 bg-gray-300 text-gray-700 text-xs px-2 py-1 rounded">Viewed</span>
+                          <span className="absolute top-2 right-2 bg-gray-300 dark:bg-slate-800 text-gray-700 dark:text-slate-300 text-xs px-2 py-1 rounded">Viewed</span>
                         )}
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex flex-col sm:flex-row sm:items-center gap-2 flex-1 min-w-0">
                             {discussion.isSticky && (
-                              <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 whitespace-nowrap">
+                              <Badge variant="secondary" className="bg-yellow-100 dark:bg-amber-950/60 text-yellow-800 dark:text-amber-200 whitespace-nowrap">
                                 <i className="fas fa-thumbtack mr-1"></i>
                                 Sticky
                               </Badge>
                             )}
-                            <span className="text-lg sm:text-xl font-semibold text-gray-900 truncate">{discussion.title}</span>
-                            <Badge variant="secondary" className="bg-blue-100 text-blue-800 whitespace-nowrap">{discussion.category}</Badge>
+                            <span className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white truncate">{discussion.title}</span>
+                            <Badge variant="secondary" className="bg-blue-100 dark:bg-blue-900/60 text-blue-800 dark:text-blue-200 whitespace-nowrap">{discussion.category}</Badge>
                             {discussion.isArchived && (
-                              <Badge variant="secondary" className="bg-gray-200 text-gray-700 ml-2 whitespace-nowrap">Archived</Badge>
+                              <Badge variant="secondary" className="bg-gray-200 dark:bg-slate-800 text-gray-700 dark:text-slate-300 ml-2 whitespace-nowrap">Archived</Badge>
                             )}
                           </div>
                         </div>
-                        <div className="block text-gray-700 group-hover:text-blue-600 transition-colors duration-200 mb-2">
+                        <div className="block text-gray-700 dark:text-slate-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200 mb-2">
                           <span className="line-clamp-2 text-base">{discussion.content?.slice(0, 120)}{discussion.content?.length > 120 ? "..." : ""}</span>
                         </div>
                         <div className="flex flex-wrap gap-2 mb-2">
@@ -204,13 +204,13 @@ export default function ForumPage() {
                             <Badge
                               key={tag}
                               variant="outline"
-                              className="bg-gray-100 text-gray-600"
+                              className="bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-300 border-slate-200 dark:border-slate-700"
                             >
                               #{tag}
                             </Badge>
                           ))}
                         </div>
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs text-gray-500 mt-2 gap-1 mt-auto">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs text-gray-500 dark:text-slate-400 mt-2 gap-1 mt-auto">
                           <div className="flex items-center gap-2">
                             <i className="fas fa-user mr-1"></i>
                             {discussion.author?.name || "Unknown"}

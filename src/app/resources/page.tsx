@@ -359,16 +359,16 @@ export default function ResourcesPage() {
   if (!session) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-indigo-50/30 pt-24 pb-12">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-indigo-50/30 dark:from-slate-950 dark:to-slate-900 pt-24 pb-12 text-slate-900 dark:text-slate-100 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
           <div className="text-center sm:text-left">
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">
               Curated Resources
             </h1>
-            <p className="mt-2 text-lg text-gray-600">
+            <p className="mt-2 text-lg text-gray-600 dark:text-slate-400">
               Access and upload high-quality PDF study materials shared by mentors and students.
             </p>
           </div>
@@ -380,7 +380,7 @@ export default function ResourcesPage() {
                 setFolderNameInput("");
                 setShowFolderModal(true);
               }}
-              className="mx-auto sm:mx-0 flex items-center gap-2 px-4 py-2.5 bg-white hover:bg-slate-50 text-indigo-700 hover:text-indigo-800 text-sm font-semibold rounded-xl border border-indigo-200 transition-colors shadow-sm shrink-0"
+              className="mx-auto sm:mx-0 flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-indigo-700 dark:text-indigo-400 text-sm font-semibold rounded-xl border border-indigo-200 dark:border-slate-800 transition-colors shadow-sm shrink-0"
             >
               <FolderPlus className="w-4 h-4" />
               New Folder
@@ -390,20 +390,20 @@ export default function ResourcesPage() {
 
         {/* Notifications */}
         {errorMsg && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3 text-red-700 animate-fade-in shadow-sm">
+          <div className="mb-6 p-4 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-900 rounded-xl flex items-center gap-3 text-red-700 dark:text-red-300 animate-fade-in shadow-sm">
             <AlertCircle className="w-5 h-5 shrink-0" />
             <p className="text-sm font-medium">{errorMsg}</p>
-            <button className="ml-auto text-red-500 hover:text-red-700" onClick={() => setErrorMsg(null)}>
+            <button className="ml-auto text-red-500 hover:text-red-700 dark:hover:text-red-300" onClick={() => setErrorMsg(null)}>
               <X className="w-4 h-4" />
             </button>
           </div>
         )}
 
         {successMsg && (
-          <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-3 text-emerald-800 animate-fade-in shadow-sm">
+          <div className="mb-6 p-4 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-900 rounded-xl flex items-center gap-3 text-emerald-800 dark:text-emerald-300 animate-fade-in shadow-sm">
             <CheckCircle className="w-5 h-5 shrink-0" />
             <p className="text-sm font-medium">{successMsg}</p>
-            <button className="ml-auto text-emerald-500 hover:text-emerald-700" onClick={() => setSuccessMsg(null)}>
+            <button className="ml-auto text-emerald-500 hover:text-emerald-700 dark:hover:text-emerald-300" onClick={() => setSuccessMsg(null)}>
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -413,8 +413,8 @@ export default function ResourcesPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
           
           {/* ── LEFT: Upload Container ──────────────── */}
-          <div className="lg:col-span-1 bg-white p-6 rounded-2xl shadow-md border border-gray-100 lg:sticky lg:top-24">
-            <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <div className="lg:col-span-1 bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-md border border-gray-100 dark:border-slate-800 lg:sticky lg:top-24">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
               <UploadCloud className="w-5 h-5 text-indigo-500" /> Share Resource
             </h2>
 
@@ -425,14 +425,14 @@ export default function ResourcesPage() {
               const usagePercentage = Math.min((totalUsedBytes / limitBytes) * 100, 100);
 
               return (
-                <div className="mb-5 p-3.5 bg-gray-50 rounded-xl border border-gray-100">
+                <div className="mb-5 p-3.5 bg-gray-50 dark:bg-slate-800/60 rounded-xl border border-gray-100 dark:border-slate-700">
                   <div className="flex justify-between items-center text-xs mb-1.5">
-                    <span className="text-gray-600 font-medium">Storage Space</span>
-                    <span className="text-gray-900 font-bold">
+                    <span className="text-gray-600 dark:text-slate-400 font-medium">Storage Space</span>
+                    <span className="text-gray-900 dark:text-white font-bold">
                       {formatBytes(totalUsedBytes)} of 1 GB
                     </span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                  <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
                     <div
                       className={`h-full rounded-full transition-all duration-500 ${
                         usagePercentage > 90
@@ -573,33 +573,33 @@ export default function ResourcesPage() {
           <div className="lg:col-span-2 space-y-6">
             
             {/* Search Box & Breadcrumbs */}
-            <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+            <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 space-y-4">
               {/* Breadcrumb Navigation */}
-              <div className="flex items-center gap-1.5 flex-wrap text-sm text-gray-600 font-semibold">
+              <div className="flex items-center gap-1.5 flex-wrap text-sm text-gray-600 dark:text-slate-400 font-semibold">
                 <button
                   onClick={() => setActiveFolderId(null)}
-                  className={`hover:text-indigo-600 transition-colors ${
-                    activeFolderId === null ? "text-indigo-600 font-bold" : ""
+                  className={`hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors ${
+                    activeFolderId === null ? "text-indigo-600 dark:text-indigo-400 font-bold" : ""
                   }`}
                 >
                   📁 All Resources
                 </button>
                 {activeFolder && (
                   <>
-                    <ChevronRight className="w-4 h-4 text-gray-400" />
-                    <span className="text-gray-900 font-bold">📂 {activeFolder.name}</span>
+                    <ChevronRight className="w-4 h-4 text-gray-400 dark:text-slate-600" />
+                    <span className="text-gray-900 dark:text-white font-bold">📂 {activeFolder.name}</span>
                   </>
                 )}
               </div>
 
               <div className="relative w-full">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-slate-500" />
                 <input
                   type="text"
                   placeholder={activeFolder ? `Search inside ${activeFolder.name}...` : "Search all resources..."}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm shadow-inner"
+                  className="w-full pl-9 pr-4 py-2 border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm shadow-inner"
                 />
               </div>
             </div>
@@ -607,26 +607,26 @@ export default function ResourcesPage() {
             {/* Folders List (only rendered at root level) */}
             {activeFolderId === null && folders.length > 0 && (
               <div className="space-y-3">
-                <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Folders</h2>
+                <h2 className="text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wider">Folders</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {folders.map((folder) => (
                     <div
                       key={folder.id}
                       onClick={() => setActiveFolderId(folder.id)}
-                      className="bg-white p-4.5 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:border-indigo-100 transition-all flex items-center justify-between group cursor-pointer"
+                      className="bg-white dark:bg-slate-900 p-4.5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm hover:shadow-md hover:border-indigo-100 dark:hover:border-indigo-900 transition-all flex items-center justify-between group cursor-pointer"
                     >
                       <div className="flex items-center gap-3 shrink min-w-0">
-                        <div className="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl">
+                        <div className="p-2.5 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 rounded-xl">
                           <Folder className="w-5 h-5" />
                         </div>
                         <div className="min-w-0">
-                          <h3 className="font-bold text-gray-900 text-sm truncate">{folder.name}</h3>
-                          <p className="text-xs text-gray-500 mt-0.5">{folder._count?.resources || 0} PDFs</p>
+                          <h3 className="font-bold text-gray-900 dark:text-white text-sm truncate">{folder.name}</h3>
+                          <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">{folder._count?.resources || 0} PDFs</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0" onClick={(e) => e.stopPropagation()}>
                         <button
-                          className="p-1 text-gray-400 hover:text-indigo-600 hover:bg-gray-50 rounded"
+                          className="p-1 text-gray-400 hover:text-indigo-600 hover:bg-gray-50 dark:hover:bg-slate-800 rounded"
                           onClick={() => {
                             setEditingFolder(folder);
                             setFolderNameInput(folder.name);
@@ -637,7 +637,7 @@ export default function ResourcesPage() {
                           <Edit3 className="w-3.5 h-3.5" />
                         </button>
                         <button
-                          className="p-1 text-gray-400 hover:text-red-600 hover:bg-gray-50 rounded"
+                          className="p-1 text-gray-400 hover:text-red-600 hover:bg-gray-50 dark:hover:bg-slate-800 rounded"
                           onClick={() => handleDeleteFolder(folder.id, folder.name)}
                           title="Delete Folder"
                         >
@@ -652,8 +652,8 @@ export default function ResourcesPage() {
 
             {/* Folder Actions header inside folders */}
             {activeFolder && (
-              <div className="flex items-center justify-between bg-white px-5 py-3 rounded-xl border border-gray-100 shadow-sm">
-                <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Folder Tools</span>
+              <div className="flex items-center justify-between bg-white dark:bg-slate-900 px-5 py-3 rounded-xl border border-gray-100 dark:border-slate-800 shadow-sm">
+                <span className="text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wider">Folder Tools</span>
                 <div className="flex gap-2">
                   <button
                     onClick={() => {
@@ -661,13 +661,13 @@ export default function ResourcesPage() {
                       setFolderNameInput(activeFolder.name);
                       setShowFolderModal(true);
                     }}
-                    className="flex items-center gap-1 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg transition-colors border border-indigo-100"
+                    className="flex items-center gap-1 px-3 py-1.5 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 text-xs font-semibold rounded-lg transition-colors border border-indigo-100 dark:border-indigo-900"
                   >
                     <Edit3 className="w-3.5 h-3.5" /> Rename
                   </button>
                   <button
                     onClick={() => handleDeleteFolder(activeFolder.id, activeFolder.name)}
-                    className="flex items-center gap-1 px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-semibold rounded-lg transition-colors border border-red-100"
+                    className="flex items-center gap-1 px-3 py-1.5 bg-red-50 dark:bg-red-950/60 hover:bg-red-100 dark:hover:bg-red-900 text-red-700 dark:text-red-300 text-xs font-semibold rounded-lg transition-colors border border-red-100 dark:border-red-900"
                   >
                     <Trash2 className="w-3.5 h-3.5" /> Delete Folder
                   </button>
@@ -677,13 +677,13 @@ export default function ResourcesPage() {
 
             {/* Resources List */}
             <div className="space-y-3">
-              <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              <h2 className="text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                 {activeFolder ? `Files in ${activeFolder.name}` : "Files (Root Level)"}
               </h2>
               {loading ? (
                 <div className="flex flex-col items-center py-12">
                   <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
-                  <p className="text-sm text-gray-500 mt-2">Loading materials...</p>
+                  <p className="text-sm text-gray-500 dark:text-slate-400 mt-2">Loading materials...</p>
                 </div>
               ) : filteredResources.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -695,32 +695,32 @@ export default function ResourcesPage() {
                     return (
                       <div
                         key={resource.id}
-                        className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow flex flex-col justify-between"
+                        className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 hover:shadow-md transition-shadow flex flex-col justify-between"
                       >
                         <div>
                           <div className="flex justify-between items-start gap-2 mb-3">
-                            <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-600">
+                            <div className="p-2.5 bg-indigo-50 dark:bg-indigo-950/60 rounded-xl text-indigo-600 dark:text-indigo-400">
                               <FileText className="w-5 h-5" />
                             </div>
                             
                             <span
                               className={`px-2.5 py-0.5 text-[10px] font-bold rounded-full ${
                                 resource.uploaderRole === "MENTOR"
-                                  ? "bg-indigo-100 text-indigo-800"
+                                  ? "bg-indigo-100 dark:bg-indigo-950/80 text-indigo-800 dark:text-indigo-300"
                                   : resource.uploaderRole === "ADMIN"
-                                  ? "bg-rose-100 text-rose-800"
-                                  : "bg-emerald-100 text-emerald-800"
+                                  ? "bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300"
+                                  : "bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300"
                               }`}
                             >
                               {resource.uploaderRole}
                             </span>
                           </div>
 
-                          <h3 className="font-semibold text-gray-900 text-sm leading-snug line-clamp-2" title={resource.title}>
+                          <h3 className="font-semibold text-gray-900 dark:text-white text-sm leading-snug line-clamp-2" title={resource.title}>
                             {resource.title}
                           </h3>
 
-                          <div className="mt-2 text-xs text-gray-500 flex flex-col gap-1">
+                          <div className="mt-2 text-xs text-gray-500 dark:text-slate-400 flex flex-col gap-1">
                             <p>Size: {formatBytes(resource.fileSize)}</p>
                             <p className="truncate">
                               By: {resource.uploadedBy.name || resource.uploadedBy.email}
@@ -735,7 +735,7 @@ export default function ResourcesPage() {
                           </div>
                         </div>
 
-                        <div className="mt-5 pt-4 border-t border-gray-50 flex items-center justify-between gap-2">
+                        <div className="mt-5 pt-4 border-t border-gray-50 dark:border-slate-800 flex items-center justify-between gap-2">
                           <button
                             onClick={() => setPreviewResource(resource)}
                             className="flex items-center gap-1 px-3 py-1.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 text-xs font-semibold rounded-lg transition-colors"

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   GraduationCap,
   Home,
@@ -10,7 +10,6 @@ import {
   MessageCircle,
   BookOpen,
   HelpCircle,
-  Inbox,
   Lock,
   Users,
   CalendarCheck,
@@ -20,11 +19,29 @@ import {
   LogIn,
   UserPlus,
   Menu,
+  User,
 } from "lucide-react";
 
 export default function Navbar() {
   const { data: session } = useSession();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [dbAvatar, setDbAvatar] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (session?.user) {
+      fetch("/api/user/profile")
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (data?.image) setDbAvatar(data.image);
+        })
+        .catch(() => {});
+    }
+  }, [session]);
+
+  const userAvatar =
+    dbAvatar ||
+    session?.user?.image ||
+    `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(session?.user?.name || "User")}`;
 
   return (
     <nav suppressHydrationWarning className="w-full bg-gradient-to-br from-gray-900/90 to-indigo-950/90 text-white shadow-lg border-b border-indigo-950 z-50 backdrop-blur-md sticky top-0">
@@ -58,23 +75,20 @@ export default function Navbar() {
             <Link href="/forum" className="group nav-link flex items-center gap-2 px-3 py-1.5 text-sm lg:text-base font-semibold tracking-wide">
               <MessageCircle className="w-4 h-4 text-emerald-400 transition-transform duration-200 group-hover:scale-110" /> Forum
             </Link>
-            <Link href="/test" className="group nav-link flex items-center gap-2 px-3 py-1.5 text-sm lg:text-base font-semibold tracking-wide">
-              <BookOpen className="w-4 h-4 text-amber-400 transition-transform duration-200 group-hover:scale-110" /> Test
-            </Link>
+            {session && (
+              <Link href="/test" className="group nav-link flex items-center gap-2 px-3 py-1.5 text-sm lg:text-base font-semibold tracking-wide">
+                <BookOpen className="w-4 h-4 text-amber-400 transition-transform duration-200 group-hover:scale-110" /> Test
+              </Link>
+            )}
             {session && (
               <Link href="/resources" className="group nav-link flex items-center gap-2 px-3 py-1.5 text-sm lg:text-base font-semibold tracking-wide">
                 <BookOpen className="w-4 h-4 text-purple-400 transition-transform duration-200 group-hover:scale-110" /> Resources
               </Link>
             )}
             {session?.user?.role === "STUDENT" && (
-              <>
-                <Link href="/ask-mentor" className="group nav-link flex items-center gap-2 px-3 py-1.5 text-sm lg:text-base font-semibold tracking-wide">
-                  <HelpCircle className="w-4 h-4 text-rose-400 transition-transform duration-200 group-hover:scale-110" /> Ask Mentor
-                </Link>
-                <Link href="/my-queries" className="group nav-link flex items-center gap-2 px-3 py-1.5 text-sm lg:text-base font-semibold tracking-wide">
-                  <Inbox className="w-4 h-4 text-indigo-400 transition-transform duration-200 group-hover:scale-110" /> My Queries
-                </Link>
-              </>
+              <Link href="/my-queries?ask=true" className="group nav-link flex items-center gap-2 px-3 py-1.5 text-sm lg:text-base font-semibold tracking-wide">
+                <HelpCircle className="w-4 h-4 text-rose-400 transition-transform duration-200 group-hover:scale-110" /> Ask Mentor
+              </Link>
             )}
             {session?.user?.role === "MENTOR" && (
               <Link href="/mentor/private-queries" className="group nav-link flex items-center gap-2 px-3 py-1.5 text-sm lg:text-base font-semibold tracking-wide">
@@ -106,6 +120,22 @@ export default function Navbar() {
                     <BookOpen className="w-4 h-4 text-emerald-400 transition-transform duration-200 group-hover:scale-110" /> Dashboard
                   </Link>
                 )}
+
+                {/* Profile Avatar after Dashboard */}
+                <Link
+                  href="/profile"
+                  className="group relative flex items-center justify-center p-0.5 rounded-full hover:ring-2 hover:ring-blue-400 transition-all duration-200"
+                  title="View Profile"
+                >
+                  <div className="w-8 h-8 rounded-full overflow-hidden border border-slate-700 bg-slate-900 shadow-sm group-hover:scale-105 transition-transform duration-200">
+                    <img
+                      src={userAvatar}
+                      alt={session.user?.name || "Profile"}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </Link>
+
                 <button
                   onClick={() => signOut({ callbackUrl: "/" })}
                   className="group flex items-center gap-2 px-3 py-1.5 rounded-lg text-white bg-indigo-900/40 hover:bg-rose-600 border border-indigo-800/80 hover:border-rose-500 transition-all duration-300 text-sm lg:text-base font-semibold tracking-wide shadow-sm"
@@ -125,6 +155,7 @@ export default function Navbar() {
             )}
           </nav>
         </div>
+
         {/* Mobile Menu */}
         {mobileMenuOpen && (
           <nav className="lg:hidden flex flex-col bg-slate-950/95 text-white border-t border-slate-900/80 backdrop-blur-md shadow-2xl rounded-b-xl px-4 pt-2 pb-6 space-y-1.5 animate-fade-in absolute left-0 right-0 top-16 z-50">
@@ -139,23 +170,20 @@ export default function Navbar() {
             <Link href="/forum" className="group flex items-center gap-2 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/50 rounded-lg transition-all duration-200" onClick={() => setMobileMenuOpen(false)}>
               <MessageCircle className="w-5 h-5 text-emerald-400 transition-transform duration-200 group-hover:scale-110" /> Forum
             </Link>
-            <Link href="/test" className="group flex items-center gap-2 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/50 rounded-lg transition-all duration-200" onClick={() => setMobileMenuOpen(false)}>
-              <BookOpen className="w-5 h-5 text-amber-400 transition-transform duration-200 group-hover:scale-110" /> Test
-            </Link>
+            {session && (
+              <Link href="/test" className="group flex items-center gap-2 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/50 rounded-lg transition-all duration-200" onClick={() => setMobileMenuOpen(false)}>
+                <BookOpen className="w-5 h-5 text-amber-400 transition-transform duration-200 group-hover:scale-110" /> Test
+              </Link>
+            )}
             {session && (
               <Link href="/resources" className="group flex items-center gap-2 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/50 rounded-lg transition-all duration-200" onClick={() => setMobileMenuOpen(false)}>
                 <BookOpen className="w-5 h-5 text-purple-400 transition-transform duration-200 group-hover:scale-110" /> Resources
               </Link>
             )}
             {session?.user?.role === "STUDENT" && (
-              <>
-                <Link href="/ask-mentor" className="group flex items-center gap-2 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/50 rounded-lg transition-all duration-200" onClick={() => setMobileMenuOpen(false)}>
-                  <HelpCircle className="w-5 h-5 text-rose-400 transition-transform duration-200 group-hover:scale-110" /> Ask Mentor
-                </Link>
-                <Link href="/my-queries" className="group flex items-center gap-2 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/50 rounded-lg transition-all duration-200" onClick={() => setMobileMenuOpen(false)}>
-                  <Inbox className="w-5 h-5 text-indigo-400 transition-transform duration-200 group-hover:scale-110" /> My Queries
-                </Link>
-              </>
+              <Link href="/my-queries?ask=true" className="group flex items-center gap-2 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/50 rounded-lg transition-all duration-200" onClick={() => setMobileMenuOpen(false)}>
+                <HelpCircle className="w-5 h-5 text-rose-400 transition-transform duration-200 group-hover:scale-110" /> Ask Mentor
+              </Link>
             )}
             {session?.user?.role === "MENTOR" && (
               <Link href="/mentor/private-queries" className="group flex items-center gap-2 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/50 rounded-lg transition-all duration-200" onClick={() => setMobileMenuOpen(false)}>
@@ -187,6 +215,12 @@ export default function Navbar() {
                     <BookOpen className="w-5 h-5 text-emerald-400 transition-transform duration-200 group-hover:scale-110" /> Dashboard
                   </Link>
                 )}
+                <Link href="/profile" className="group flex items-center gap-3 px-4 py-2.5 text-base font-semibold text-slate-200 hover:text-white hover:bg-indigo-950/50 rounded-lg transition-all duration-200" onClick={() => setMobileMenuOpen(false)}>
+                  <div className="w-7 h-7 rounded-full overflow-hidden border border-slate-700 bg-slate-900 shrink-0">
+                    <img src={userAvatar} alt="Profile Avatar" className="w-full h-full object-cover" />
+                  </div>
+                  <span>Profile</span>
+                </Link>
                 <button
                   onClick={() => { setMobileMenuOpen(false); signOut({ callbackUrl: "/" }); }}
                   className="group flex items-center gap-2 w-full text-left px-4 py-3 bg-rose-600/10 text-rose-400 rounded-lg hover:bg-rose-600 hover:text-white transition-all duration-200 text-base font-semibold"

@@ -52,16 +52,16 @@ export default function NewDiscussionPage() {
 
   if (!session) {
     return (
-      <div className="flex min-h-screen w-full items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4 pt-24">
-        <Card className="max-w-md w-full shadow-2xl border-0 bg-white/80 backdrop-blur-sm">
+      <div className="flex min-h-screen w-full items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 p-4 pt-24 text-slate-900 dark:text-white transition-colors duration-300">
+        <Card className="max-w-md w-full shadow-2xl border border-gray-100 dark:border-slate-800 bg-white/80 dark:bg-slate-900/90 backdrop-blur-sm">
           <CardHeader className="items-center text-center pb-4">
-            <div className="bg-gradient-to-br from-blue-100 to-indigo-200 p-6 rounded-full mb-6 shadow-lg">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="bg-gradient-to-br from-blue-100 to-indigo-200 dark:from-blue-950 dark:to-indigo-900 p-6 rounded-full mb-6 shadow-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
             </div>
-            <CardTitle className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent">Sign in Required</CardTitle>
-            <CardDescription className="text-lg mt-2">Please sign in to create a new discussion.</CardDescription>
+            <CardTitle className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-700 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">Sign in Required</CardTitle>
+            <CardDescription className="text-lg mt-2 dark:text-slate-400">Please sign in to create a new discussion.</CardDescription>
           </CardHeader>
           <CardFooter className="justify-center">
             <Button
@@ -80,25 +80,25 @@ export default function NewDiscussionPage() {
   }
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4 pt-24">
-      <Card className="w-full max-w-5xl shadow-2xl border-0 bg-white/90 backdrop-blur-sm">
+    <div className="flex min-h-screen w-full items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 p-4 pt-24 text-slate-900 dark:text-white transition-colors duration-300">
+      <Card className="w-full max-w-5xl shadow-2xl border border-gray-100 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm">
         <CardHeader className="text-center pb-8">
           <div className="flex items-center justify-center mb-4">
-            <div className="bg-gradient-to-br from-blue-100 to-indigo-200 p-4 rounded-full mr-4 shadow-lg">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="bg-gradient-to-br from-blue-100 to-indigo-200 dark:from-blue-950 dark:to-indigo-900 p-4 rounded-full mr-4 shadow-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
             </div>
-            <CardTitle className="text-4xl font-bold text-slate-900">Create New Discussion</CardTitle>
+            <CardTitle className="text-4xl font-bold text-slate-900 dark:text-white">Create New Discussion</CardTitle>
           </div>
-          <CardDescription className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <CardDescription className="text-xl text-gray-600 dark:text-slate-400 max-w-2xl mx-auto">
             Share your thoughts, ask questions, and engage with the community. Your voice matters!
           </CardDescription>
         </CardHeader>
         
         <CardContent className="px-8">
           {error && (
-            <div className="bg-gradient-to-r from-red-50 to-red-100 border-l-4 border-red-500 text-red-700 p-6 rounded-lg mb-8 shadow-md" role="alert">
+            <div className="bg-gradient-to-r from-red-50 to-red-100 dark:from-red-950/60 dark:to-red-900/40 border-l-4 border-red-500 text-red-700 dark:text-red-300 p-6 rounded-lg mb-8 shadow-md" role="alert">
               <div className="flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -113,8 +113,8 @@ export default function NewDiscussionPage() {
 
           <form onSubmit={handleSubmit} className="space-y-8">
             <div className="space-y-3">
-              <Label htmlFor="title" className="text-lg font-semibold text-gray-700 flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <Label htmlFor="title" className="text-lg font-semibold text-gray-700 dark:text-slate-200 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                 </svg>
                 Discussion Title
@@ -124,9 +124,9 @@ export default function NewDiscussionPage() {
                 name="title"
                 placeholder="Enter a descriptive and engaging title for your discussion"
                 required
-                className="h-12 text-lg border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200"
+                className="h-12 text-lg border-2 border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/40 transition-all duration-200"
               />
-              <p className="text-sm text-gray-500 flex items-center">
+              <p className="text-sm text-gray-500 dark:text-slate-400 flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -135,23 +135,23 @@ export default function NewDiscussionPage() {
             </div>
 
             <div className="space-y-3">
-              <Label htmlFor="category" className="text-lg font-semibold text-gray-700 flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <Label htmlFor="category" className="text-lg font-semibold text-gray-700 dark:text-slate-200 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                 </svg>
                 Category
               </Label>
               <Select name="category" required>
-                <SelectTrigger className="h-12 text-lg border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 bg-white">
+                <SelectTrigger className="h-12 text-lg border-2 border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/40 transition-all duration-200">
                   <SelectValue placeholder="Select the most appropriate category" />
                 </SelectTrigger>
-                <SelectContent className="bg-white">
+                <SelectContent className="bg-white dark:bg-slate-800 dark:text-white dark:border-slate-700">
                   <SelectItem value="GS Discussions">GS Discussions</SelectItem>
                   <SelectItem value="Prelims">Prelims</SelectItem>
                   <SelectItem value="Mains">Mains</SelectItem>
                 </SelectContent>
               </Select>
-              <p className="text-sm text-gray-500 flex items-center">
+              <p className="text-sm text-gray-500 dark:text-slate-400 flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -160,8 +160,8 @@ export default function NewDiscussionPage() {
             </div>
 
             <div className="space-y-3">
-              <Label htmlFor="content" className="text-lg font-semibold text-gray-700 flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <Label htmlFor="content" className="text-lg font-semibold text-gray-700 dark:text-slate-200 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
                 Discussion Content
@@ -172,9 +172,9 @@ export default function NewDiscussionPage() {
                 placeholder="Write your discussion content here. Be detailed and clear about your question or topic..."
                 required
                 rows={8}
-                className="text-lg border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 resize-none"
+                className="text-lg border-2 border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/40 transition-all duration-200 resize-none"
               />
-              <p className="text-sm text-gray-500 flex items-center">
+              <p className="text-sm text-gray-500 dark:text-slate-400 flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -183,8 +183,8 @@ export default function NewDiscussionPage() {
             </div>
 
             <div className="space-y-3">
-              <Label htmlFor="tags" className="text-lg font-semibold text-gray-700 flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <Label htmlFor="tags" className="text-lg font-semibold text-gray-700 dark:text-slate-200 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                 </svg>
                 Tags
@@ -193,9 +193,9 @@ export default function NewDiscussionPage() {
                 id="tags"
                 name="tags"
                 placeholder="Enter relevant tags separated by commas (e.g., programming, react, javascript)"
-                className="h-12 text-lg border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200"
+                className="h-12 text-lg border-2 border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/40 transition-all duration-200"
               />
-              <p className="text-sm text-gray-500 flex items-center">
+              <p className="text-sm text-gray-500 dark:text-slate-400 flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>

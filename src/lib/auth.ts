@@ -57,6 +57,7 @@ export const authOptions: NextAuthOptions = {
             id: true,
             email: true,
             name: true,
+            image: true,
             password: true,
             role: true,
             deleted: true,
@@ -81,6 +82,7 @@ export const authOptions: NextAuthOptions = {
           id: user.id,
           email: user.email,
           name: user.name || "",
+          image: user.image || "",
           role: user.role,
         };
       },
@@ -95,10 +97,15 @@ export const authOptions: NextAuthOptions = {
     error: "/auth/error",
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id;
         token.role = user.role;
+        token.image = (user as any).image;
+      }
+      if (trigger === "update" && session?.user) {
+        if (session.user.image !== undefined) token.image = session.user.image;
+        if (session.user.name !== undefined) token.name = session.user.name;
       }
       return token;
     },
@@ -106,6 +113,7 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         session.user.id = token.id;
         session.user.role = token.role;
+        session.user.image = (token.image || token.picture) as string;
       }
       return session;
     },

@@ -69,19 +69,19 @@ function LoginPage() {
   const message = searchParams?.get("message");
   if (message) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50">
-        <div className="w-full max-w-md p-4">
-          <div className="bg-white rounded-2xl shadow-xl p-8">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300 p-4">
+        <div className="w-full max-w-md">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl p-8">
             <div className="text-center">
-              <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-                <div className="flex items-center text-green-600">
+              <div className="mb-6 p-4 bg-green-50 dark:bg-emerald-950/60 border border-green-200 dark:border-emerald-900/60 rounded-lg">
+                <div className="flex items-center text-green-600 dark:text-emerald-400">
                   <i className="fas fa-check-circle mr-2"></i>
                   <p className="text-sm font-medium">{message}</p>
                 </div>
               </div>
               <button
                 onClick={() => router.push("/auth/login")}
-                className="text-blue-600 hover:text-blue-500 font-medium"
+                className="text-blue-600 dark:text-blue-400 hover:text-blue-500 font-medium text-sm"
               >
                 Return to login
               </button>
@@ -94,7 +94,7 @@ function LoginPage() {
 
   if (status === "loading") {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center dark:bg-slate-950 dark:text-white">
         <div className="flex justify-center items-center">
           <div aria-label="Orange and tan hamster running in a metal wheel" role="img" className="wheel-and-hamster">
             <div className="wheel"></div>
@@ -120,24 +120,24 @@ function LoginPage() {
   }
 
   return (
-    <div className="w-screen min-h-screen flex flex-col bg-gradient-to-br from-blue-50 to-indigo-50 p-0 m-0">
+    <div className="w-screen min-h-screen flex flex-col bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300 p-0 m-0">
       <div className="flex-1 flex flex-col justify-center md:justify-start">
         <div className="w-full flex justify-center">
-          <div className="bg-white rounded-2xl shadow-xl w-full p-8 sm:p-16 flex flex-col lg:flex-row min-h-[480px] max-w-6xl mx-auto my-8 lg:my-12" style={{maxHeight: 'calc(100vh - 64px)'}}>
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl w-full p-8 sm:p-16 flex flex-col lg:flex-row min-h-[480px] max-w-6xl mx-auto my-8 lg:my-12" style={{maxHeight: 'calc(100vh - 64px)'}}>
             {/* Left: Form */}
             <div className="flex-1 flex flex-col justify-center min-h-0">
               <div className="text-center mb-8 lg:mt-8">
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-2">
                   Welcome Back
                 </h1>
-                <p className="text-gray-600">
+                <p className="text-gray-600 dark:text-slate-400 text-sm">
                   Sign in to continue your mentoring journey
                 </p>
               </div>
 
               {error && (
-                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                  <div className="flex items-center text-red-600">
+                <div className="mb-6 p-4 bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-900/60 rounded-xl">
+                  <div className="flex items-center text-red-600 dark:text-red-400">
                     <i className="fas fa-exclamation-circle mr-2"></i>
                     <p className="text-sm font-medium">{error}</p>
                   </div>
@@ -146,23 +146,23 @@ function LoginPage() {
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <Label htmlFor="email">Email Address</Label>
+                  <Label htmlFor="email" className="text-gray-700 dark:text-slate-200 font-semibold text-sm">Email Address</Label>
                   <Input
                     id="email"
                     name="email"
                     type="email"
                     required
-                    className="mt-1"
+                    className="mt-1 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:border-blue-500 dark:focus:border-blue-400"
                     placeholder="name@example.com"
                   />
                 </div>
 
                 <div>
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="password">Password</Label>
+                    <Label htmlFor="password" className="text-gray-700 dark:text-slate-200 font-semibold text-sm">Password</Label>
                     <Link
                       href="/auth/forgot-password"
-                      className="text-sm font-medium text-blue-600 hover:text-blue-500"
+                      className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-500"
                     >
                       Forgot password?
                     </Link>
@@ -172,7 +172,7 @@ function LoginPage() {
                     name="password"
                     type="password"
                     required
-                    className="mt-1"
+                    className="mt-1 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:border-blue-500 dark:focus:border-blue-400"
                     placeholder="••••••••"
                   />
                 </div>
@@ -180,7 +180,7 @@ function LoginPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full flex justify-center items-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                  className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-xl shadow-md text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
                 >
                   {loading ? (
                     <>
@@ -196,18 +196,18 @@ function LoginPage() {
                 </button>
               </form>
 
-              <p className="mt-8 text-center text-sm text-gray-600">
+              <p className="mt-8 text-center text-sm text-gray-600 dark:text-slate-400">
                 Don&apos;t have an account?{" "}
                 <Link
                   href="/auth/register"
-                  className="font-medium text-blue-600 hover:text-blue-500"
+                  className="font-bold text-blue-600 dark:text-blue-400 hover:text-blue-500"
                 >
                   Sign up now
                 </Link>
               </p>
             </div>
             {/* Right: Illustration/Info */}
-            <div className="hidden lg:flex flex-1 items-center justify-center bg-blue-50 rounded-2xl ml-8 min-h-[300px]">
+            <div className="hidden lg:flex flex-1 items-center justify-center bg-blue-50 border border-blue-100 rounded-3xl ml-8 min-h-[300px]">
               <img src="/res/emblem.webp" alt="Ashoka Emblem - Government of India" className="h-full w-full max-h-full object-contain p-4" />
             </div>
           </div>

@@ -1031,13 +1031,13 @@ export default function TestPage() {
     const format = (s: number) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, "0")}`;
 
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
+      <div className="min-h-screen bg-gray-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 py-8 transition-colors duration-300">
         <div className="container mx-auto px-4 max-w-4xl">
-          <Card>
-            <CardHeader className="bg-blue-600 text-white">
+          <Card className="border dark:border-slate-800 bg-white dark:bg-slate-900">
+            <CardHeader className="bg-blue-600 dark:bg-blue-900 text-white rounded-t-lg">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
                 <div>
-                  <CardTitle className="text-xl">{currentTest.title}</CardTitle>
+                  <CardTitle className="text-xl text-white">{currentTest.title}</CardTitle>
                   <p className="text-blue-100">Question {currentQuestionIndex + 1} of {currentTest.questions.length} • Total Marks: {currentTest.questions.length * 2}</p>
                 </div>
                 <div className="flex items-center gap-4">
@@ -1045,7 +1045,7 @@ export default function TestPage() {
                     <Clock className="w-5 h-5" />
                     <span className="text-lg font-mono">{format(timeRemaining)}</span>
                   </div>
-                  <Badge variant="secondary">{q.subject}</Badge>
+                  <Badge variant="secondary" className="dark:bg-slate-800 dark:text-slate-200">{q.subject}</Badge>
                   <Badge variant="secondary" className="bg-green-600 text-white">2 marks</Badge>
                 </div>
               </div>
@@ -1054,10 +1054,10 @@ export default function TestPage() {
               {/* Render by type */}
               {q.type === "MCQ" && (
                 <div className="mb-6">
-                  <h3 className="text-lg font-semibold mb-4 whitespace-pre-line">{(q as MCQQuestion).question}</h3>
+                  <h3 className="text-lg font-semibold mb-4 whitespace-pre-line text-slate-900 dark:text-white">{(q as MCQQuestion).question}</h3>
                   <div className="space-y-3">
                     {(q as MCQQuestion).options?.map((opt) => (
-                      <label key={opt.id} className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors ${answers[q.id] === opt.id ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-gray-300"}`}>
+                      <label key={opt.id} className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors ${answers[q.id] === opt.id ? "border-blue-500 bg-blue-50 dark:bg-blue-950/60 dark:border-blue-500 text-slate-900 dark:text-white" : "border-gray-200 dark:border-slate-800 hover:border-gray-300 dark:hover:border-slate-700 text-slate-700 dark:text-slate-300"}`}>
                         <input type="radio" name={`q-${q.id}`} value={opt.id} checked={answers[q.id] === opt.id} onChange={() => submitAnswer(q.id, opt.id)} className="mr-3" />
                         <span className="font-medium mr-2">{opt.id.toUpperCase()}.</span>
                         <span>{opt.text}</span>
@@ -1069,15 +1069,15 @@ export default function TestPage() {
 
               {q.type === "STATEMENT" && (
                 <div className="mb-6">
-                  <h3 className="text-lg font-semibold mb-3 whitespace-pre-line">{(q as StatementQuestion).prompt}</h3>
-                  <ul className="list-disc pl-6 mb-4 space-y-1">
+                  <h3 className="text-lg font-semibold mb-3 whitespace-pre-line text-slate-900 dark:text-white">{(q as StatementQuestion).prompt}</h3>
+                  <ul className="list-disc pl-6 mb-4 space-y-1 text-slate-800 dark:text-slate-200">
                     {(q as StatementQuestion).statements?.map((s, i) => (
                       <li key={s.id}><span className="font-semibold">Statement-{i + 1}:</span> {s.text}</li>
                     )) || <li className="text-red-600">No statements available</li>}
                   </ul>
                   <div className="space-y-3">
                     {(q as StatementQuestion).options?.map((opt) => (
-                      <label key={opt.id} className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors ${answers[q.id] === opt.id ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-gray-300"}`}>
+                      <label key={opt.id} className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors ${answers[q.id] === opt.id ? "border-blue-500 bg-blue-50 dark:bg-blue-950/60 dark:border-blue-500 text-slate-900 dark:text-white" : "border-gray-200 dark:border-slate-800 hover:border-gray-300 dark:hover:border-slate-700 text-slate-700 dark:text-slate-300"}`}>
                         <input type="radio" name={`q-${q.id}`} value={opt.id} checked={answers[q.id] === opt.id} onChange={() => submitAnswer(q.id, opt.id)} className="mr-3" />
                         <span className="font-medium mr-2">{opt.id.toUpperCase()}.</span>
                         <span>{opt.text}</span>
@@ -1089,14 +1089,14 @@ export default function TestPage() {
 
               {q.type === "TABLE" && (
                 <div className="mb-6">
-                  <h3 className="text-lg font-semibold mb-3 whitespace-pre-line">{(q as TableQuestion).prompt}</h3>
-                  <div className="grid grid-cols-2 gap-2 border rounded overflow-hidden mb-4">
-                    <div className="bg-gray-100 p-2 font-semibold">Left</div>
-                    <div className="bg-gray-100 p-2 font-semibold">Right</div>
+                  <h3 className="text-lg font-semibold mb-3 whitespace-pre-line text-slate-900 dark:text-white">{(q as TableQuestion).prompt}</h3>
+                  <div className="grid grid-cols-2 gap-2 border dark:border-slate-800 rounded overflow-hidden mb-4">
+                    <div className="bg-gray-100 dark:bg-slate-800 p-2 font-semibold text-slate-900 dark:text-white">Left</div>
+                    <div className="bg-gray-100 dark:bg-slate-800 p-2 font-semibold text-slate-900 dark:text-white">Right</div>
                     {(q as TableQuestion).pairs?.map((p) => (
                       <>
-                        <div key={p.id + "l"} className="p-2 border-t">{p.left}</div>
-                        <div key={p.id + "r"} className="p-2 border-t">{p.right}</div>
+                        <div key={p.id + "l"} className="p-2 border-t dark:border-slate-800 text-slate-800 dark:text-slate-200">{p.left}</div>
+                        <div key={p.id + "r"} className="p-2 border-t dark:border-slate-800 text-slate-800 dark:text-slate-200">{p.right}</div>
                       </>
                     )) || (
                       <>
@@ -1106,7 +1106,7 @@ export default function TestPage() {
                   </div>
                   <div className="space-y-3">
                     {(q as TableQuestion).options?.map((opt) => (
-                      <label key={opt.id} className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors ${answers[q.id] === opt.id ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-gray-300"}`}>
+                      <label key={opt.id} className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors ${answers[q.id] === opt.id ? "border-blue-500 bg-blue-50 dark:bg-blue-950/60 dark:border-blue-500 text-slate-900 dark:text-white" : "border-gray-200 dark:border-slate-800 hover:border-gray-300 dark:hover:border-slate-700 text-slate-700 dark:text-slate-300"}`}>
                         <input type="radio" name={`q-${q.id}`} value={opt.id} checked={answers[q.id] === opt.id} onChange={() => submitAnswer(q.id, opt.id)} className="mr-3" />
                         <span className="font-medium mr-2">{opt.id.toUpperCase()}.</span>
                         <span>{opt.text}</span>
@@ -1116,7 +1116,7 @@ export default function TestPage() {
                 </div>
               )}
 
-              <div className="flex justify-between">
+              <div className="flex justify-between border-t dark:border-slate-800 pt-4">
                 <Button onClick={prevQuestion} disabled={currentQuestionIndex === 0} variant="outline">Previous</Button>
                 <div className="flex gap-2">
                   {currentQuestionIndex === currentTest.questions.length - 1 ? (
@@ -1134,20 +1134,20 @@ export default function TestPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 py-8 transition-colors duration-300">
       <div className="container mx-auto px-3 sm:px-4 max-w-3xl md:max-w-5xl xl:max-w-6xl">
         <div className="mb-6 sm:mb-8 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3 sm:gap-4">
           <div className="flex-1">
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">Practice Test Center</h1>
-            <p className="text-sm sm:text-base text-gray-600">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-2">Practice Test Center</h1>
+            <p className="text-sm sm:text-base text-gray-600 dark:text-slate-400">
               {canCreateTests 
                 ? "Create and take practice tests for exam preparation" 
                 : "Take practice tests for exam preparation"
               }
             </p>
             {!canCreateTests && session && (
-              <div className="mt-3 p-3 sm:p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <p className="text-xs sm:text-sm text-blue-800">
+              <div className="mt-3 p-3 sm:p-4 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/60 rounded-lg">
+                <p className="text-xs sm:text-sm text-blue-800 dark:text-blue-200">
                   <strong>Note:</strong> Only mentors can create new tests. As a student, you can take existing tests created by mentors.
                 </p>
               </div>
