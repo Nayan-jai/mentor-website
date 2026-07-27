@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+export const dynamic = "force-dynamic";
+
+import { useEffect, useState, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -12,7 +14,15 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Edit2, Trash2, Send, X, MessageSquare, Sparkles } from "lucide-react";
 
-export default function MyQueriesPage() {
+export default function MyQueriesPageWrapper() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-400">Loading queries...</div>}>
+      <MyQueriesPage />
+    </Suspense>
+  );
+}
+
+function MyQueriesPage() {
   const { data: session } = useSession();
   const searchParams = useSearchParams();
   const [queries, setQueries] = useState<any[]>([]);
