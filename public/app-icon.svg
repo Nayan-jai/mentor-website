@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="100" fill="#0b0f19" />
+  <rect x="32" y="32" width="448" height="448" rx="80" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.12)" stroke-width="4" />
+  
+  <!-- Graduation Cap Icon -->
+  <g transform="translate(136, 96) scale(10)" stroke="#38bdf8" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z" />
+    <path d="M22 10v6" />
+    <path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5" />
+  </g>
+  
+  <!-- Brand Text -->
+  <text x="256" y="380" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="700" font-size="34" letter-spacing="12" fill="#f8fafc" text-anchor="middle">MENTOR</text>
+  <text x="256" y="420" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="600" font-size="18" letter-spacing="8" fill="rgba(56, 189, 248, 0.85)" text-anchor="middle">LEARNING LAB</text>
+</svg>
