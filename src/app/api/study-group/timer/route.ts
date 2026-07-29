@@ -28,6 +28,8 @@ export async function GET(request: NextRequest) {
           select: {
             name: true,
             email: true,
+            image: true,
+            studyTracker: true,
           },
         },
       },
@@ -40,12 +42,14 @@ export async function GET(request: NextRequest) {
         userId: m.userId,
         isSelf: m.userId === session.user.id,
         name: m.user.name || m.user.email.split("@")[0],
+        image: m.user.image,
         timerBid: m.timerBid,
         timerStart: m.timerStart ? m.timerStart.toISOString() : null,
         timerBase: m.timerBase,
         subject: m.subject,
         topic: m.topic,
         updatedAt: m.updatedAt.toISOString(),
+        studyTracker: m.user.studyTracker,
       })),
     });
   } catch (err) {
@@ -94,6 +98,8 @@ export async function POST(request: NextRequest) {
           select: {
             name: true,
             email: true,
+            image: true,
+            studyTracker: true,
           },
         },
       },
@@ -105,12 +111,14 @@ export async function POST(request: NextRequest) {
         userId: m.userId,
         isSelf: m.userId === session.user.id,
         name: m.user.name || m.user.email.split("@")[0],
+        image: m.user.image,
         timerBid: m.timerBid,
         timerStart: m.timerStart ? m.timerStart.toISOString() : null,
         timerBase: m.timerBase,
         subject: m.subject,
         topic: m.topic,
         updatedAt: m.updatedAt.toISOString(),
+        studyTracker: m.user.studyTracker,
       })),
     });
   } catch (err) {

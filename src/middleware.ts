@@ -14,7 +14,10 @@ export default withAuth(
       if (!token || token.role !== "ADMIN") {
         return new NextResponse(JSON.stringify({ message: "Unauthorized" }), {
           status: 401,
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "X-Content-Type-Options": "nosniff",
+          },
         });
       }
     }
@@ -35,7 +38,9 @@ export default withAuth(
       return NextResponse.redirect(new URL("/dashboard/student", req.url));
     }
 
-    return NextResponse.next();
+    const response = NextResponse.next();
+    response.headers.set("X-Content-Type-Options", "nosniff");
+    return response;
   },
   {
     callbacks: {

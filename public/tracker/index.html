@@ -15,7 +15,13 @@
   <!-- ════════ HEADER ════════ -->
   <div class="header">
     <div class="header-inner">
-      <div class="logo">Study<span>Planner</span></div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <button onclick="if(window.parent&&window.parent!==window){window.parent.postMessage({type:'NAVIGATE_BACK'},'*');}else{history.back();}" class="back-nav-btn" title="Back to Dashboard">
+          <span>←</span> <span>Back</span>
+        </button>
+        <div style="height:16px;width:1px;background:var(--border)"></div>
+        <div class="logo">Study<span>Planner</span></div>
+      </div>
       <div class="tabs">
         <button class="tab active" data-view="daily">📅 Daily</button>
         <button class="tab" data-view="syllabus">📚 Syllabus</button>
@@ -397,6 +403,115 @@
         <button id="selectRangeBtn" onclick="applySelectedDateRange()" class="hbtn" style="background:var(--blue);color:#fff;border-color:var(--blue);font-weight:800;width:100%;padding:10px;height:auto;font-size:13px;border-radius:8px;" disabled>
           Select range
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MEMBER DETAIL MODAL (Image 2) -->
+  <div class="overlay" id="memberDetailOverlay" onclick="if(event.target===this)closeModal('memberDetailOverlay')">
+    <div class="modal member-detail-modal">
+      <div class="modal-drag"></div>
+      <div class="modal-hd" style="border-bottom:none;padding-bottom:0">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div id="mdAvatar" class="md-avatar-box"></div>
+          <div>
+            <div id="mdName" style="font-size:18px;font-weight:800;color:var(--ink)"></div>
+            <div id="mdBio" style="font-size:12px;color:var(--ink3);margin-top:2px;font-style:italic"></div>
+          </div>
+        </div>
+        <button class="modal-close" onclick="closeModal('memberDetailOverlay')">✕</button>
+      </div>
+      <div class="modal-body" style="padding-top:12px">
+        <!-- Action Buttons -->
+        <div style="display:flex;gap:10px;margin-bottom:16px">
+          <button class="hbtn flex-1" style="background:var(--bg2);color:var(--ink);border-color:var(--border);font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px;height:36px;border-radius:10px;cursor:pointer" onclick="triggerMemberNudge()">
+            <span>😒</span> Nudge
+          </button>
+          <button class="hbtn flex-1" style="background:#c084fc;color:#fff;border-color:#c084fc;font-weight:800;display:flex;align-items:center;justify-content:center;gap:6px;height:36px;border-radius:10px;cursor:pointer" onclick="openSelectedMemberStats()">
+            <span>📊</span> Statistics
+          </button>
+        </div>
+
+        <!-- Current Session Card -->
+        <div class="session-detail-card" id="mdSessionCard"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MEMBER STATISTICS MODAL (Image 3) -->
+  <div class="overlay" id="memberStatsOverlay" onclick="if(event.target===this)closeModal('memberStatsOverlay')">
+    <div class="modal member-stats-modal" style="max-width:540px">
+      <div class="modal-drag"></div>
+      <div class="modal-hd">
+        <div style="font-size:16px;font-weight:800;color:var(--ink)">📊 Statistics</div>
+        <button class="modal-close" onclick="closeModal('memberStatsOverlay')">✕</button>
+      </div>
+      <div class="modal-body" style="max-height:78vh;overflow-y:auto;padding-right:4px">
+        <!-- Calendar Heatmap -->
+        <div class="stats-calendar-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <button class="hbtn-icon" onclick="changeStatsMonth(-1)" style="background:none;border:none;color:var(--ink);cursor:pointer;font-weight:700">◄</button>
+            <span id="msMonthLabel" style="font-size:14px;font-weight:800;color:var(--ink)">Jul 2026</span>
+            <button class="hbtn-icon" onclick="changeStatsMonth(1)" style="background:none;border:none;color:var(--ink);cursor:pointer;font-weight:700">►</button>
+          </div>
+          <div class="stats-heatmap-grid" id="msHeatmapGrid"></div>
+        </div>
+
+        <!-- Period Switcher Tabs -->
+        <div class="stats-tabs-row" style="margin:16px 0 12px">
+          <button class="stats-tab active" id="stTabDay" onclick="switchStatsPeriod('day')">Day</button>
+          <button class="stats-tab" id="stTabWeek" onclick="switchStatsPeriod('week')">Week</button>
+          <button class="stats-tab" id="stTabMonth" onclick="switchStatsPeriod('month')">Month</button>
+        </div>
+        <div id="msSelectedDateHeader" style="text-align:center;font-size:12px;font-weight:700;color:var(--ink2);margin-bottom:12px"></div>
+
+        <!-- Day Stats Box -->
+        <div class="stats-day-box" id="msDayBox"></div>
+
+        <!-- Subject Breakdown List -->
+        <div class="stats-subjects-section" style="margin-top:16px" id="msSubjectsSection"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GROUP SETTINGS & MEMBERS LIST MODAL -->
+  <div class="overlay" id="groupManageOverlay" onclick="if(event.target===this)closeModal('groupManageOverlay')">
+    <div class="modal" style="max-width:540px">
+      <div class="modal-drag"></div>
+      <div class="modal-hd">
+        <div class="modal-title" id="gmModalTitle">👥 Group Settings & Members</div>
+        <button class="modal-close" onclick="closeModal('groupManageOverlay')">✕</button>
+      </div>
+      <div class="modal-body">
+        <!-- Admin Edit Group Name Section -->
+        <div id="gmAdminNameSection" style="margin-bottom:16px;padding:14px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;display:none">
+          <label style="font-size:11px;font-weight:800;color:var(--ink3);text-transform:uppercase;letter-spacing:0.04em;display:block;margin-bottom:6px">⚙️ Edit Group Name (Admin Only)</label>
+          <div style="display:flex;gap:8px">
+            <input type="text" id="gmGroupNameInp" class="group-split-inp" style="flex:1" placeholder="New Group Name..." />
+            <button onclick="saveGroupNameFromModal()" class="hbtn" style="background:var(--blue);color:#fff;border-color:var(--blue);font-weight:700;padding:0 14px">Save</button>
+          </div>
+        </div>
+
+        <!-- Invite Code Bar -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:16px">
+          <div>
+            <span style="font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase">Invite Code:</span>
+            <code id="gmInviteCodeLabel" style="font-size:14px;font-weight:800;color:var(--blue);font-family:monospace;margin-left:6px"></code>
+          </div>
+          <button id="gmCopyCodeBtn" class="hbtn" style="height:28px;font-size:11px;font-weight:700;color:var(--blue)">📋 Copy</button>
+        </div>
+
+        <!-- Members Header -->
+        <div style="font-size:12px;font-weight:800;color:var(--ink3);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between">
+          <span>👥 Group Members</span>
+          <span id="gmMembersCountLabel" style="color:var(--ink2)"></span>
+        </div>
+
+        <!-- Members List Container -->
+        <div id="gmMembersList" style="display:flex;flex-direction:column;gap:10px;max-height:300px;overflow-y:auto;padding-right:4px"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="hbtn" onclick="closeModal('groupManageOverlay')" style="width:100%">Close</button>
       </div>
     </div>
   </div>

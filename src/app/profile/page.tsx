@@ -86,9 +86,9 @@ export default function ProfilePage() {
     name: "",
     email: "",
     image: "",
-    bio: "UPSC CSE Aspirant | Dedicated to consistent practice",
+    bio: "Competitive Exam Aspirant | Dedicated to consistent practice",
     targetYear: "2026",
-    optionalSubject: "Geography",
+    optionalSubject: "General",
   });
 
   useEffect(() => {
@@ -447,7 +447,7 @@ export default function ProfilePage() {
                       </h4>
                       <p>
                         {formFields.bio ||
-                          "Senior UPSC CSE Mentor with over 5 years of experience evaluating Mains answer sheets, designing personalized revision roadmaps, and conducting mock interview panels. Specializes in transforming raw aspirant effort into high-scoring, structured exam output."}
+                          "Senior Exam & Career Mentor with over 5 years of experience evaluating answer sheets, designing personalized revision roadmaps, and conducting mock interview panels. Specializes in transforming raw aspirant effort into high-scoring, structured exam output."}
                       </p>
                     </div>
 
@@ -477,10 +477,10 @@ export default function ProfilePage() {
                       <div className="flex flex-wrap gap-2">
                         {[
                           "Mains Answer Writing & Evaluation",
-                          "Ethics (GS4) & Case Studies",
-                          "Polity & Governance (GS2)",
-                          "Essay Structuring & Flow",
-                          "Prelims Elimination & Strategy",
+                          "Ethics & Case Studies",
+                          "Subject Mastery & Revision",
+                          "Essay & Report Structuring",
+                          "Test Strategy & Time Management",
                           "Personality Test & Mock Panel",
                         ].map((area) => (
                           <span key={area} className="px-2.5 py-1 rounded-full bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 font-semibold text-[11px]">
@@ -507,7 +507,7 @@ export default function ProfilePage() {
                         Subject Competency Matrix
                       </h3>
                       <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                        Real-time visual map of preparation strength across core UPSC subjects
+                        Real-time visual map of preparation strength across core subjects
                       </p>
                     </div>
                     <Badge variant="outline" className="text-xs font-semibold text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800">
@@ -618,7 +618,7 @@ export default function ProfilePage() {
                     {[
                       { name: "500+ Mains Sheets Evaluated", score: "Active", pct: 100, color: "bg-emerald-500" },
                       { name: "45+ Mentees Cleared Prelims", score: "Proven", pct: 90, color: "bg-blue-500" },
-                      { name: "2x UPSC Interview Appearances", score: "Veteran", pct: 95, color: "bg-amber-500" },
+                      { name: "2x Top Exam Qualifier / Interview Panels", score: "Veteran", pct: 95, color: "bg-amber-500" },
                       { name: "Average Student Rating", score: "4.9/5", pct: 98, color: "bg-purple-500" },
                     ].map((item, idx) => (
                       <div key={idx} className="space-y-1">
@@ -900,25 +900,25 @@ export default function ProfilePage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                    {isMentor ? "Mentoring Focus" : "Target CSE Year"}
+                    {isMentor ? "Mentoring Focus" : "Target Exam Year"}
                   </label>
                   <Input
                     type="text"
                     value={formFields.targetYear}
                     onChange={(e) => setFormFields({ ...formFields, targetYear: e.target.value })}
-                    placeholder={isMentor ? "e.g. GS2 & Answer Writing" : "e.g. 2026"}
+                    placeholder={isMentor ? "e.g. Concept & Answer Writing" : "e.g. 2026"}
                     className="bg-slate-50 dark:bg-slate-800"
                   />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                    {isMentor ? "Mentoring Experience" : "Optional Subject"}
+                    {isMentor ? "Mentoring Experience" : "Optional / Specialization Subject"}
                   </label>
                   <Input
                     type="text"
                     value={formFields.optionalSubject}
                     onChange={(e) => setFormFields({ ...formFields, optionalSubject: e.target.value })}
-                    placeholder={isMentor ? "e.g. 5+ Years" : "e.g. PSIR / History"}
+                    placeholder={isMentor ? "e.g. 5+ Years" : "e.g. Geography / Accounts / Law"}
                     className="bg-slate-50 dark:bg-slate-800"
                   />
                 </div>

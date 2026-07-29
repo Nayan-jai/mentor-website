@@ -48,6 +48,16 @@ export default function StudyTrackerPage() {
     return () => clearInterval(interval);
   }, [theme, resolvedTheme]);
 
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data?.type === "NAVIGATE_BACK") {
+        router.push("/dashboard/student");
+      }
+    };
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, [router]);
+
   if (status === "loading" || !session || session.user.role !== "STUDENT") {
     return (
       <div className="min-h-screen flex items-center justify-center dark:bg-slate-950 dark:text-white">
@@ -57,27 +67,8 @@ export default function StudyTrackerPage() {
   }
 
   return (
-    <div className="flex flex-col dark:bg-slate-950 transition-colors duration-300" style={{ height: "calc(100dvh - 64px)", overflow: "hidden", marginTop: "0" }}>
-      {/* Slim breadcrumb bar — zero gap below site navbar */}
-      <div className="bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800 px-4 py-2 flex items-center justify-between shadow-sm shrink-0">
-        <div className="flex items-center gap-3">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.push("/dashboard/student")}
-            className="flex items-center gap-2 text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white h-7 px-2"
-          >
-            <ArrowLeft className="w-4 h-4" /> Back
-          </Button>
-          <div className="h-5 w-[1px] bg-gray-200 dark:bg-slate-800" />
-          <h1 className="text-sm font-semibold text-gray-800 dark:text-white">Study Planner &amp; Tracker</h1>
-        </div>
-        <span className="text-xs text-gray-500 dark:text-slate-400 font-medium">
-          {session.user.name}
-        </span>
-      </div>
-
-      {/* Iframe fills all remaining height — no gap */}
+    <div className="flex flex-col dark:bg-slate-950 transition-colors duration-300 w-full" style={{ height: "calc(100dvh - 64px)", overflow: "hidden" }}>
+      {/* Iframe fills all height — unified single header inside tracker */}
       <iframe
         ref={iframeRef}
         onLoad={applyThemeToIframe}

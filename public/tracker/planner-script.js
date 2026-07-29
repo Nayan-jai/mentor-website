@@ -1195,6 +1195,7 @@ function toggleTimer(bid,dayId){
     const el=Math.floor((Date.now()-timers[bid].start)/1000);
     clearInterval(timers[bid].interval);
     gp(bid).timeSpent=(gp(bid).timeSpent||0)+el;
+    gp(bid).lastEnd=new Date().toISOString();
     timers[bid]={running:false};sp();
     localStorage.removeItem('_runningTimer'); // clear on manual pause
     try{pushGroupTimerState(null);}catch{}
@@ -1206,12 +1207,16 @@ function toggleTimer(bid,dayId){
         const el=Math.floor((Date.now()-timers[id].start)/1000);
         clearInterval(timers[id].interval);
         gp(id).timeSpent=(gp(id).timeSpent||0)+el;
+        gp(id).lastEnd=new Date().toISOString();
         timers[id]={running:false};
         const otherDay = days.find(d => d.blocks.some(b => b.id === id));
         if (otherDay) { refreshBlock(otherDay.id, id); }
       }
     });
     timers[bid]={running:true,start:Date.now(),interval:null,ticks:0};
+    if(!gp(bid).startTime) gp(bid).startTime = new Date(timers[bid].start).toISOString();
+    gp(bid).lastStart = new Date(timers[bid].start).toISOString();
+    sp();
     // Save absolute start so page refresh can resume without beforeunload
     localStorage.setItem('_runningTimer',JSON.stringify({bid,start:timers[bid].start,base:gp(bid).timeSpent||0}));
     try{pushGroupTimerState(bid);}catch{}
@@ -2590,31 +2595,118 @@ async function renderGroup() {
 
 function renderGroupLandingUI(container) {
   container.innerHTML = `
-    <div class="group-actions-panel" style="margin-top:16px;">
+    <div class="group-landing-grid">
       <!-- Create Group Box -->
-      <div class="group-action-box">
-        <h3 style="margin-bottom:12px;font-size:16px;color:var(--ink)">🛠️ Create a Study Group</h3>
-        <p style="font-size:12px;color:var(--ink3);line-height:1.6;margin-bottom:16px">
-          Create a new study group, get an invite code, and invite your friends. You can see each other's live timers.
-        </p>
-        <input type="text" id="newGroupName" class="group-inp" placeholder="e.g. UPSC Aspirants 2026" />
-        <button class="hbtn" style="width:100%;background:var(--green);color:#fff;border-color:var(--green);font-weight:800;height:36px;border-radius:8px;" onclick="handleCreateGroup()">Create Group</button>
+      <div class="group-split-card">
+        <div class="group-split-graphic">
+          <svg width="110" height="110" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M60 100C60 100 50 115 35 115M60 100C60 100 70 115 85 115M60 100V65" stroke="#78350f" stroke-width="6" stroke-linecap="round"/>
+            <path d="M60 65C60 45 35 40 30 25M60 65C60 45 85 40 90 25M60 65C60 40 60 20 60 15" stroke="#0284c7" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="60" cy="45" r="35" fill="#065f46" fill-opacity="0.6"/>
+            <circle cx="42" cy="50" r="25" fill="#047857" fill-opacity="0.7"/>
+            <circle cx="78" cy="50" r="25" fill="#10b981" fill-opacity="0.7"/>
+            <circle cx="60" cy="30" r="25" fill="#34d399" fill-opacity="0.8"/>
+            <g transform="translate(30,20)"><circle cx="10" cy="10" r="9" fill="#fbbf24"/><text x="10" y="13" font-size="5.5" font-weight="900" text-anchor="middle" fill="#78350f">UPSC</text></g>
+            <g transform="translate(68,20)"><circle cx="10" cy="10" r="9" fill="#60a5fa"/><text x="10" y="13" font-size="5.5" font-weight="900" text-anchor="middle" fill="#1e3a8a">NEET</text></g>
+            <g transform="translate(20,48)"><circle cx="10" cy="10" r="9" fill="#f472b6"/><text x="10" y="13" font-size="5.5" font-weight="900" text-anchor="middle" fill="#831843">JEE</text></g>
+            <g transform="translate(80,48)"><circle cx="10" cy="10" r="9" fill="#a7f3d0"/><text x="10" y="13" font-size="5.5" font-weight="900" text-anchor="middle" fill="#064e3b">CA</text></g>
+          </svg>
+        </div>
+        <div class="group-split-content">
+          <div class="group-split-title">
+            <span>🛠️</span>
+            <span>Create a Study Group</span>
+          </div>
+          <div class="group-split-desc">
+            Create a new study group, get an invite code, and invite your friends. You can see each other's live timers.
+          </div>
+          <input type="text" id="newGroupName" class="group-split-inp" placeholder="e.g. UPSC Prelims Mission 2026" />
+          <button class="group-split-btn-create" onclick="handleCreateGroup()">Create Group</button>
+        </div>
       </div>
 
       <!-- Join Group Box -->
-      <div class="group-action-box">
-        <h3 style="margin-bottom:12px;font-size:16px;color:var(--ink)">👥 Join a Study Group</h3>
-        <p style="font-size:12px;color:var(--ink3);line-height:1.6;margin-bottom:16px">
-          Enter a 6-character study group invite code shared by your friend to join their group and study together.
-        </p>
-        <input type="text" id="groupInviteCode" class="group-inp" placeholder="e.g. AB12CD" style="text-transform:uppercase" maxLength="6" />
-        <button class="hbtn" style="width:100%;background:var(--blue);color:#fff;border-color:var(--blue);font-weight:800;height:36px;border-radius:8px;" onclick="handleJoinGroup()">Join Group</button>
+      <div class="group-split-card">
+        <div class="group-split-graphic">
+          <svg width="110" height="110" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M45 25L55 20L65 25L75 22L80 30L88 35L92 48L85 55L75 60L78 72L70 82L60 95L55 85L48 70L40 60L35 48L40 35Z" fill="#ea580c" fill-opacity="0.2" stroke="#f97316" stroke-width="2" stroke-linejoin="round"/>
+            <circle cx="60" cy="48" r="10" fill="#ffffff" stroke="#1e40af" stroke-width="1.5"/>
+            <circle cx="60" cy="48" r="2.5" fill="#1e40af"/>
+            <circle cx="45" cy="38" r="4" fill="#0ea5e9"/>
+            <circle cx="75" cy="40" r="4" fill="#0ea5e9"/>
+            <circle cx="60" cy="75" r="4" fill="#10b981"/>
+            <path d="M45 38L60 48M75 40L60 48M60 75L60 48" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="3 3"/>
+            <g transform="translate(72, 68)">
+              <rect width="18" height="18" rx="4" fill="#0ea5e9"/>
+              <path d="M9 4V7M9 11V14M4 9H7M11 9H14" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+            </g>
+          </svg>
+        </div>
+        <div class="group-split-content">
+          <div class="group-split-title">
+            <span>👥</span>
+            <span>Join a Study Group</span>
+          </div>
+          <div class="group-split-desc">
+            Enter a 6-character study group invite code shared by your friend to join their group and study together.
+          </div>
+          <input type="text" id="groupInviteCode" class="group-split-inp" placeholder="E.G. AB12CD" style="text-transform:uppercase" maxLength="6" />
+          <button class="group-split-btn-join" onclick="handleJoinGroup()">Join Group</button>
+        </div>
       </div>
     </div>
   `;
 }
 
+function parseMemberTrackerData(m) {
+  if (!m) return { subj: [], days: [], prog: {}, conf: {} };
+  if (m.studyTracker) {
+    if (typeof m.studyTracker === 'string') {
+      try { return JSON.parse(m.studyTracker); } catch (e) {}
+    } else if (typeof m.studyTracker === 'object') {
+      return m.studyTracker;
+    }
+  }
+  return { subj: [], days: [], prog: {}, conf: {} };
+}
+
+function getMemberDayTotalSec(m, targetDateObj = new Date()) {
+  if (!m) return 0;
+  let totalSec = 0;
+  try {
+    const data = parseMemberTrackerData(m);
+    const targetY = targetDateObj.getFullYear();
+    const targetM = targetDateObj.getMonth();
+    const targetD = targetDateObj.getDate();
+
+    (data.days || []).forEach(d => {
+      let dDate = d.dateOverride ? parseDateLocal(d.dateOverride) : null;
+      if (dDate && dDate.getFullYear() === targetY && dDate.getMonth() === targetM && dDate.getDate() === targetD) {
+        (d.blocks || []).forEach(b => {
+          const p = (data.prog || {})[b.id] || {};
+          if (p.timeSpent && p.timeSpent > 0) {
+            totalSec += p.timeSpent;
+          } else if (p.completed || p.done) {
+            totalSec += (b.targetHrs || 3) * 3600;
+          }
+        });
+      }
+    });
+
+    if (m.timerBid && m.timerStart) {
+      const start = new Date(m.timerStart).getTime();
+      const elapsed = Math.max(0, Math.floor((Date.now() - start) / 1000));
+      const liveSec = (m.timerBase || 0) + elapsed;
+      totalSec = Math.max(totalSec, liveSec);
+    }
+  } catch (e) {
+    console.error("Error computing member day total sec:", e);
+  }
+  return totalSec;
+}
+
 function renderOwnedGroupsUI(ownedGroups = []) {
+  window.latestOwnedGroups = ownedGroups;
   const container = document.getElementById('ownedGroupsContent');
   if (!container) return;
 
@@ -2624,21 +2716,76 @@ function renderOwnedGroupsUI(ownedGroups = []) {
   }
 
   container.innerHTML = `
-    <div class="group-card" style="width:100%">
-      <h3 style="margin-bottom:14px;font-size:14px;color:var(--ink);font-weight:800;text-transform:uppercase;letter-spacing:0.04em">🔑 Your Created Groups</h3>
-      <div style="display:flex;flex-direction:column;gap:10px;">
-        ${ownedGroups.map(og => `
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;flex-wrap:wrap;gap:12px;">
-            <div style="flex:1;min-width:180px">
-              <strong style="color:var(--ink);font-size:13px;">${esc(og.name)}</strong>
-              <div style="font-size:11px;color:var(--ink3);margin-top:2px;">Invite Code: <code style="font-weight:700;color:var(--blue);font-family:monospace">${og.code}</code></div>
+    <div style="margin-top:24px;">
+      <div style="font-size:12px;font-weight:800;color:var(--ink3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:12px;display:flex;align-items:center;gap:6px">
+        <span>🔑</span>
+        <span>YOUR CREATED GROUPS</span>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        ${ownedGroups.map(og => {
+          const membersCount = og._count?.members || (og.members ? og.members.length : 1);
+          const activeCount = og.members ? og.members.filter(m => !!m.timerBid).length : 0;
+          
+          let totalGroupSec = 0;
+          if (og.members && og.members.length > 0) {
+            og.members.forEach(m => {
+              totalGroupSec += getMemberDayTotalSec(m, new Date());
+            });
+          }
+
+          const currentHrs = Math.round((totalGroupSec / 3600) * 10) / 10;
+          const targetHrs = Math.max(6, membersCount * 6);
+          const progressPct = Math.min(100, Math.round((currentHrs / targetHrs) * 100));
+
+          return `
+            <div class="created-group-row">
+              <!-- Left: Emblem & Name -->
+              <div style="display:flex;align-items:center;gap:14px;min-width:200px">
+                <div class="group-emblem-box">🔥</div>
+                <div>
+                  <div style="font-size:15px;font-weight:800;color:var(--ink);display:flex;align-items:center;gap:6px">
+                    <span>${esc(og.name)}</span>
+                    <span style="font-size:10px;background:rgba(200,149,32,0.15);color:var(--gold);border:1px solid var(--gold);padding:1px 6px;border-radius:6px;font-weight:800">👑 Admin</span>
+                  </div>
+                  <div style="font-size:11px;color:var(--ink3);margin-top:2px">
+                    Members: <strong>${membersCount}</strong>
+                    <span style="color:var(--blue);margin-left:4px;cursor:pointer;font-weight:700" onclick="openGroupManagementModal('${og.id}')">(see list)</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Middle: Study Hour Goal Tracker -->
+              <div style="flex:1;min-width:180px;max-width:260px">
+                <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:700;color:var(--ink2);margin-bottom:4px">
+                  <span>Study Hour Goal Tracker</span>
+                  <span style="color:var(--ink3);font-family:monospace">${currentHrs} hr / ${targetHrs} hr</span>
+                </div>
+                <div style="width:100%;height:6px;background:var(--bg2);border-radius:3px;overflow:hidden">
+                  <div style="width:${progressPct}%;height:100%;background:linear-gradient(90deg, #10b981, #34d399);border-radius:3px"></div>
+                </div>
+              </div>
+
+              <!-- Right Middle: Live Status -->
+              <div style="display:flex;align-items:center;gap:10px;min-width:130px">
+                <div>
+                  <div style="font-size:10px;font-weight:700;color:var(--ink3);text-transform:uppercase">Live Status</div>
+                  <div style="font-size:13px;font-weight:800;color:var(--green);display:flex;align-items:center;gap:6px;margin-top:2px">
+                    <span style="width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green)"></span>
+                    <span>${activeCount}/${membersCount} Active</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right: Buttons -->
+              <div style="display:flex;align-items:center;gap:8px">
+                <button class="created-group-btn-enter" onclick="quickJoinOwnedGroup('${og.code}')">Enter Group</button>
+                <button class="created-group-btn-enter" style="background:var(--bg2);color:var(--ink);border-color:var(--border)" onclick="openGroupManagementModal('${og.id}')">⚙️ Settings</button>
+                <button class="created-group-btn-delete" onclick="handleDeleteGroup('${og.id}')">Delete</button>
+              </div>
             </div>
-            <div style="display:flex;gap:8px;">
-              <button class="hbtn" style="background:var(--green);color:#fff;border-color:var(--green);font-weight:700;height:28px;" onclick="quickJoinOwnedGroup('${og.code}')">Enter Group</button>
-              <button class="hbtn" style="background:#d94f3d;color:#fff;border-color:#d94f3d;font-weight:700;height:28px;" onclick="handleDeleteGroup('${og.id}')">Delete</button>
-            </div>
-          </div>
-        `).join('')}
+          `;
+        }).join('')}
       </div>
     </div>
   `;
@@ -2662,23 +2809,118 @@ async function quickJoinOwnedGroup(code) {
   }
 }
 
+async function pushGroupTimerState(bid) {
+  if (!window.activeGroup) return;
+  try {
+    let subject = null;
+    let topic = null;
+    if (bid) {
+      for (let d of (days || [])) {
+        const b = (d.blocks || []).find(blk => blk.id === bid);
+        if (b) {
+          const s = sj(b.subjectId);
+          subject = s.name;
+          topic = b.topic || '';
+          break;
+        }
+      }
+    }
+    fetch("/api/study-group", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "update_timer",
+        timerBid: bid || null,
+        timerStart: bid ? new Date().toISOString() : null,
+        timerBase: bid ? (gp(bid).timeSpent || 0) : 0,
+        subject,
+        topic
+      })
+    }).catch(() => {});
+  } catch (e) {}
+}
+
+function toggleGroupStudySession() {
+  let runningBid = null;
+  let runningDayId = null;
+
+  if (typeof days !== 'undefined' && days && days.length > 0) {
+    for (let d of days) {
+      for (let b of (d.blocks || [])) {
+        if (timers[b.id]?.running) {
+          runningBid = b.id;
+          runningDayId = d.id;
+          break;
+        }
+      }
+      if (runningBid) break;
+    }
+  }
+
+  if (runningBid && runningDayId) {
+    // Pause currently running session instantly
+    toggleTimer(runningBid, runningDayId);
+    if (window.activeGroup && window.activeGroup.members) {
+      const selfMem = window.activeGroup.members.find(m => m.isSelf);
+      if (selfMem) {
+        selfMem.timerBid = null;
+        selfMem.timerStart = null;
+        selfMem.timerBase = 0;
+      }
+      const container = document.getElementById('groupContent');
+      if (container) renderActiveGroupUI(container);
+    }
+  } else {
+    // Start session on active day's first incomplete block
+    const targetDayIndex = (typeof curDay !== 'undefined' && curDay >= 0 && curDay < days.length) ? curDay : 0;
+    const targetDay = days[targetDayIndex] || days[0];
+
+    if (!targetDay || !targetDay.blocks || targetDay.blocks.length === 0) {
+      alert("Please add at least one subject block in your study planner first!");
+      return;
+    }
+
+    const incompleteBlock = targetDay.blocks.find(b => !prog[b.id]?.completed) || targetDay.blocks[0];
+    toggleTimer(incompleteBlock.id, targetDay.id);
+
+    if (window.activeGroup && window.activeGroup.members) {
+      const selfMem = window.activeGroup.members.find(m => m.isSelf);
+      if (selfMem) {
+        const s = sj(incompleteBlock.subjectId);
+        selfMem.timerBid = incompleteBlock.id;
+        selfMem.timerStart = new Date().toISOString();
+        selfMem.timerBase = (gp(incompleteBlock.id).timeSpent || 0);
+        selfMem.subject = s.name;
+        selfMem.topic = incompleteBlock.topic || '';
+      }
+      const container = document.getElementById('groupContent');
+      if (container) renderActiveGroupUI(container);
+    }
+  }
+}
+
 function renderActiveGroupUI(container) {
   const g = window.activeGroup;
   if (!g) return;
 
   const selfMember = g.members.find(m => m.isSelf);
   const userIsOwner = g.ownerId && selfMember && g.ownerId === selfMember.userId;
+  const selfIsStudying = selfMember && !!selfMember.timerBid;
+  const studyingCount = g.members.filter(m => !!m.timerBid).length;
+  const totalCount = g.members.length;
 
   const actionButtons = userIsOwner 
-    ? `<button class="hbtn" style="background:var(--bg2);color:var(--ink);border-color:var(--border)" onclick="handleLeaveGroup()">🚪 Leave Group</button>
+    ? `<button class="hbtn" style="background:var(--bg2);color:var(--ink);border-color:var(--border)" onclick="openGroupManagementModal('${g.id}')">⚙️ Group Settings</button>
+       <button class="hbtn" style="background:var(--bg2);color:var(--ink);border-color:var(--border)" onclick="handleLeaveGroup()">🚪 Leave Group</button>
        <button class="hbtn" style="background:#d94f3d;color:#fff;border-color:#d94f3d" onclick="handleDeleteGroup('${g.id}')">🗑️ Delete Group</button>`
-    : `<button class="hbtn" style="background:var(--bg2);color:var(--ink);border-color:var(--border)" onclick="handleLeaveGroup()">🚪 Leave Group</button>`;
+    : `<button class="hbtn" style="background:var(--bg2);color:var(--ink);border-color:var(--border)" onclick="openGroupManagementModal('${g.id}')">👥 Members</button>
+       <button class="hbtn" style="background:var(--bg2);color:var(--ink);border-color:var(--border)" onclick="handleLeaveGroup()">🚪 Leave Group</button>`;
 
   container.innerHTML = `
     <div class="group-card">
       <div class="group-header-row">
         <div>
-          <div class="group-title-label">${esc(g.name)}</div>
+          <div class="group-title-label">${esc(g.name)} ${userIsOwner ? '<span style="font-size:10px;background:rgba(200,149,32,0.15);color:var(--gold);border:1px solid var(--gold);padding:2px 8px;border-radius:6px;font-weight:800;vertical-align:middle;margin-left:6px">👑 Admin</span>' : ''}</div>
           <div style="font-size:11px;color:var(--ink3);margin-top:4px">Created by ${userIsOwner ? 'you' : 'group admin'}</div>
         </div>
         <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
@@ -2690,12 +2932,165 @@ function renderActiveGroupUI(container) {
         </div>
       </div>
 
-      <div style="font-size:11px;font-weight:800;color:var(--ink3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:12px">📚 Live Study Session</div>
+      <!-- Image 1 Top Header Summary: Active & Inactive member counter -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+        <div style="font-size:15px;font-weight:800;color:var(--ink)">
+          <span style="color:#c084fc">${studyingCount} members</span> Studying
+          <span style="font-size:12px;color:var(--ink3);font-weight:600;margin-left:6px">• ${totalCount - studyingCount} Idle</span>
+        </div>
+        <div style="font-size:11px;font-weight:700;color:var(--ink3);background:var(--bg2);padding:4px 10px;border-radius:8px;border:1px solid var(--border)">
+          💡 Click any member card to view details & statistics
+        </div>
+      </div>
+
       <div class="member-grid" id="memberGridEl">
         ${renderMemberGridHtml()}
       </div>
     </div>
   `;
+}
+
+function openGroupManagementModal(groupId) {
+  let g = null;
+  if (window.activeGroup && (!groupId || String(window.activeGroup.id) === String(groupId))) {
+    g = window.activeGroup;
+  }
+  if (!g && window.latestOwnedGroups && window.latestOwnedGroups.length > 0) {
+    g = groupId ? window.latestOwnedGroups.find(og => String(og.id) === String(groupId)) : window.latestOwnedGroups[0];
+    if (!g) g = window.latestOwnedGroups[0];
+  }
+  if (!g && window.activeGroup) {
+    g = window.activeGroup;
+  }
+
+  if (!g) {
+    alert("Group settings unavailable. Please join or create a study group first.");
+    return;
+  }
+
+  window.selectedGroupForManage = g;
+
+  const modalTitle = document.getElementById('gmModalTitle');
+  if (modalTitle) modalTitle.textContent = `👥 ${g.name} — Settings & Members`;
+
+  const inviteCodeEl = document.getElementById('gmInviteCodeLabel');
+  if (inviteCodeEl) inviteCodeEl.textContent = g.code;
+
+  const copyBtn = document.getElementById('gmCopyCodeBtn');
+  if (copyBtn) copyBtn.onclick = () => copyGroupCode(g.code);
+
+  const isOwnedGroup = window.latestOwnedGroups && window.latestOwnedGroups.some(og => String(og.id) === String(g.id));
+  const selfMember = (g.members || []).find(m => m.isSelf);
+  const isOwner = isOwnedGroup || (g.ownerId && selfMember && g.ownerId === selfMember.userId);
+
+  const adminNameSection = document.getElementById('gmAdminNameSection');
+  const groupNameInp = document.getElementById('gmGroupNameInp');
+  if (adminNameSection && groupNameInp) {
+    if (isOwner) {
+      adminNameSection.style.display = 'block';
+      groupNameInp.value = g.name;
+    } else {
+      adminNameSection.style.display = 'none';
+    }
+  }
+
+  const membersListEl = document.getElementById('gmMembersList');
+  const countLabel = document.getElementById('gmMembersCountLabel');
+  const members = g.members || [];
+  if (countLabel) countLabel.textContent = `${members.length} members`;
+
+  if (membersListEl) {
+    if (members.length === 0) {
+      membersListEl.innerHTML = `<div style="text-align:center;color:var(--ink3);font-size:13px;padding:16px">No members found.</div>`;
+    } else {
+      membersListEl.innerHTML = members.map(m => {
+        const isMemOwner = g.ownerId ? m.userId === g.ownerId : m.isSelf;
+        const isStudying = !!m.timerBid;
+        const totalSec = getMemberDayTotalSec(m, new Date());
+        const hrsStr = `${Math.floor(totalSec / 3600)}h ${Math.floor((totalSec % 3600) / 60)}m`;
+
+        return `
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;gap:10px">
+            <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0">
+              <div style="width:34px;height:34px;border-radius:50%;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:var(--ink);flex-shrink:0">
+                ${m.image ? `<img src="${esc(m.image)}" style="width:100%;height:100%;border-radius:50%;object-fit:cover" />` : (m.name ? m.name.charAt(0).toUpperCase() : '👤')}
+              </div>
+              <div style="min-width:0">
+                <div style="font-size:13px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                  <span>${esc(m.name)}</span>
+                  ${m.isSelf ? '<span style="font-size:10px;color:var(--ink3)">(You)</span>' : ''}
+                  ${isMemOwner ? '<span style="font-size:10px;background:rgba(200,149,32,0.15);color:var(--gold);border:1px solid var(--gold);padding:1px 6px;border-radius:6px;font-weight:800">👑 Admin</span>' : ''}
+                </div>
+                <div style="font-size:11px;color:var(--ink3);margin-top:2px">
+                  Today: <strong>${hrsStr}</strong> • <span style="color:${isStudying ? 'var(--green)' : 'var(--ink3)'}">${isStudying ? '🔥 Studying' : '⏸️ Idle'}</span>
+                </div>
+              </div>
+            </div>
+
+            ${isOwner && !m.isSelf ? `
+              <button onclick="handleRemoveGroupMember('${g.id}', '${m.userId}', '${esc(m.name)}')" class="hbtn" style="background:rgba(217,79,61,0.12);color:#d94f3d;border:1px solid #d94f3d;font-weight:700;height:28px;font-size:11px;padding:0 10px;border-radius:6px">
+                Remove
+              </button>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+  }
+
+  openModal('groupManageOverlay');
+}
+
+async function saveGroupNameFromModal() {
+  const g = window.selectedGroupForManage;
+  const inp = document.getElementById('gmGroupNameInp');
+  if (!g || !inp) return;
+
+  const newName = inp.value.trim();
+  if (!newName) {
+    alert("Please enter a valid group name.");
+    return;
+  }
+
+  try {
+    const res = await fetch("/api/study-group", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "update_group", groupId: g.id, name: newName })
+    });
+    if (res.ok) {
+      closeModal('groupManageOverlay');
+      renderGroup();
+      alert("Group name updated successfully! 🎉");
+    } else {
+      const data = await res.json();
+      alert(data.message || "Failed to update group name");
+    }
+  } catch (err) {
+    alert("Error updating group name");
+  }
+}
+
+async function handleRemoveGroupMember(groupId, targetUserId, memberName) {
+  if (!confirm(`Are you sure you want to remove ${memberName || 'this member'} from the group?`)) return;
+
+  try {
+    const res = await fetch("/api/study-group", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "remove_member", groupId, targetUserId })
+    });
+    if (res.ok) {
+      closeModal('groupManageOverlay');
+      renderGroup();
+      alert(`Member removed from group.`);
+    } else {
+      const data = await res.json();
+      alert(data.message || "Failed to remove member");
+    }
+  } catch (err) {
+    alert("Error removing member");
+  }
 }
 
 function renderMemberGridHtml() {
@@ -2705,45 +3100,485 @@ function renderMemberGridHtml() {
   return g.members.map(m => {
     const isStudying = !!m.timerBid;
     let timerText = '00:00:00';
-    let subjectText = 'Idle';
-    let topicText = 'Not studying right now';
+    let subjectText = isStudying ? (m.subject || 'Study Block') : 'Idle';
+    let topicText = isStudying ? (m.topic || 'General study') : 'Tap to view member details';
 
-    if (isStudying) {
-      subjectText = m.subject || 'Study Block';
-      topicText = m.topic || 'General study';
-      
-      if (m.timerStart) {
-        const start = new Date(m.timerStart).getTime();
-        const elapsed = Math.floor((Date.now() - start) / 1000);
-        const total = Math.max(0, (m.timerBase || 0) + elapsed);
-        const th = Math.floor(total / 3600), tm = Math.floor((total % 3600) / 60), ts = total % 60;
-        timerText = `${String(th).padStart(2,'0')}:${String(tm).padStart(2,'0')}:${String(ts).padStart(2,'0')}`;
-      }
+    if (isStudying && m.timerStart) {
+      const start = new Date(m.timerStart).getTime();
+      const elapsed = Math.floor((Date.now() - start) / 1000);
+      const total = Math.max(0, (m.timerBase || 0) + elapsed);
+      const th = Math.floor(total / 3600), tm = Math.floor((total % 3600) / 60), ts = total % 60;
+      timerText = `${String(th).padStart(2,'0')}:${String(tm).padStart(2,'0')}:${String(ts).padStart(2,'0')}`;
     }
 
     const cardClass = isStudying ? 'member-card studying' : 'member-card';
     const statusClass = isStudying ? 'member-status-lbl studying' : 'member-status-lbl idle';
     const statusText = isStudying ? `<span class="pulse-dot"></span>Studying` : 'Idle';
+    const flameBadge = isStudying ? `<span class="member-card-flame" title="Active Focus!">🔥</span>` : '';
+
+    // Avatar
+    let avatarMarkup = '';
+    if (m.image) {
+      avatarMarkup = `<img src="${esc(m.image)}" class="member-avatar-img ${isStudying ? 'studying' : ''}" alt="${esc(m.name)}" />`;
+    } else {
+      const initial = m.name ? m.name.charAt(0).toUpperCase() : '👤';
+      avatarMarkup = `<div class="member-avatar-img ${isStudying ? 'studying' : ''}" style="background:var(--bg2);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--ink)">${initial}</div>`;
+    }
 
     return `
-      <div class="${cardClass}" data-user-id="${m.userId}" data-timer-start="${m.timerStart || ''}" data-timer-base="${m.timerBase || 0}">
-        <div class="member-card-header">
-          <div class="member-name">${esc(m.name)}${m.isSelf ? ' <span style="font-size:11px;color:var(--blue);font-weight:600">(You)</span>' : ''}</div>
-          <div class="${statusClass}">${statusText}</div>
+      <div class="${cardClass}" onclick="openMemberDetails('${m.userId}')" data-user-id="${m.userId}" data-timer-start="${m.timerStart || ''}" data-timer-base="${m.timerBase || 0}">
+        ${flameBadge}
+        <div class="member-card-header" style="border-bottom:none;padding-bottom:0">
+          <div style="display:flex;align-items:center;gap:10px;overflow:hidden">
+            ${avatarMarkup}
+            <div>
+              <div class="member-name">${esc(m.name)}${m.isSelf ? ' <span style="font-size:11px;color:var(--blue);font-weight:600">(You)</span>' : ''}</div>
+              <div class="${statusClass}" style="margin-top:2px;display:inline-block">${statusText}</div>
+            </div>
+          </div>
         </div>
-        <div style="font-size:12px;color:var(--ink2);font-weight:700;display:flex;align-items:center;gap:6px">
-          <span>📚</span>
-          <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(subjectText)}</span>
+
+        <div style="margin-top:6px;padding-top:8px;border-top:1px solid var(--border)">
+          <div style="font-size:12px;color:var(--ink2);font-weight:700;display:flex;align-items:center;gap:6px">
+            <span>📚</span>
+            <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(subjectText)}</span>
+          </div>
+          <div style="font-size:11px;color:var(--ink3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${esc(topicText)}">
+            ${esc(topicText)}
+          </div>
         </div>
-        <div style="font-size:11px;color:var(--ink3);margin-top:-2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${esc(topicText)}">
-          ${esc(topicText)}
+
+        <div style="font-size:22px;font-weight:800;font-family:monospace;letter-spacing:-0.02em;margin-top:8px;color:${isStudying ? '#c084fc' : 'var(--ink3)'};display:flex;justify-content:space-between;align-items:center" class="member-timer-val">
+          <span>${timerText}</span>
+          <span style="font-size:11px;font-weight:700;color:var(--ink3);font-family:sans-serif">Stats ➔</span>
         </div>
-        <div style="font-size:24px;font-weight:800;font-family:monospace;letter-spacing:-0.02em;margin-top:8px;color:${isStudying ? 'var(--green)' : 'var(--ink3)'}" class="member-timer-val">
-          ${timerText}
-        </div>
+
+        ${m.isSelf ? `
+          <button onclick="event.stopPropagation(); toggleGroupStudySession();" class="hbtn" style="width:100%;margin-top:8px;background:${isStudying ? '#d94f3d' : '#c084fc'};color:#fff;border-color:${isStudying ? '#d94f3d' : '#c084fc'};font-weight:800;height:30px;font-size:12px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px">
+            <span>${isStudying ? '⏸️' : '▶️'}</span>
+            <span>${isStudying ? 'Pause Session' : 'Start Session'}</span>
+          </button>
+        ` : ''}
       </div>
     `;
   }).join('');
+}
+
+window.selectedGroupMember = null;
+window.statsCurrentDate = new Date();
+
+function getMemberTrackerData(m) {
+  if (m && m.isSelf && typeof days !== 'undefined' && days.length > 0) {
+    return {
+      subj: subj || [],
+      days: days || [],
+      prog: prog || {},
+      conf: conf || {},
+      profileInfo: m.studyTracker?.profileInfo || {}
+    };
+  }
+  const t = (m && m.studyTracker) || {};
+  return {
+    subj: t.subj || [],
+    days: t.days || [],
+    prog: t.prog || {},
+    conf: t.conf || {},
+    profileInfo: t.profileInfo || {}
+  };
+}
+
+function getMemberDayStats(m, targetDateObj) {
+  const data = getMemberTrackerData(m);
+  const targetY = targetDateObj.getFullYear();
+  const targetM = targetDateObj.getMonth();
+  const targetD = targetDateObj.getDate();
+
+  const startDate = data.conf.startDate ? parseDateLocal(data.conf.startDate) : new Date();
+  
+  let dayTotalSec = 0;
+  let maxBlockSec = 0;
+  let subjectSecMap = {}; // subjectId -> seconds
+  let completedBlocks = 0;
+  let earliestStart = null;
+  let latestEnd = null;
+
+  (data.days || []).forEach((d, idx) => {
+    let dDate = d.dateOverride ? parseDateLocal(d.dateOverride) : new Date(startDate.getTime() + idx * 86400000);
+    
+    if (dDate.getFullYear() === targetY && dDate.getMonth() === targetM && dDate.getDate() === targetD) {
+      (d.blocks || []).forEach(b => {
+        const p = data.prog[b.id] || {};
+        
+        if (p.startTime || p.lastStart) {
+          const t = new Date(p.startTime || p.lastStart).getTime();
+          if (!earliestStart || t < earliestStart) earliestStart = t;
+        }
+        if (p.lastEnd) {
+          const t = new Date(p.lastEnd).getTime();
+          if (!latestEnd || t > latestEnd) latestEnd = t;
+        }
+
+        let blockSec = 0;
+
+        if (p.timeSpent && p.timeSpent > 0) {
+          blockSec = p.timeSpent;
+        } else if (p.completed || p.done) {
+          blockSec = (b.targetHrs || 3) * 3600;
+        } else if (p.subtopics) {
+          const totalSub = (b.subtopics || []).length;
+          const doneSub = Object.values(p.subtopics).filter(Boolean).length;
+          if (totalSub > 0 && doneSub > 0) {
+            blockSec = Math.round(((b.targetHrs || 3) * 3600) * (doneSub / totalSub));
+          }
+        }
+
+        if (blockSec > 0) {
+          dayTotalSec += blockSec;
+          if (blockSec > maxBlockSec) maxBlockSec = blockSec;
+          completedBlocks++;
+
+          const sId = b.subjectId || (data.subj[0]?.id || 's1');
+          subjectSecMap[sId] = (subjectSecMap[sId] || 0) + blockSec;
+        }
+      });
+    }
+  });
+
+  // If member is currently studying today
+  const isStudying = !!m.timerBid;
+  const isToday = (new Date().getFullYear() === targetY && new Date().getMonth() === targetM && new Date().getDate() === targetD);
+  if (isStudying && isToday && m.timerStart) {
+    const start = new Date(m.timerStart).getTime();
+    if (!earliestStart || start < earliestStart) earliestStart = start;
+    const elapsed = Math.floor((Date.now() - start) / 1000);
+    const liveSec = Math.max(0, (m.timerBase || 0) + elapsed);
+    dayTotalSec = Math.max(dayTotalSec, liveSec);
+    if (liveSec > maxBlockSec) maxBlockSec = liveSec;
+
+    if (m.subject) {
+      const matchingSubj = (data.subj || []).find(s => s.name === m.subject);
+      const sId = matchingSubj ? matchingSubj.id : (data.subj[0]?.id || 's1');
+      subjectSecMap[sId] = Math.max(subjectSecMap[sId] || 0, liveSec);
+    }
+  }
+
+  return {
+    dayTotalSec,
+    maxBlockSec,
+    subjectSecMap,
+    completedBlocks,
+    earliestStart,
+    latestEnd
+  };
+}
+
+function openMemberDetails(userId) {
+  const g = window.activeGroup;
+  if (!g || !g.members) return;
+  const m = g.members.find(mem => mem.userId === userId);
+  if (!m) return;
+
+  window.selectedGroupMember = m;
+
+  // Set Avatar & Name & Bio
+  const avatarEl = document.getElementById('mdAvatar');
+  if (avatarEl) {
+    if (m.image) {
+      avatarEl.innerHTML = `<img src="${esc(m.image)}" alt="${esc(m.name)}" />`;
+    } else {
+      avatarEl.textContent = m.name ? m.name.charAt(0).toUpperCase() : '👤';
+    }
+  }
+
+  const nameEl = document.getElementById('mdName');
+  if (nameEl) nameEl.textContent = m.name + (m.isSelf ? ' (You)' : '');
+
+  const trackerData = getMemberTrackerData(m);
+  const bioEl = document.getElementById('mdBio');
+  const userBio = trackerData.profileInfo?.bio || 'Dedicated Aspirant | Focused on daily targets 🎯';
+  if (bioEl) bioEl.textContent = `💬 "${userBio}"`;
+
+  // Get REAL today stats from tracker
+  const todayStats = getMemberDayStats(m, new Date());
+
+  // Compute live session stats
+  const isStudying = !!m.timerBid;
+  let timerText = '00:00:00';
+  let startTimeText = '---';
+  let endTimeText = isStudying ? 'Studying' : (todayStats.dayTotalSec > 0 ? 'Finished' : 'Idle');
+
+  if (isStudying && m.timerStart) {
+    const start = new Date(m.timerStart);
+    startTimeText = start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const elapsed = Math.floor((Date.now() - start.getTime()) / 1000);
+    const total = Math.max(0, (m.timerBase || 0) + elapsed);
+    const th = Math.floor(total / 3600), tm = Math.floor((total % 3600) / 60), ts = total % 60;
+    timerText = `${String(th).padStart(2,'0')}:${String(tm).padStart(2,'0')}:${String(ts).padStart(2,'0')}`;
+  } else if (todayStats.earliestStart) {
+    startTimeText = new Date(todayStats.earliestStart).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  } else if (todayStats.dayTotalSec > 0) {
+    const computedStart = new Date(Date.now() - todayStats.dayTotalSec * 1000);
+    startTimeText = computedStart.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  if (!isStudying && todayStats.latestEnd) {
+    endTimeText = new Date(todayStats.latestEnd).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+  
+  const maxFocusSec = todayStats.maxBlockSec;
+  const maxFocusHrs = maxFocusSec > 0
+    ? `${Math.floor(maxFocusSec / 3600)}:${String(Math.floor((maxFocusSec % 3600) / 60)).padStart(2,'0')}:${String(maxFocusSec % 60).padStart(2,'0')}`
+    : "0:00:00";
+
+  const targetSubject = m.subject || trackerData.profileInfo?.optionalSubject || (trackerData.subj?.[0]?.name || "General Studies");
+
+  const sessionCard = document.getElementById('mdSessionCard');
+  if (sessionCard) {
+    sessionCard.innerHTML = `
+      <div style="text-align:center;padding:8px 0;border-bottom:1px solid var(--border)">
+        <div style="font-size:32px;font-weight:900;font-family:monospace;letter-spacing:-0.03em;color:${isStudying ? '#c084fc' : 'var(--ink)'}">
+          ${timerText}
+        </div>
+        <div style="font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-top:2px">
+          ${isStudying ? '🔥 Active Focus Session' : '⏸️ Session Paused / Idle'}
+        </div>
+      </div>
+
+      <div class="session-grid-2x2">
+        <div class="session-grid-cell">
+          <div class="session-grid-label">Start Time</div>
+          <div class="session-grid-val">${startTimeText}</div>
+        </div>
+        <div class="session-grid-cell">
+          <div class="session-grid-label">End Time</div>
+          <div class="session-grid-val" style="color:${isStudying ? 'var(--green)' : 'var(--ink)'}">${endTimeText}</div>
+        </div>
+        <div class="session-grid-cell">
+          <div class="session-grid-label">Max Focus</div>
+          <div class="session-grid-val">${maxFocusHrs}</div>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;padding-top:8px;border-top:1px solid var(--border);font-size:12px">
+        <span style="color:var(--ink3)">Target Subject</span>
+        <span style="font-weight:700;color:#c084fc">📚 ${esc(targetSubject)}</span>
+      </div>
+
+      ${m.isSelf ? `
+        <button onclick="toggleGroupStudySession(); closeModal('memberDetailOverlay');" class="hbtn" style="width:100%;margin-top:10px;background:${isStudying ? '#d94f3d' : '#c084fc'};color:#fff;border-color:${isStudying ? '#d94f3d' : '#c084fc'};font-weight:800;height:36px;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
+          <span>${isStudying ? '⏸️' : '▶️'}</span>
+          <span>${isStudying ? 'Pause Study Session' : 'Start Study Session'}</span>
+        </button>
+      ` : ''}
+    `;
+  }
+
+  openModal('memberDetailOverlay');
+}
+
+function triggerMemberNudge() {
+  const m = window.selectedGroupMember;
+  if (!m) return;
+  alert(`⚡ Nudge sent to ${m.name}! "Keep pushing hard! 💪"`);
+}
+
+function openSelectedMemberStats() {
+  closeModal('memberDetailOverlay');
+  const m = window.selectedGroupMember;
+  if (!m) return;
+  
+  window.statsCurrentDate = new Date();
+  renderMemberStats(m);
+  openModal('memberStatsOverlay');
+}
+
+function changeStatsMonth(delta) {
+  window.statsCurrentDate.setMonth(window.statsCurrentDate.getMonth() + delta);
+  if (window.selectedGroupMember) {
+    renderMemberStats(window.selectedGroupMember);
+  }
+}
+
+function switchStatsPeriod(period) {
+  ['stTabDay', 'stTabWeek', 'stTabMonth'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('active');
+  });
+  const activeEl = document.getElementById('stTab' + period.charAt(0).toUpperCase() + period.slice(1));
+  if (activeEl) activeEl.classList.add('active');
+
+  if (window.selectedGroupMember) {
+    renderMemberStats(window.selectedGroupMember);
+  }
+}
+
+function selectStatsDay(day) {
+  const cells = document.querySelectorAll('.stats-heatmap-cell');
+  cells.forEach(c => c.classList.remove('selected'));
+  if (event && event.currentTarget) {
+    event.currentTarget.classList.add('selected');
+  }
+  
+  window.statsCurrentDate.setDate(day);
+  if (window.selectedGroupMember) {
+    renderMemberStats(window.selectedGroupMember);
+  }
+}
+
+function renderMemberStats(m) {
+  const trackerData = getMemberTrackerData(m);
+  const selectedDate = new Date(window.statsCurrentDate.getTime());
+  const year = selectedDate.getFullYear();
+  const month = selectedDate.getMonth(); // 0-11
+  
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const monthLabelEl = document.getElementById('msMonthLabel');
+  if (monthLabelEl) monthLabelEl.textContent = `${monthNames[month]} ${year}`;
+
+  // 1. Render REAL Heatmap Grid for the Month
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const heatmapGridEl = document.getElementById('msHeatmapGrid');
+  
+  if (heatmapGridEl) {
+    let html = '';
+    // Day of week headers (Mon-Sun)
+    ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].forEach(d => {
+      html += `<div style="font-size:10px;font-weight:700;color:var(--ink3);text-align:center;margin-bottom:4px">${d}</div>`;
+    });
+
+    // Blank cells before day 1
+    const firstDayIndex = (new Date(year, month, 1).getDay() + 6) % 7; // Mon = 0
+    for (let i = 0; i < firstDayIndex; i++) {
+      html += `<div></div>`;
+    }
+
+    // Generate cell for each day of the month using REAL tracker data
+    for (let day = 1; day <= daysInMonth; day++) {
+      const cellDate = new Date(year, month, day);
+      const stats = getMemberDayStats(m, cellDate);
+      const totalSec = stats.dayTotalSec;
+      const hours = Math.floor(totalSec / 3600);
+      const mins = Math.floor((totalSec % 3600) / 60);
+
+      let lvl = 'lvl-0';
+      if (hours >= 8) lvl = 'lvl-4';
+      else if (hours >= 5) lvl = 'lvl-3';
+      else if (hours >= 2) lvl = 'lvl-2';
+      else if (totalSec > 0) lvl = 'lvl-1';
+
+      const isSelected = (selectedDate.getDate() === day && selectedDate.getMonth() === month);
+
+      html += `
+        <div class="stats-heatmap-cell ${lvl} ${isSelected ? 'selected' : ''}" onclick="selectStatsDay(${day})">
+          <span>${day}</span>
+          ${totalSec > 0 ? `<span class="cell-hours">${hours}:${String(mins).padStart(2,'0')}</span>` : ''}
+        </div>
+      `;
+    }
+    heatmapGridEl.innerHTML = html;
+  }
+
+  // 2. Render REAL Day Stats for Selected Date
+  const selectedHeader = document.getElementById('msSelectedDateHeader');
+  if (selectedHeader) {
+    const dayName = selectedDate.toLocaleDateString('en-US', { weekday: 'short' });
+    selectedHeader.textContent = `${dayName}, ${monthNames[month]} ${selectedDate.getDate()}`;
+  }
+
+  const selectedStats = getMemberDayStats(m, selectedDate);
+  const totalSec = selectedStats.dayTotalSec;
+  const th = Math.floor(totalSec / 3600), tm = Math.floor((totalSec % 3600) / 60), ts = totalSec % 60;
+  const totalStr = `${th}:${String(tm).padStart(2,'0')}:${String(ts).padStart(2,'0')}`;
+
+  const maxSec = selectedStats.maxBlockSec;
+  const mh = Math.floor(maxSec / 3600), mm = Math.floor((maxSec % 3600) / 60), ms = maxSec % 60;
+  const maxStr = maxSec > 0 ? `${mh}:${String(mm).padStart(2,'0')}:${String(ms).padStart(2,'0')}` : "0:00:00";
+
+  const isStudying = !!m.timerBid;
+  const isToday = (new Date().getFullYear() === selectedDate.getFullYear() && new Date().getMonth() === selectedDate.getMonth() && new Date().getDate() === selectedDate.getDate());
+
+  let startStr = "---";
+  if (isStudying && isToday && m.timerStart) {
+    startStr = new Date(m.timerStart).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  } else if (selectedStats.earliestStart) {
+    startStr = new Date(selectedStats.earliestStart).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  } else if (totalSec > 0) {
+    const computedStart = new Date(Date.now() - totalSec * 1000);
+    startStr = computedStart.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  let endStr = "---";
+  if (isStudying && isToday) {
+    endStr = `<span style="color:var(--green)">Studying</span>`;
+  } else if (selectedStats.latestEnd) {
+    endStr = new Date(selectedStats.latestEnd).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  } else if (totalSec > 0) {
+    endStr = "Finished";
+  }
+
+  const dayBox = document.getElementById('msDayBox');
+  if (dayBox) {
+    dayBox.innerHTML = `
+      <div class="session-grid-2x2">
+        <div class="session-grid-cell">
+          <div class="session-grid-label">Total study time</div>
+          <div class="session-grid-val" style="color:#c084fc">${totalStr}</div>
+        </div>
+        <div class="session-grid-cell">
+          <div class="session-grid-label">Max focus time</div>
+          <div class="session-grid-val">${maxStr}</div>
+        </div>
+        <div class="session-grid-cell">
+          <div class="session-grid-label">Start time</div>
+          <div class="session-grid-val">${startStr}</div>
+        </div>
+        <div class="session-grid-cell">
+          <div class="session-grid-label">End time</div>
+          <div class="session-grid-val">${endStr}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  // 3. Render REAL Subject Breakdown from Tracker Subjects
+  const subjSection = document.getElementById('msSubjectsSection');
+  if (subjSection) {
+    const subjects = trackerData.subj || [];
+    const secMap = selectedStats.subjectSecMap || {};
+
+    let html = `
+      <div style="font-size:12px;font-weight:800;color:var(--ink3);text-transform:uppercase;margin-bottom:10px;letter-spacing:0.04em">
+        📚 Daily Subject Breakdown
+      </div>
+    `;
+
+    if (subjects.length === 0) {
+      html += `<div style="font-size:12px;color:var(--ink3)">No subjects logged for this day</div>`;
+    } else {
+      subjects.forEach(s => {
+        const sec = secMap[s.id] || 0;
+        const pct = totalSec > 0 ? Math.round((sec / totalSec) * 100) : 0;
+        const sh = Math.floor(sec / 3600);
+        const sm = Math.floor((sec % 3600) / 60);
+        const hrsStr = sec > 0 ? `${sh}h ${sm}m` : '0h 0m';
+        const color = getSolidColor(s.color || 'var(--purple)');
+
+        html += `
+          <div class="stat-subject-item">
+            <div class="stat-subject-header">
+              <span>${s.icon || '📚'} ${esc(s.name)}</span>
+              <span style="color:${color}">${hrsStr}</span>
+            </div>
+            <div class="stat-subject-bar-bg">
+              <div class="stat-subject-bar-fill" style="width:${pct}%;background:${color}"></div>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    subjSection.innerHTML = html;
+  }
 }
 
 async function pollGroupTimers() {

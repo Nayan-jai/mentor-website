@@ -31,8 +31,11 @@ export async function GET(request: NextRequest) {
               include: {
                 user: {
                   select: {
+                    id: true,
                     name: true,
                     email: true,
+                    image: true,
+                    studyTracker: true,
                   },
                 },
               },
@@ -42,14 +45,44 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    const ownedGroups = await prisma.studyGroup.findMany({
+    const ownedGroupsRaw = await prisma.studyGroup.findMany({
       where: { ownerId: session.user.id },
-      select: {
-        id: true,
-        name: true,
-        code: true,
+      include: {
+        members: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                image: true,
+                studyTracker: true,
+              },
+            },
+          },
+        },
       },
     });
+
+    const ownedGroups = ownedGroupsRaw.map((og) => ({
+      id: og.id,
+      name: og.name,
+      code: og.code,
+      ownerId: og.ownerId,
+      members: og.members.map((m) => ({
+        userId: m.userId,
+        isSelf: m.userId === session.user.id,
+        name: m.user.name || m.user.email.split("@")[0],
+        image: m.user.image,
+        timerBid: m.timerBid,
+        timerStart: m.timerStart ? m.timerStart.toISOString() : null,
+        timerBase: m.timerBase,
+        subject: m.subject,
+        topic: m.topic,
+        updatedAt: m.updatedAt.toISOString(),
+        studyTracker: m.user.studyTracker,
+      })),
+    }));
 
     if (!membership) {
       return NextResponse.json({ joined: false, ownedGroups });
@@ -68,12 +101,14 @@ export async function GET(request: NextRequest) {
           userId: m.userId,
           isSelf: m.userId === session.user.id,
           name: m.user.name || m.user.email.split("@")[0],
+          image: m.user.image,
           timerBid: m.timerBid,
           timerStart: m.timerStart ? m.timerStart.toISOString() : null,
           timerBase: m.timerBase,
           subject: m.subject,
           topic: m.topic,
           updatedAt: m.updatedAt.toISOString(),
+          studyTracker: m.user.studyTracker,
         })),
       },
     });
@@ -170,7 +205,56 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: "Left group" });
     }
 
-    // 4. DELETE GROUP (Only owner can delete)
+    // 4. UPDATE GROUP (Only owner can edit name)
+    if (action === "update_group") {
+      const { groupId, name } = body;
+      if (!groupId || !name || !name.trim()) {
+        return NextResponse.json({ message: "Group ID and new name are required" }, { status: 400 });
+      }
+
+      const group = await prisma.studyGroup.findUnique({ where: { id: groupId } });
+      if (!group) {
+        return NextResponse.json({ message: "Group not found" }, { status: 404 });
+      }
+      if (group.ownerId !== session.user.id) {
+        return NextResponse.json({ message: "Only the admin can update group settings" }, { status: 403 });
+      }
+
+      await prisma.studyGroup.update({
+        where: { id: groupId },
+        data: { name: name.trim() },
+      });
+
+      return NextResponse.json({ message: "Group updated successfully" });
+    }
+
+    // 5. REMOVE MEMBER (Only owner can kick users)
+    if (action === "remove_member") {
+      const { groupId, targetUserId } = body;
+      if (!groupId || !targetUserId) {
+        return NextResponse.json({ message: "Group ID and target user ID are required" }, { status: 400 });
+      }
+
+      const group = await prisma.studyGroup.findUnique({ where: { id: groupId } });
+      if (!group) {
+        return NextResponse.json({ message: "Group not found" }, { status: 404 });
+      }
+      if (group.ownerId !== session.user.id) {
+        return NextResponse.json({ message: "Only the admin can remove members" }, { status: 403 });
+      }
+
+      if (targetUserId === session.user.id) {
+        return NextResponse.json({ message: "Admin cannot remove themselves. Delete group or leave instead." }, { status: 400 });
+      }
+
+      await prisma.studyGroupMember.deleteMany({
+        where: { groupId, userId: targetUserId },
+      });
+
+      return NextResponse.json({ message: "Member removed from group" });
+    }
+
+    // 6. DELETE GROUP (Only owner can delete)
     if (action === "delete") {
       const { groupId } = body;
       if (!groupId) {
@@ -195,6 +279,22 @@ export async function POST(request: NextRequest) {
       });
 
       return NextResponse.json({ message: "Group deleted successfully" });
+    }
+
+    // 7. UPDATE TIMER STATUS (Live status update for member)
+    if (action === "update_timer") {
+      const { timerBid, timerStart, timerBase, subject, topic } = body;
+      await prisma.studyGroupMember.updateMany({
+        where: { userId: session.user.id },
+        data: {
+          timerBid: timerBid || null,
+          timerStart: timerStart ? new Date(timerStart) : null,
+          timerBase: typeof timerBase === "number" ? timerBase : 0,
+          subject: subject || null,
+          topic: topic || null,
+        },
+      });
+      return NextResponse.json({ message: "Timer updated" });
     }
 
     return NextResponse.json({ message: "Invalid action" }, { status: 400 });
