@@ -1525,6 +1525,7 @@ function markAll(bid,dayId){const d=days.find(x=>x.id===dayId),b=d?.blocks.find(
 
 /* Subtopics */
 function toggleST(bid,j,dayId){
+  const currentScrollY = window.scrollY;
   const p=gp(bid);
   p.subtopics[j]=!p.subtopics[j];
   sp();
@@ -1564,6 +1565,10 @@ function toggleST(bid,j,dayId){
     renderHoursBar();
     renderStats();
     renderDots();
+
+    if (currentScrollY > 0) {
+      window.scrollTo({ top: currentScrollY, behavior: 'instant' });
+    }
     return;
   }
 
