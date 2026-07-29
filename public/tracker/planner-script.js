@@ -1156,7 +1156,9 @@ function renderNavLabel(){
 }
 
 function renderDots(){
-  document.getElementById('dayDots').innerHTML=days.map((_,i)=>{
+  const dotsEl = document.getElementById('dayDots');
+  if (!dotsEl) return;
+  dotsEl.innerHTML = days.map((_,i)=>{
     const p=dPct(i);
     let c='dot';
     if(p===100)c+=' done';else if(p>0)c+=' partial';
@@ -1164,10 +1166,14 @@ function renderDots(){
     if(i===curDay)c+=' active';
     return `<div class="${c}" onclick="jumpTo(${i})" title="Day ${i+1} — ${p}%">${i+1}</div>`;
   }).join('');
-  
-  setTimeout(() => {
-    document.querySelector('.dot.active')?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-  }, 40);
+
+  const activeDot = dotsEl.querySelector('.dot.active');
+  if (activeDot) {
+    const containerWidth = dotsEl.clientWidth;
+    const dotLeft = activeDot.offsetLeft;
+    const dotWidth = activeDot.offsetWidth;
+    dotsEl.scrollTo({ left: dotLeft - containerWidth / 2 + dotWidth / 2, behavior: 'smooth' });
+  }
 }
 
 function renderDayContent(){
