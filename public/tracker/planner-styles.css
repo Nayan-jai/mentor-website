@@ -1617,9 +1617,38 @@ input, textarea, select { font-family: var(--font); }
    ═══════════════════════════════════════ */
 
 /* Member Card Enhancements */
+/* Member Grid Container */
+.member-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+  align-items: stretch;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 600px) {
+  .member-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+/* Member Card Layout */
 .member-card {
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 220px;
+  box-sizing: border-box;
   cursor: pointer;
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+  overflow: hidden;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
 }
 .member-card:hover {
   transform: translateY(-2px);
@@ -1632,14 +1661,15 @@ input, textarea, select { font-family: var(--font); }
 }
 .member-card-flame {
   position: absolute;
-  top: -10px;
-  right: -6px;
+  top: 10px;
+  right: 12px;
   font-size: 18px;
+  pointer-events: none;
   animation: flameBounce 1.5s infinite alternate ease-in-out;
 }
 @keyframes flameBounce {
   0% { transform: translateY(0) scale(0.9); }
-  100% { transform: translateY(-4px) scale(1.1); }
+  100% { transform: translateY(-3px) scale(1.1); }
 }
 
 /* User Avatar Box */
