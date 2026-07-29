@@ -1176,8 +1176,13 @@ function renderDayContent(){
     return;
   }
 
-  // Preserve open block cards before re-render
+  // Preserve open block cards, subtopic scroll positions, and window scroll position
   const openBlockIds = Array.from(document.querySelectorAll('.block-body.open')).map(el => el.id.replace('sbb-', ''));
+  const stListScrolls = {};
+  document.querySelectorAll('.st-list').forEach(el => {
+    if (el.id) stListScrolls[el.id] = el.scrollTop;
+  });
+  const windowScrollY = window.scrollY;
 
   const day=days[curDay];
   let html=`<div class="day-meta">
@@ -1202,6 +1207,17 @@ function renderDayContent(){
     document.getElementById('sbb-' + bid)?.classList.add('open');
     document.getElementById('chev-' + bid)?.classList.add('open');
   });
+
+  // Restore subtopic list internal scroll positions
+  Object.keys(stListScrolls).forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.scrollTop = stListScrolls[id];
+  });
+
+  // Restore window scroll position
+  if (windowScrollY > 0) {
+    window.scrollTo({ top: windowScrollY, behavior: 'instant' });
+  }
 }
 
 function buildBlockReadOnly(dayId,block,bi){
@@ -1502,7 +1518,51 @@ function delBlock(dayId,bid){if(!confirm('Remove this subject block?'))return;co
 function markAll(bid,dayId){const d=days.find(x=>x.id===dayId),b=d?.blocks.find(x=>x.id===bid);if(!b)return;b.subtopics.forEach((_,j)=>gp(bid).subtopics[j]=true);sp();refreshAllViews();}
 
 /* Subtopics */
-function toggleST(bid,j,dayId){const p=gp(bid);p.subtopics[j]=!p.subtopics[j];sp();refreshAllViews();}
+function toggleST(bid,j,dayId){
+  const p=gp(bid);
+  p.subtopics[j]=!p.subtopics[j];
+  sp();
+
+  const d=days.find(x=>x.id===dayId);
+  const b=d?.blocks.find(x=>x.id===bid);
+
+  if(b){
+    const stRow=document.querySelector(`#stl-${bid} .st-row:nth-child(${j+1})`);
+    if(stRow){
+      const isDone=!!p.subtopics[j];
+      stRow.classList.toggle('done', isDone);
+      const chk=stRow.querySelector('.st-check');
+      if(chk){
+        chk.classList.toggle('on', isDone);
+        chk.textContent=isDone?'✓':'';
+      }
+    }
+
+    const pct=bPct(bid,b.subtopics);
+    const circ=2*Math.PI*15;
+    const offset=circ-(pct/100)*circ;
+
+    const card=document.getElementById('sb-'+bid);
+    if(card){
+      const subTitle=card.querySelector('.block-subtitle');
+      if(subTitle){
+        const sec=(p.timeSpent||0)+(timers[bid]?.running?Math.floor((Date.now()-timers[bid].start)/1000):0);
+        subTitle.textContent=`${pct}% · ${Math.round(sec/360)/10}/${b.targetHrs}h · ${esc(b.topic||'No topic set')}`;
+      }
+      const mrFg=card.querySelector('.mr-fg');
+      if(mrFg) mrFg.setAttribute('stroke-dashoffset', offset);
+      const mrLbl=card.querySelector('.mr-label');
+      if(mrLbl) mrLbl.textContent=`${pct}%`;
+    }
+
+    renderHoursBar();
+    renderStats();
+    renderDots();
+    return;
+  }
+
+  refreshAllViews();
+}
 function editST(dayId,bid,j,v){const d=days.find(x=>x.id===dayId),b=d?.blocks.find(x=>x.id===bid);if(b){b.subtopics[j]=v;sd();}refreshAllViews();}
 function delST(dayId,bid,j){
   const d=days.find(x=>x.id===dayId),b=d?.blocks.find(x=>x.id===bid);if(!b)return;
