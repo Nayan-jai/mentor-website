@@ -965,14 +965,32 @@ function toggleEasySubjectTimer(subjectId) {
   renderDaily();
 }
 
+let lastCheckedDateStr = new Date().toDateString();
+
+function checkDailyRollover() {
+  const todayStr = new Date().toDateString();
+  if (todayStr !== lastCheckedDateStr) {
+    lastCheckedDateStr = todayStr;
+    const ti = days.findIndex((_, i) => isToday(getDd(i)));
+    if (ti >= 0) {
+      curDay = ti;
+    }
+    renderDaily();
+    renderStats();
+    renderHoursBar();
+  }
+}
+
 function renderEasyModeTick() {
+  checkDailyRollover();
   if (conf.trackerMode !== 'easy') return;
   const bigTimerEl = document.getElementById('easyBigTimerDisplay');
   const bigTimerSubEl = document.getElementById('easyBigTimerSub');
   if (!bigTimerEl) return;
 
+  const curDayObj = days[curDay] || days[0];
   const runningBid = Object.keys(timers).find(bid => timers[bid]?.running);
-  let totalSec = days.reduce((s,d) => s + d.blocks.reduce((ss,b) => ss + (gp(b.id).timeSpent || 0), 0), 0);
+  let totalSec = (curDayObj?.blocks || []).reduce((ss,b) => ss + (gp(b.id).timeSpent || 0), 0);
 
   if (runningBid) {
     const elapsed = Math.floor((Date.now() - timers[runningBid].start) / 1000);
@@ -1022,7 +1040,7 @@ function renderEasyModeView() {
   const runningBid = Object.keys(timers).find(bid => timers[bid]?.running);
   const runningBlock = runningBid ? (days[curDay]?.blocks || []).find(b => b.id === runningBid) : null;
 
-  let totalSec = days.reduce((s,d) => s + d.blocks.reduce((ss,b) => ss + (gp(b.id).timeSpent || 0), 0), 0);
+  let totalSec = (curDayObj?.blocks || []).reduce((ss,b) => ss + (gp(b.id).timeSpent || 0), 0);
   if (runningBid) {
     totalSec += Math.floor((Date.now() - timers[runningBid].start) / 1000);
   }
