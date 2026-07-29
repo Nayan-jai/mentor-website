@@ -2302,9 +2302,23 @@ body[data-tracker-mode="easy"] #dayDots {
     overflow-x: auto;
     max-width: 100%;
     scrollbar-width: none;
+    padding: 4px;
+    gap: 4px;
+    border-radius: 10px;
   }
   .tabs::-webkit-scrollbar {
     display: none;
+  }
+  .tab {
+    padding: 8px 15px;
+    font-size: 14px;
+    font-weight: 700;
+    border-radius: 8px;
+    min-height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
   }
   .group-split-card {
     padding: 20px;
@@ -2328,18 +2342,28 @@ body[data-tracker-mode="easy"] #dayDots {
 
 @media (max-width: 520px) {
   .header-inner {
-    padding: 0 14px;
+    padding: 0 12px;
     gap: 6px;
   }
   .app {
-    padding: 14px 16px;
+    padding: 14px 14px;
   }
   .logo {
     font-size: 15px;
   }
+  .tabs {
+    padding: 4px;
+    gap: 4px;
+  }
+  .tab {
+    padding: 8px 13px;
+    font-size: 14px;
+    font-weight: 700;
+    min-height: 40px;
+  }
   .back-nav-btn {
-    padding: 4px 8px;
-    font-size: 11px;
+    padding: 5px 10px;
+    font-size: 12px;
   }
   .group-split-card {
     flex-direction: column;
