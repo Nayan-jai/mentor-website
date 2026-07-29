@@ -144,9 +144,26 @@
         </div>
       </div>
 
+      <!-- Tracker View Mode Section (Above Danger Zone) -->
+      <div style="margin-top:24px;padding:18px 20px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--sh);">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+              <span style="font-size:16px">🎯</span>
+              <span style="font-size:14px;font-weight:800;color:var(--ink)">Tracker View Mode</span>
+            </div>
+            <div style="font-size:12px;color:var(--ink3)">Switch your daily interface between <strong>Advanced Mode</strong> (Full Timetable Planner) and <strong>Easy Mode</strong> (YPT Minimal Stopwatch List).</div>
+          </div>
+          <div style="display:flex;gap:8px" id="manageModeBtnGroup">
+            <button onclick="setTrackerMode('advanced')" class="hbtn" id="btnModeAdvanced" style="height:34px;padding:0 16px;font-size:12px;font-weight:800">⚙️ Advanced Mode</button>
+            <button onclick="setTrackerMode('easy')" class="hbtn" id="btnModeEasy" style="height:34px;padding:0 16px;font-size:12px;font-weight:800">✨ Easy Mode</button>
+          </div>
+        </div>
+      </div>
+
       <!-- Danger Zone -->
       <div
-        style="margin-top:24px;padding:18px 20px;background:var(--card);border:1.5px solid #d94f3d55;border-radius:var(--radius);box-shadow:var(--sh)">
+        style="margin-top:20px;padding:18px 20px;background:var(--card);border:1.5px solid #d94f3d55;border-radius:var(--radius);box-shadow:var(--sh)">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
           <span style="font-size:15px">⚠️</span>
           <span

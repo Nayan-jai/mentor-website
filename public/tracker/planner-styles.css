@@ -1644,11 +1644,11 @@ input, textarea, select { font-family: var(--font); }
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 220px;
+  min-height: 230px;
   box-sizing: border-box;
   cursor: pointer;
   overflow: hidden;
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
 }
 .member-card:hover {
   transform: translateY(-2px);
@@ -1659,13 +1659,263 @@ input, textarea, select { font-family: var(--font); }
   background: linear-gradient(145deg, var(--card), color-mix(in srgb, #a855f7 6%, var(--card)));
   box-shadow: 0 4px 20px rgba(168, 85, 247, 0.15);
 }
-.member-card-flame {
+/* Hide stats-row, hours-bar-card, today-banner, day-nav, day-dots in Easy Mode */
+body[data-tracker-mode="easy"] .hours-bar-card,
+body[data-tracker-mode="easy"] .stats-row,
+body[data-tracker-mode="easy"] #hoursBar,
+body[data-tracker-mode="easy"] #statsRow,
+body[data-tracker-mode="easy"] #todayBanner,
+body[data-tracker-mode="easy"] .day-nav,
+body[data-tracker-mode="easy"] #dayDots {
+  display: none !important;
+}
+
+/* ═══════════════════════════════════════
+   EASY MODE STYLES (MATCHING REFERENCE IMAGE)
+   ═══════════════════════════════════════ */
+.easy-mode-container {
+  max-width: 900px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  box-sizing: border-box;
+}
+
+.easy-header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.easy-main-timer {
+  font-size: 72px;
+  font-weight: 900;
+  color: var(--ink);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.easy-main-timer.active {
+  color: var(--green);
+}
+
+.easy-date-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--ink);
+  margin-top: 8px;
+}
+
+.easy-sub-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink3);
+  margin-top: 6px;
+}
+
+/* Centered Sub-Nav */
+.easy-nav-bar {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  width: 100%;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.easy-nav-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.easy-nav-item {
+  background: none;
+  border: none;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink3);
+  cursor: pointer;
+  padding: 4px 0;
+  position: relative;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: color 0.15s ease;
+}
+
+.easy-nav-item:hover {
+  color: var(--ink2);
+}
+
+.easy-nav-item.active {
+  color: var(--ink);
+}
+
+.easy-nav-item.active::after {
+  content: '';
   position: absolute;
-  top: 10px;
-  right: 12px;
+  bottom: -13px;
+  left: 0; right: 0;
+  height: 3px;
+  background: var(--ink);
+  border-radius: 2px;
+}
+
+/* Subject List Rows */
+.easy-subject-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+/* 2-Column Grid Layout for Subjects */
+.easy-subjects-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  width: 100%;
+}
+
+@media (max-width: 640px) {
+  .easy-subjects-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+.easy-subj-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  gap: 14px;
+  box-shadow: var(--sh);
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  cursor: pointer;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.easy-subj-card:hover {
+  border-color: var(--border2);
+  transform: translateY(-2px);
+  box-shadow: var(--sh2);
+}
+
+.easy-subj-card.running {
+  border-color: var(--green);
+  background: linear-gradient(145deg, var(--card), color-mix(in srgb, var(--green) 8%, var(--card)));
+  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.15);
+}
+
+.easy-play-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 18px;
-  pointer-events: none;
-  animation: flameBounce 1.5s infinite alternate ease-in-out;
+  cursor: pointer;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.easy-play-btn:hover {
+  transform: scale(1.1);
+  filter: brightness(1.15);
+}
+
+.easy-play-btn.running {
+  animation: pulsePlayBtn 1.5s infinite alternate ease-in-out;
+}
+
+@keyframes pulsePlayBtn {
+  0% { transform: scale(0.96); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+  100% { transform: scale(1.08); box-shadow: 0 0 14px 4px rgba(16, 185, 129, 0.6); }
+}
+
+.easy-subj-name {
+  font-size: 18px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--ink);
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.easy-subj-time {
+  font-size: 18px;
+  font-weight: 800;
+  font-family: monospace, monospace;
+  color: var(--ink);
+  flex-shrink: 0;
+  letter-spacing: -0.02em;
+}
+
+.easy-subj-opt {
+  background: none;
+  border: none;
+  color: var(--ink3);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 0 4px;
+  flex-shrink: 0;
+}
+
+/* Media Queries for Small Devices */
+@media (max-width: 520px) {
+  .easy-big-timer-val {
+    font-size: 42px;
+  }
+  .easy-big-timer-card {
+    padding: 18px 12px;
+  }
+  .easy-subj-row {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+  .easy-play-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+  }
+  .easy-subj-name {
+    font-size: 14px;
+  }
+  .easy-subj-time {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 380px) {
+  .easy-big-timer-val {
+    font-size: 34px;
+  }
+  .easy-date-label {
+    font-size: 14px;
+  }
+  .easy-pill-badge {
+    font-size: 11px;
+    padding: 3px 8px;
+  }
 }
 @keyframes flameBounce {
   0% { transform: translateY(0) scale(0.9); }

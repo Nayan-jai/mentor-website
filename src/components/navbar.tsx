@@ -68,71 +68,71 @@ export default function Navbar() {
           </button>
 
           {/* Navigation - Desktop */}
-          <nav className="hidden lg:flex items-center space-x-1 xl:space-x-3">
+          <nav className="hidden lg:flex items-center space-x-1 xl:space-x-2.5">
             {!session && (
-              <Link href="/" className="group nav-link flex items-center gap-2 px-3 py-1.5 text-sm lg:text-base font-semibold tracking-wide">
+              <Link href="/" className="group nav-link flex items-center gap-1.5 xl:gap-2 px-2 xl:px-3 py-1.5 text-xs xl:text-sm 2xl:text-base font-semibold tracking-wide whitespace-nowrap">
                 <Home className="w-4 h-4 text-sky-400 transition-transform duration-200 group-hover:scale-110" /> Home
               </Link>
             )}
-            <Link href="/sessions" className="group nav-link flex items-center gap-2 px-3 py-1.5 text-sm lg:text-base font-semibold tracking-wide">
+            <Link href="/sessions" className="group nav-link flex items-center gap-1.5 xl:gap-2 px-2 xl:px-3 py-1.5 text-xs xl:text-sm 2xl:text-base font-semibold tracking-wide whitespace-nowrap">
               <Calendar className="w-4 h-4 text-violet-400 transition-transform duration-200 group-hover:scale-110" /> Sessions
             </Link>
-            <Link href="/forum" className="group nav-link flex items-center gap-2 px-3 py-1.5 text-sm lg:text-base font-semibold tracking-wide">
+            <Link href="/forum" className="group nav-link flex items-center gap-1.5 xl:gap-2 px-2 xl:px-3 py-1.5 text-xs xl:text-sm 2xl:text-base font-semibold tracking-wide whitespace-nowrap">
               <MessageCircle className="w-4 h-4 text-emerald-400 transition-transform duration-200 group-hover:scale-110" /> Forum
             </Link>
             {session && (
-              <Link href="/test" className="group nav-link flex items-center gap-2 px-3 py-1.5 text-sm lg:text-base font-semibold tracking-wide">
+              <Link href="/test" className="group nav-link flex items-center gap-1.5 xl:gap-2 px-2 xl:px-3 py-1.5 text-xs xl:text-sm 2xl:text-base font-semibold tracking-wide whitespace-nowrap">
                 <BookOpen className="w-4 h-4 text-amber-400 transition-transform duration-200 group-hover:scale-110" /> Test
               </Link>
             )}
             {session && (
-              <Link href="/resources" className="group nav-link flex items-center gap-2 px-3 py-1.5 text-sm lg:text-base font-semibold tracking-wide">
+              <Link href="/resources" className="group nav-link flex items-center gap-1.5 xl:gap-2 px-2 xl:px-3 py-1.5 text-xs xl:text-sm 2xl:text-base font-semibold tracking-wide whitespace-nowrap">
                 <BookOpen className="w-4 h-4 text-purple-400 transition-transform duration-200 group-hover:scale-110" /> Resources
               </Link>
             )}
             {session?.user?.role === "STUDENT" && (
-              <Link href="/my-queries?ask=true" className="group nav-link flex items-center gap-2 px-3 py-1.5 text-sm lg:text-base font-semibold tracking-wide">
-                <HelpCircle className="w-4 h-4 text-rose-400 transition-transform duration-200 group-hover:scale-110" /> Ask Mentor
+              <Link href="/my-queries?ask=true" className="group nav-link flex items-center gap-1.5 xl:gap-2 px-2 xl:px-3 py-1.5 text-xs xl:text-sm 2xl:text-base font-semibold tracking-wide whitespace-nowrap">
+                <HelpCircle className="w-4 h-4 text-rose-400 transition-transform duration-200 group-hover:scale-110 shrink-0" /> Ask Mentor
               </Link>
             )}
             {session?.user?.role === "MENTOR" && (
-              <Link href="/mentor/private-queries" className="group nav-link flex items-center gap-2 px-3 py-1.5 text-sm lg:text-base font-semibold tracking-wide">
-                <Lock className="w-4 h-4 text-rose-400 transition-transform duration-200 group-hover:scale-110" /> Private Queries
+              <Link href="/mentor/private-queries" className="group nav-link flex items-center gap-1.5 xl:gap-2 px-2 xl:px-3 py-1.5 text-xs xl:text-sm 2xl:text-base font-semibold tracking-wide whitespace-nowrap">
+                <Lock className="w-4 h-4 text-rose-400 transition-transform duration-200 group-hover:scale-110 shrink-0" /> Private Queries
               </Link>
             )}
             {session?.user?.role === "ADMIN" && (
               <>
-                <Link href="/dashboard/admin/users" className="group nav-link flex items-center gap-2 px-3 py-1.5 text-sm lg:text-base font-semibold tracking-wide">
-                  <Users className="w-4 h-4 text-cyan-400 transition-transform duration-200 group-hover:scale-110" /> Manage Users
+                <Link href="/dashboard/admin/users" className="group nav-link flex items-center gap-1.5 xl:gap-2 px-2 xl:px-3 py-1.5 text-xs xl:text-sm 2xl:text-base font-semibold tracking-wide whitespace-nowrap">
+                  <Users className="w-4 h-4 text-cyan-400 transition-transform duration-200 group-hover:scale-110 shrink-0" /> Manage Users
                 </Link>
-                <Link href="/dashboard/admin/sessions" className="group nav-link flex items-center gap-2 px-3 py-1.5 text-sm lg:text-base font-semibold tracking-wide">
-                  <CalendarCheck className="w-4 h-4 text-purple-400 transition-transform duration-200 group-hover:scale-110" /> Manage Sessions
+                <Link href="/dashboard/admin/sessions" className="group nav-link flex items-center gap-1.5 xl:gap-2 px-2 xl:px-3 py-1.5 text-xs xl:text-sm 2xl:text-base font-semibold tracking-wide whitespace-nowrap">
+                  <CalendarCheck className="w-4 h-4 text-purple-400 transition-transform duration-200 group-hover:scale-110 shrink-0" /> Manage Sessions
                 </Link>
-                <Link href="/dashboard/admin/analytics" className="group nav-link flex items-center gap-2 px-3 py-1.5 text-sm lg:text-base font-semibold tracking-wide">
-                  <LineChart className="w-4 h-4 text-emerald-400 transition-transform duration-200 group-hover:scale-110" /> Analytics
+                <Link href="/dashboard/admin/analytics" className="group nav-link flex items-center gap-1.5 xl:gap-2 px-2 xl:px-3 py-1.5 text-xs xl:text-sm 2xl:text-base font-semibold tracking-wide whitespace-nowrap">
+                  <LineChart className="w-4 h-4 text-emerald-400 transition-transform duration-200 group-hover:scale-110 shrink-0" /> Analytics
                 </Link>
               </>
             )}
             {session ? (
-              <div className="flex items-center gap-3 pl-2 border-l border-indigo-900/60 ml-2">
+              <div className="flex items-center gap-2 xl:gap-3 pl-2 border-l border-indigo-900/60 ml-1 xl:ml-2">
                 {session.user?.role === "STUDENT" && (
-                  <Link href="/dashboard/student" className="group nav-link flex items-center gap-2 px-3 py-1.5 text-sm lg:text-base font-semibold tracking-wide">
-                    <Gauge className="w-4 h-4 text-sky-400 transition-transform duration-200 group-hover:scale-110" /> Dashboard
+                  <Link href="/dashboard/student" className="group nav-link flex items-center gap-1.5 xl:gap-2 px-2 xl:px-3 py-1.5 text-xs xl:text-sm 2xl:text-base font-semibold tracking-wide whitespace-nowrap">
+                    <Gauge className="w-4 h-4 text-sky-400 transition-transform duration-200 group-hover:scale-110 shrink-0" /> Dashboard
                   </Link>
                 )}
                 {session.user?.role === "MENTOR" && (
-                  <Link href="/dashboard/mentor" className="group nav-link flex items-center gap-2 px-3 py-1.5 text-sm lg:text-base font-semibold tracking-wide">
-                    <BookOpen className="w-4 h-4 text-emerald-400 transition-transform duration-200 group-hover:scale-110" /> Dashboard
+                  <Link href="/dashboard/mentor" className="group nav-link flex items-center gap-1.5 xl:gap-2 px-2 xl:px-3 py-1.5 text-xs xl:text-sm 2xl:text-base font-semibold tracking-wide whitespace-nowrap">
+                    <BookOpen className="w-4 h-4 text-emerald-400 transition-transform duration-200 group-hover:scale-110 shrink-0" /> Dashboard
                   </Link>
                 )}
 
                 {/* Profile Avatar after Dashboard */}
                 <Link
                   href="/profile"
-                  className="group relative flex items-center justify-center p-0.5 rounded-full hover:ring-2 hover:ring-blue-400 transition-all duration-200"
+                  className="group relative flex items-center justify-center p-0.5 rounded-full hover:ring-2 hover:ring-blue-400 transition-all duration-200 shrink-0"
                   title="View Profile"
                 >
-                  <div className="w-8 h-8 rounded-full overflow-hidden border border-slate-700 bg-slate-900 shadow-sm group-hover:scale-105 transition-transform duration-200">
+                  <div className="w-7 h-7 xl:w-8 xl:h-8 rounded-full overflow-hidden border border-slate-700 bg-slate-900 shadow-sm group-hover:scale-105 transition-transform duration-200">
                     <img
                       src={userAvatar}
                       alt={session.user?.name || "Profile"}
@@ -143,18 +143,18 @@ export default function Navbar() {
 
                 <button
                   onClick={() => signOut({ callbackUrl: "/" })}
-                  className="group flex items-center gap-2 px-3 py-1.5 rounded-lg text-white bg-indigo-900/40 hover:bg-rose-600 border border-indigo-800/80 hover:border-rose-500 transition-all duration-300 text-sm lg:text-base font-semibold tracking-wide shadow-sm"
+                  className="group flex items-center gap-1.5 xl:gap-2 px-2.5 xl:px-3.5 py-1.5 rounded-lg text-white bg-indigo-900/40 hover:bg-rose-600 border border-indigo-800/80 hover:border-rose-500 transition-all duration-300 text-xs xl:text-sm 2xl:text-base font-semibold tracking-wide whitespace-nowrap shadow-sm shrink-0"
                 >
-                  <LogOut className="w-4 h-4 text-rose-400 group-hover:text-white transition-colors duration-200" /> Sign Out
+                  <LogOut className="w-4 h-4 text-rose-400 group-hover:text-white transition-colors duration-200 shrink-0" /> Sign Out
                 </button>
               </div>
             ) : (
               <div className="flex items-center gap-2 pl-2 border-l border-indigo-900/60 ml-2">
-                <Link href="/auth/login" className="group nav-link flex items-center gap-2 px-3 py-1.5 text-sm lg:text-base font-semibold tracking-wide whitespace-nowrap" >
-                  <LogIn className="w-4 h-4 text-sky-400 transition-transform duration-200 group-hover:scale-110" /> Sign In
+                <Link href="/auth/login" className="group nav-link flex items-center gap-1.5 xl:gap-2 px-2.5 xl:px-3 py-1.5 text-xs xl:text-sm 2xl:text-base font-semibold tracking-wide whitespace-nowrap" >
+                  <LogIn className="w-4 h-4 text-sky-400 transition-transform duration-200 group-hover:scale-110 shrink-0" /> Sign In
                 </Link>
-                <Link href="/auth/register" className="group flex items-center gap-2 px-4 py-1.5 rounded-full text-black bg-white hover:bg-blue-600 hover:text-white transition-all duration-300 text-sm lg:text-base font-semibold tracking-wide whitespace-nowrap shadow-sm border border-transparent">
-                  <UserPlus className="w-4 h-4 text-blue-600 group-hover:text-white transition-transform duration-200" /> Get Started
+                <Link href="/auth/register" className="group flex items-center gap-1.5 xl:gap-2 px-3.5 xl:px-4 py-1.5 rounded-full text-black bg-white hover:bg-blue-600 hover:text-white transition-all duration-300 text-xs xl:text-sm 2xl:text-base font-semibold tracking-wide whitespace-nowrap shadow-sm border border-transparent shrink-0">
+                  <UserPlus className="w-4 h-4 text-blue-600 group-hover:text-white transition-transform duration-200 shrink-0" /> Get Started
                 </Link>
               </div>
             )}

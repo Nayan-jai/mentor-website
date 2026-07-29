@@ -662,6 +662,15 @@ function renderStats(){
     todayCardHtml = `<div class="stat-card clickable" onclick="showStatsDetail('today')" style="cursor:pointer"><div class="stat-label">📅 Today</div><div class="stat-value" style="color:var(--purple)">${todayLog}h</div><div class="stat-sub">of ${todayTgt}h target</div></div>`;
   }
 
+  const statsRow = document.getElementById('statsRow');
+  if (statsRow) {
+    if (conf.trackerMode === 'easy') {
+      statsRow.style.display = 'none';
+    } else {
+      statsRow.style.display = 'grid';
+    }
+  }
+
   document.getElementById('statsRow').innerHTML=`
     <div class="stat-card clickable" onclick="showStatsDetail('progress')" style="cursor:pointer"><div class="stat-label">Progress</div><div class="stat-value">${tot?Math.round(done/tot*100):0}%</div><div class="stat-sub">${done}/${tot} days done</div></div>
     <div class="stat-card clickable" onclick="showStatsDetail('streak')" style="cursor:pointer"><div class="stat-label">🔥 Streak</div><div class="stat-value" style="color:var(--orange)">${streak}</div><div class="stat-sub">days in a row</div></div>
@@ -869,6 +878,13 @@ function showStatsDetail(type) {
 }
 
 function renderHoursBar(){
+  const hoursBar = document.getElementById('hoursBar');
+  if (hoursBar && conf.trackerMode === 'easy') {
+    hoursBar.style.display = 'none';
+    return;
+  } else if (hoursBar) {
+    hoursBar.style.display = 'block';
+  }
   const d=days[curDay];
   if(!d){document.getElementById('hoursBar').innerHTML='<div style="font-size:13px;color:var(--ink3)">No day selected</div>';return;}
   const target=d.targetHrs||9;
@@ -898,13 +914,210 @@ function renderHoursBar(){
 }
 
 /* ══════════════════════════════════════════
+   EASY MODE & TRACKER VIEW MODE FUNCTIONS
+══════════════════════════════════════════ */
+function setTrackerMode(mode) {
+  conf.trackerMode = mode;
+  if (mode === 'easy') {
+    document.body.setAttribute('data-tracker-mode', 'easy');
+  } else {
+    document.body.removeAttribute('data-tracker-mode');
+  }
+  sc();
+  renderAll();
+  renderManage();
+}
+
+function toggleTrackerMode() {
+  const nextMode = conf.trackerMode === 'easy' ? 'advanced' : 'easy';
+  setTrackerMode(nextMode);
+}
+
+function toggleEasySubjectTimer(subjectId) {
+  const runningBid = Object.keys(timers).find(bid => timers[bid]?.running);
+  if (runningBid) {
+    const runningBlock = (days[curDay]?.blocks || []).find(b => b.id === runningBid);
+    if (runningBlock && runningBlock.subjectId === subjectId) {
+      toggleTimer(runningBid, days[curDay].id);
+      renderDaily();
+      return;
+    }
+  }
+
+  const curDayObj = days[curDay] || days[0];
+  if (!curDayObj) return;
+
+  let targetBlock = (curDayObj.blocks || []).find(b => b.subjectId === subjectId);
+  if (!targetBlock) {
+    const s = sj(subjectId);
+    targetBlock = {
+      id: gid(),
+      subjectId: subjectId,
+      targetHrs: s.defaultHrs || 2,
+      topic: (s.name || 'Study') + ' Session',
+      subtopics: []
+    };
+    curDayObj.blocks.push(targetBlock);
+    sd();
+  }
+
+  toggleTimer(targetBlock.id, curDayObj.id);
+  renderDaily();
+}
+
+function renderEasyModeTick() {
+  if (conf.trackerMode !== 'easy') return;
+  const bigTimerEl = document.getElementById('easyBigTimerDisplay');
+  const bigTimerSubEl = document.getElementById('easyBigTimerSub');
+  if (!bigTimerEl) return;
+
+  const runningBid = Object.keys(timers).find(bid => timers[bid]?.running);
+  let totalSec = days.reduce((s,d) => s + d.blocks.reduce((ss,b) => ss + (gp(b.id).timeSpent || 0), 0), 0);
+
+  if (runningBid) {
+    const elapsed = Math.floor((Date.now() - timers[runningBid].start) / 1000);
+    const activeSec = (gp(runningBid).timeSpent || 0) + elapsed;
+    const ah = Math.floor(activeSec / 3600), am = Math.floor((activeSec % 3600) / 60), as = activeSec % 60;
+    bigTimerEl.textContent = `${String(ah).padStart(1,'0')}:${String(am).padStart(2,'0')}:${String(as).padStart(2,'0')}`;
+    bigTimerEl.classList.add('active');
+
+    const totalActiveSec = totalSec + elapsed;
+    const totalH = Math.floor(totalActiveSec / 3600), totalM = Math.floor((totalActiveSec % 3600) / 60);
+    if (bigTimerSubEl) bigTimerSubEl.textContent = `${totalH}h ${totalM}m total study today`;
+
+    const activeBlock = (days[curDay]?.blocks || []).find(b => b.id === runningBid);
+    if (activeBlock) {
+      const activeRowTimeEl = document.getElementById('easySubjTime-' + activeBlock.subjectId);
+      if (activeRowTimeEl) {
+        let subjTotalSec = 0;
+        (days[curDay]?.blocks || []).forEach(b => {
+          if (b.subjectId === activeBlock.subjectId) {
+            subjTotalSec += (gp(b.id).timeSpent || 0);
+            if (timers[b.id]?.running) {
+              subjTotalSec += Math.floor((Date.now() - timers[b.id].start) / 1000);
+            }
+          }
+        });
+        const sh = Math.floor(subjTotalSec / 3600), sm = Math.floor((subjTotalSec % 3600) / 60), ss = subjTotalSec % 60;
+        activeRowTimeEl.textContent = `${String(sh).padStart(1,'0')}:${String(sm).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
+      }
+    }
+  } else {
+    const totalH = Math.floor(totalSec / 3600), totalM = Math.floor((totalSec % 3600) / 60);
+    bigTimerEl.textContent = `${totalH}h ${totalM}m`;
+    bigTimerEl.classList.remove('active');
+    if (bigTimerSubEl) bigTimerSubEl.textContent = '';
+  }
+}
+
+function renderEasyModeView() {
+  const container = document.getElementById('dayContent');
+  if (!container) return;
+
+  const curDayObj = days[curDay] || days[0];
+
+  const dayDate = getDd(curDay);
+  const fullDateStr = dayDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+
+  const runningBid = Object.keys(timers).find(bid => timers[bid]?.running);
+  const runningBlock = runningBid ? (days[curDay]?.blocks || []).find(b => b.id === runningBid) : null;
+
+  let totalSec = days.reduce((s,d) => s + d.blocks.reduce((ss,b) => ss + (gp(b.id).timeSpent || 0), 0), 0);
+  if (runningBid) {
+    totalSec += Math.floor((Date.now() - timers[runningBid].start) / 1000);
+  }
+  const totalH = Math.floor(totalSec / 3600), totalM = Math.floor((totalSec % 3600) / 60);
+
+  let bigTimerText = `${totalH}h ${totalM}m`;
+  if (runningBid) {
+    const elapsed = Math.floor((Date.now() - timers[runningBid].start) / 1000);
+    const activeSec = (gp(runningBid).timeSpent || 0) + elapsed;
+    const ah = Math.floor(activeSec / 3600), am = Math.floor((activeSec % 3600) / 60), as = activeSec % 60;
+    bigTimerText = `${String(ah).padStart(1,'0')}:${String(am).padStart(2,'0')}:${String(as).padStart(2,'0')}`;
+  }
+
+  const subjectsHtml = subj.map(s => {
+    let subjSec = 0;
+    if (curDayObj && curDayObj.blocks) {
+      curDayObj.blocks.forEach(b => {
+        if (b.subjectId === s.id) {
+          subjSec += (gp(b.id).timeSpent || 0);
+          if (timers[b.id]?.running) {
+            subjSec += Math.floor((Date.now() - timers[b.id].start) / 1000);
+          }
+        }
+      });
+    }
+
+    const isSubjRunning = runningBlock && runningBlock.subjectId === s.id;
+    const sh = Math.floor(subjSec / 3600), sm = Math.floor((subjSec % 3600) / 60), ss = subjSec % 60;
+    const timeStr = `${String(sh).padStart(1,'0')}:${String(sm).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
+
+    return `
+      <div class="easy-subj-card ${isSubjRunning ? 'running' : ''}" onclick="toggleEasySubjectTimer('${s.id}')">
+        <button class="easy-play-btn ${isSubjRunning ? 'running' : ''}" style="background:${getSolidColor(s.color)}" onclick="event.stopPropagation(); toggleEasySubjectTimer('${s.id}')">
+          ${isSubjRunning ? '⏸' : '▶'}
+        </button>
+        <div class="easy-subj-name">${esc(s.name)}</div>
+        <div class="easy-subj-time" id="easySubjTime-${s.id}">${timeStr}</div>
+      </div>
+    `;
+  }).join('');
+
+  container.innerHTML = `
+    <div class="easy-mode-container">
+      <!-- Centered Top Header -->
+      <div class="easy-header">
+        <div class="easy-main-timer ${runningBid ? 'active' : ''}" id="easyBigTimerDisplay">${bigTimerText}</div>
+        <div class="easy-date-title">${fullDateStr}</div>
+        <div class="easy-sub-text" id="easyBigTimerSub">${runningBid ? `${totalH}h ${totalM}m total study today` : ''}</div>
+      </div>
+
+      <!-- Centered Sub-Nav -->
+      <div class="easy-nav-bar">
+        <button class="easy-nav-item active">Timer</button>
+        <button class="easy-nav-item" onclick="switchView('syllabus')">Syllabus</button>
+        <button class="easy-nav-item" onclick="showStatsDetail('today')">Statistics</button>
+        <button class="easy-nav-item" onclick="switchView('manage')">Planner</button>
+      </div>
+
+      <!-- 2-Column Grid for Subject Cards -->
+      <div class="easy-subjects-grid" id="easySubjectList">
+        ${subjectsHtml || '<div style="grid-column:1/-1;padding:30px;text-align:center;color:var(--ink3);font-size:14px">No subjects found. Go to Planner to add subjects!</div>'}
+      </div>
+    </div>
+  `;
+}
+
+/* ══════════════════════════════════════════
    DAILY VIEW
 ══════════════════════════════════════════ */
 function renderDaily(){
-  renderTodayBanner();
-  renderNavLabel();
-  renderDots();
-  renderDayContent();
+  const statsRow = document.getElementById('statsRow');
+  const hoursBar = document.getElementById('hoursBar') || document.querySelector('.hours-bar-card');
+  const todayBanner = document.getElementById('todayBanner');
+  const dayNav = document.querySelector('.day-nav');
+  const dayDots = document.getElementById('dayDots');
+
+  if (conf.trackerMode === 'easy') {
+    document.body.setAttribute('data-tracker-mode', 'easy');
+    if (statsRow) statsRow.style.display = 'none';
+    if (hoursBar) hoursBar.style.display = 'none';
+    if (todayBanner) todayBanner.style.display = 'none';
+    if (dayNav) dayNav.style.display = 'none';
+    if (dayDots) dayDots.style.display = 'none';
+    renderEasyModeView();
+  } else {
+    document.body.removeAttribute('data-tracker-mode');
+    if (statsRow) statsRow.style.display = 'grid';
+    if (hoursBar) hoursBar.style.display = 'block';
+    if (dayNav) dayNav.style.display = 'flex';
+    if (dayDots) dayDots.style.display = 'flex';
+    renderTodayBanner();
+    renderNavLabel();
+    renderDots();
+    renderDayContent();
+  }
 }
 
 function renderTodayBanner(){
@@ -944,6 +1157,10 @@ function renderDayContent(){
     document.getElementById('dayContent').innerHTML=`<div class="empty-state"><div class="es-icon">📋</div><p>No days yet. Go to <strong>Manage</strong> to build your plan.</p></div>`;
     return;
   }
+
+  // Preserve open block cards before re-render
+  const openBlockIds = Array.from(document.querySelectorAll('.block-body.open')).map(el => el.id.replace('sbb-', ''));
+
   const day=days[curDay];
   let html=`<div class="day-meta">
     <div class="day-badge" style="background:${sj(day.blocks[0]?.subjectId).color||'var(--blue)'}">${curDay+1}</div>
@@ -961,6 +1178,12 @@ function renderDayContent(){
   day.blocks.forEach((b,bi)=>{ html+=buildBlockReadOnly(day.id,b,bi); });
   html+='</div>';
   document.getElementById('dayContent').innerHTML=html;
+
+  // Restore open block card state
+  openBlockIds.forEach(bid => {
+    document.getElementById('sbb-' + bid)?.classList.add('open');
+    document.getElementById('chev-' + bid)?.classList.add('open');
+  });
 }
 
 function buildBlockReadOnly(dayId,block,bi){
@@ -1027,7 +1250,12 @@ function buildBlockReadOnly(dayId,block,bi){
       <div class="timer-bar-wrap"><div class="timer-bar-fill" id="tbar-${block.id}" style="background:${s.color};width:${barW}%"></div></div>
     </div>
     <div class="block-body" id="sbb-${block.id}">
-      <div class="sect-label">📌 Topic</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:8px;flex-wrap:wrap">
+        <div class="sect-label" style="margin:0">📌 Topic</div>
+        <button class="hbtn" style="height:28px;padding:0 10px;font-size:11px;font-weight:700;background:var(--bg2);color:var(--ink);border:1px solid var(--border);border-radius:6px;display:inline-flex;align-items:center;gap:4px;cursor:pointer" onclick="migrateUnfinishedSubtopics('${dayId}','${block.id}')" title="Move unfinished subtopics to tomorrow's plan">
+          ➡️ Migrate Unfinished to Tomorrow
+        </button>
+      </div>
       <div style="font-size:13px;color:var(--ink);padding:9px 12px;background:var(--bg2);border-radius:var(--radius-sm);margin-bottom:12px">${esc(block.topic||'No topic set')}</div>
       <div class="sect-label">📋 Sub-topics</div>
       <div class="st-list" id="stl-${block.id}">${stHtml||'<div style="font-size:12px;color:var(--ink3);padding:4px 0">No sub-topics yet.</div>'}</div>
@@ -1045,6 +1273,102 @@ function buildBlockReadOnly(dayId,block,bi){
       <textarea class="notes-area" placeholder="Key points, doubts, next steps…" onblur="gp('${block.id}').notes=this.value;sp()">${esc(p.notes||'')}</textarea>
     </div>
   </div>`;
+}
+
+function migrateUnfinishedSubtopics(dayId, blockId) {
+  const dayIndex = days.findIndex(d => d.id === dayId);
+  if (dayIndex < 0) return;
+  const day = days[dayIndex];
+  const block = day.blocks.find(b => b.id === blockId);
+  if (!block) return;
+
+  const s = sj(block.subjectId);
+  const p = gp(blockId);
+
+  // Find incomplete subtopics
+  const incompleteSubtopics = [];
+  const keptSubtopics = [];
+  const newSubtopicProgress = {};
+
+  (block.subtopics || []).forEach((st, idx) => {
+    if (p.subtopics && p.subtopics[idx]) {
+      keptSubtopics.push(st);
+      newSubtopicProgress[keptSubtopics.length - 1] = true;
+    } else {
+      incompleteSubtopics.push(st);
+    }
+  });
+
+  // Find incomplete custom tasks
+  const incompleteCustomTasks = [];
+  const keptCustomTasks = [];
+
+  (p.customTasks || []).forEach((ct) => {
+    if (ct.done) {
+      keptCustomTasks.push(ct);
+    } else {
+      incompleteCustomTasks.push(ct);
+    }
+  });
+
+  const totalMigrating = incompleteSubtopics.length + incompleteCustomTasks.length;
+
+  if (totalMigrating === 0) {
+    alert("🎉 Great job! All subtopics and tasks in this block are already completed. Nothing to migrate.");
+    return;
+  }
+
+  const confirmMsg = `Migrate ${totalMigrating} incomplete item(s) (${incompleteSubtopics.length} subtopic(s), ${incompleteCustomTasks.length} task(s)) of "${s.name}" to tomorrow (Day ${dayIndex + 2})?`;
+  if (!confirm(confirmMsg)) return;
+
+  // Ensure tomorrow's day exists
+  let nextDayIndex = dayIndex + 1;
+  if (nextDayIndex >= days.length) {
+    const nextDayObj = {
+      id: gid(),
+      targetHrs: day.targetHrs || 9,
+      title: `Day ${nextDayIndex + 1}`,
+      blocks: []
+    };
+    days.push(nextDayObj);
+  }
+
+  const nextDay = days[nextDayIndex];
+
+  // Find or create block for the same subject on nextDay
+  let nextBlock = (nextDay.blocks || []).find(b => b.subjectId === block.subjectId);
+  if (!nextBlock) {
+    nextBlock = {
+      id: gid(),
+      subjectId: block.subjectId,
+      targetHrs: block.targetHrs || 2,
+      topic: block.topic ? `${block.topic} (Carried Over)` : `${s.name} (Carried Over)`,
+      subtopics: []
+    };
+    nextDay.blocks.push(nextBlock);
+  }
+
+  // Append incomplete subtopics to nextBlock
+  nextBlock.subtopics = nextBlock.subtopics || [];
+  nextBlock.subtopics.push(...incompleteSubtopics);
+
+  // Append incomplete custom tasks to nextBlock progress
+  if (incompleteCustomTasks.length > 0) {
+    const nextP = gp(nextBlock.id);
+    nextP.customTasks = nextP.customTasks || [];
+    nextP.customTasks.push(...incompleteCustomTasks.map(ct => ({ text: ct.text, done: false })));
+  }
+
+  // Update current block subtopics and progress
+  block.subtopics = keptSubtopics;
+  p.subtopics = newSubtopicProgress;
+  p.customTasks = keptCustomTasks;
+
+  sd();
+  sp();
+  renderAll();
+
+  alert(`Successfully migrated ${totalMigrating} item(s) to Day ${nextDayIndex + 1} (${s.name})! 🚀`);
 }
 
 function buildBlock(dayId,block,bi){
@@ -1228,7 +1552,7 @@ function toggleTimer(bid,dayId){
       const el=document.getElementById('td-'+bid);
       if(el)el.textContent=`${String(th).padStart(2,'0')}:${String(tm).padStart(2,'0')}:${String(ts).padStart(2,'0')}`;
       if(b){const w=Math.min((tot/3600/b.targetHrs)*100,100);const tbar=document.getElementById('tbar-'+bid);if(tbar)tbar.style.width=w+'%';}
-      renderStats();renderHoursBar();
+      renderStats();renderHoursBar();renderEasyModeTick();
       // Sync to server every 30 seconds while timer is running
       timers[bid].ticks=(timers[bid].ticks||0)+1;
       if(timers[bid].ticks%5===0){
@@ -1769,6 +2093,19 @@ function renderManage(){
   const alertEl = document.getElementById('subjSuggestionAlert');
   if (alertEl) {
     alertEl.style.display = isFirstTime ? 'block' : 'none';
+  }
+
+  const btnAdv = document.getElementById('btnModeAdvanced');
+  const btnEasy = document.getElementById('btnModeEasy');
+  if (btnAdv && btnEasy) {
+    const isEasy = conf.trackerMode === 'easy';
+    btnAdv.style.background = !isEasy ? 'var(--blue)' : 'var(--bg2)';
+    btnAdv.style.color = !isEasy ? '#fff' : 'var(--ink)';
+    btnAdv.style.borderColor = !isEasy ? 'var(--blue)' : 'var(--border)';
+
+    btnEasy.style.background = isEasy ? 'var(--blue)' : 'var(--bg2)';
+    btnEasy.style.color = isEasy ? '#fff' : 'var(--ink)';
+    btnEasy.style.borderColor = isEasy ? 'var(--blue)' : 'var(--border)';
   }
 
   document.getElementById('subjListEl').innerHTML=subj.map(s=>`
@@ -2549,6 +2886,29 @@ window.activeGroup = null;
 let groupPollInterval = null;
 let groupTickInterval = null;
 
+async function pollGroupTimers() {
+  if (!window.isInGroup || !window.activeGroup) return;
+  try {
+    const res = await fetch("/api/study-group");
+    if (res.ok) {
+      const data = await res.json();
+      if (data.joined && data.group) {
+        window.activeGroup = data.group;
+        updateMemberGridDOM();
+      }
+    }
+  } catch (e) {}
+}
+
+function startGroupTimerTicks() {
+  if (groupTickInterval) clearInterval(groupTickInterval);
+  groupTickInterval = setInterval(() => {
+    if (window.isInGroup && window.activeGroup) {
+      updateMemberGridDOM();
+    }
+  }, 1000);
+}
+
 async function renderGroup() {
   const container = document.getElementById('groupContent');
   if (!container) return;
@@ -2840,6 +3200,83 @@ async function pushGroupTimerState(bid) {
   } catch (e) {}
 }
 
+function updateMemberGridDOM() {
+  const g = window.activeGroup;
+  if (!g || !g.members) return;
+  const grid = document.getElementById("memberGridEl");
+  if (!grid) return;
+
+  const existingCards = grid.querySelectorAll(".member-card");
+  if (existingCards.length !== g.members.length) {
+    grid.innerHTML = renderMemberGridHtml();
+    return;
+  }
+
+  g.members.forEach(m => {
+    const card = grid.querySelector(`.member-card[data-user-id="${m.userId}"]`);
+    if (!card) {
+      grid.innerHTML = renderMemberGridHtml();
+      return;
+    }
+
+    const isStudying = !!m.timerBid;
+    let timerText = '00:00:00';
+    let subjectText = isStudying ? (m.subject || 'Study Block') : 'Idle';
+    let topicText = isStudying ? (m.topic || 'General study') : 'Tap to view member details';
+
+    if (isStudying && m.timerStart) {
+      const start = new Date(m.timerStart).getTime();
+      const elapsed = Math.max(0, Math.floor((Date.now() - start) / 1000));
+      const total = (m.timerBase || 0) + elapsed;
+      const th = Math.floor(total / 3600), tm = Math.floor((total % 3600) / 60), ts = total % 60;
+      timerText = `${String(th).padStart(2,'0')}:${String(tm).padStart(2,'0')}:${String(ts).padStart(2,'0')}`;
+    }
+
+    card.className = isStudying ? 'member-card studying' : 'member-card';
+
+    const timerDisplay = card.querySelector('.member-timer-display');
+    if (timerDisplay) {
+      if (timerDisplay.textContent !== timerText) timerDisplay.textContent = timerText;
+      timerDisplay.style.color = isStudying ? '#c084fc' : 'var(--ink3)';
+    }
+
+    const statusLbl = card.querySelector('.member-status-lbl');
+    if (statusLbl) {
+      statusLbl.className = isStudying ? 'member-status-lbl studying' : 'member-status-lbl idle';
+      statusLbl.innerHTML = isStudying ? `<span class="pulse-dot"></span>Studying` : 'Idle';
+    }
+
+    const subjEl = card.querySelector('.member-subj-text');
+    if (subjEl && subjEl.textContent !== subjectText) {
+      subjEl.textContent = subjectText;
+    }
+
+    const topicEl = card.querySelector('.member-topic-text');
+    if (topicEl && topicEl.textContent !== topicText) {
+      topicEl.textContent = topicText;
+      topicEl.title = topicText;
+    }
+
+    const btn = card.querySelector('.member-session-btn');
+    if (btn) {
+      btn.style.background = isStudying ? '#d94f3d' : '#c084fc';
+      btn.style.borderColor = isStudying ? '#d94f3d' : '#c084fc';
+      btn.innerHTML = `<span>${isStudying ? '⏸️' : '▶️'}</span><span>${isStudying ? 'Pause Session' : 'Start Session'}</span>`;
+    }
+
+    let flame = card.querySelector('.member-card-flame');
+    if (isStudying && !flame) {
+      flame = document.createElement('span');
+      flame.className = 'member-card-flame';
+      flame.title = 'Active Focus!';
+      flame.textContent = '🔥';
+      card.insertBefore(flame, card.firstChild);
+    } else if (!isStudying && flame) {
+      flame.remove();
+    }
+  });
+}
+
 function toggleGroupStudySession() {
   let runningBid = null;
   let runningDayId = null;
@@ -2867,8 +3304,7 @@ function toggleGroupStudySession() {
         selfMem.timerStart = null;
         selfMem.timerBase = 0;
       }
-      const container = document.getElementById('groupContent');
-      if (container) renderActiveGroupUI(container);
+      updateMemberGridDOM();
     }
   } else {
     // Start session on active day's first incomplete block
@@ -2893,8 +3329,7 @@ function toggleGroupStudySession() {
         selfMem.subject = s.name;
         selfMem.topic = incompleteBlock.topic || '';
       }
-      const container = document.getElementById('groupContent');
-      if (container) renderActiveGroupUI(container);
+      updateMemberGridDOM();
     }
   }
 }
@@ -3141,20 +3576,20 @@ function renderMemberGridHtml() {
         <div style="margin-top:6px;padding-top:8px;border-top:1px solid var(--border)">
           <div style="font-size:12px;color:var(--ink2);font-weight:700;display:flex;align-items:center;gap:6px">
             <span>📚</span>
-            <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(subjectText)}</span>
+            <span class="member-subj-text" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(subjectText)}</span>
           </div>
-          <div style="font-size:11px;color:var(--ink3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${esc(topicText)}">
+          <div class="member-topic-text" style="font-size:11px;color:var(--ink3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${esc(topicText)}">
             ${esc(topicText)}
           </div>
         </div>
 
         <div style="font-size:22px;font-weight:800;font-family:monospace;letter-spacing:-0.02em;margin-top:8px;color:${isStudying ? '#c084fc' : 'var(--ink3)'};display:flex;justify-content:space-between;align-items:center" class="member-timer-val">
-          <span>${timerText}</span>
+          <span class="member-timer-display">${timerText}</span>
           <span style="font-size:11px;font-weight:700;color:var(--ink3);font-family:sans-serif">Stats ➔</span>
         </div>
 
         ${m.isSelf ? `
-          <button onclick="event.stopPropagation(); toggleGroupStudySession();" class="hbtn" style="width:100%;margin-top:8px;background:${isStudying ? '#d94f3d' : '#c084fc'};color:#fff;border-color:${isStudying ? '#d94f3d' : '#c084fc'};font-weight:800;height:30px;font-size:12px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px">
+          <button onclick="event.stopPropagation(); toggleGroupStudySession();" class="hbtn member-session-btn" style="width:100%;margin-top:8px;background:${isStudying ? '#d94f3d' : '#c084fc'};color:#fff;border-color:${isStudying ? '#d94f3d' : '#c084fc'};font-weight:800;height:30px;font-size:12px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;flex-shrink:0">
             <span>${isStudying ? '⏸️' : '▶️'}</span>
             <span>${isStudying ? 'Pause Session' : 'Start Session'}</span>
           </button>
@@ -3736,8 +4171,7 @@ async function pushGroupTimerState(bid) {
       const data = await res.json();
       if (data.joined && data.members) {
         window.activeGroup.members = data.members;
-        const grid = document.getElementById("memberGridEl");
-        if (grid) grid.innerHTML = renderMemberGridHtml();
+        updateMemberGridDOM();
       }
     }
   } catch (err) {
