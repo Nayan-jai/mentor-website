@@ -238,7 +238,7 @@ input, textarea, select { font-family: var(--font); }
    ═══════════════════════════════════════ */
 .app {
   max-width: 1320px; margin: 0 auto;
-  padding: 24px 32px;
+  padding: 24px 32px 80px;
 }
 .view { display: none; }
 .view.active { display: block; }
@@ -668,7 +668,8 @@ input, textarea, select { font-family: var(--font); }
   padding: 0 14px;
 }
 .block-body.open {
-  max-height: 1200px;
+  max-height: none;
+  overflow: visible;
   padding: 14px;
 }
 
@@ -708,8 +709,18 @@ input, textarea, select { font-family: var(--font); }
 .topic-inp:focus { border-color: var(--blue); }
 .topic-inp::placeholder { color: var(--ink4); }
 
-/* Subtopic list */
-.st-list { display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px; }
+/* Subtopic list with smooth scrolling for large lists */
+.st-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+  max-height: 480px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  padding-right: 4px;
+  -webkit-overflow-scrolling: touch;
+}
 .st-row {
   display: flex; align-items: center; gap: 9px;
   padding: 8px 11px;
