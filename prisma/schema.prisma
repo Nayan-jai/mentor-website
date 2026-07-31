@@ -36,6 +36,7 @@ model User {
   resources         Resource[]
   ownedGroups       StudyGroup[] @relation("GroupOwner")
   groupMemberships  StudyGroupMember[] @relation("GroupMember")
+  developerQueries  DeveloperQuery[]
 }
 
 model Account {
@@ -273,5 +274,20 @@ model StudyGroupMember {
   updatedAt  DateTime   @updatedAt
 
   @@unique([groupId, userId])
+}
+
+model DeveloperQuery {
+  id            String   @id @default(cuid())
+  userId        String
+  type          String   @default("BUG") // "BUG", "FEATURE", "GENERAL"
+  subject       String
+  description   String   @db.Text
+  screenshotUrl String?  @db.Text
+  status        String   @default("PENDING") // "PENDING", "IN_PROGRESS", "RESOLVED"
+  adminNotes    String?  @db.Text
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 

@@ -22,6 +22,7 @@ import {
   User,
   Clock,
   ShieldCheck,
+  MessageSquarePlus,
 } from "lucide-react";
 
 import BrandLogo from "@/components/brand-logo";
@@ -102,19 +103,7 @@ export default function Navbar() {
                 <Lock className="w-4 h-4 text-rose-400 transition-transform duration-200 group-hover:scale-110 shrink-0" /> Private Queries
               </Link>
             )}
-            {session?.user?.role === "ADMIN" && (
-              <>
-                <Link href="/dashboard/admin/users" className="group nav-link flex items-center gap-1.5 xl:gap-2 px-2 xl:px-3 py-1.5 text-xs xl:text-sm 2xl:text-base font-semibold tracking-wide whitespace-nowrap">
-                  <Users className="w-4 h-4 text-cyan-400 transition-transform duration-200 group-hover:scale-110 shrink-0" /> Manage Users
-                </Link>
-                <Link href="/dashboard/admin/sessions" className="group nav-link flex items-center gap-1.5 xl:gap-2 px-2 xl:px-3 py-1.5 text-xs xl:text-sm 2xl:text-base font-semibold tracking-wide whitespace-nowrap">
-                  <CalendarCheck className="w-4 h-4 text-purple-400 transition-transform duration-200 group-hover:scale-110 shrink-0" /> Manage Sessions
-                </Link>
-                <Link href="/dashboard/admin/analytics" className="group nav-link flex items-center gap-1.5 xl:gap-2 px-2 xl:px-3 py-1.5 text-xs xl:text-sm 2xl:text-base font-semibold tracking-wide whitespace-nowrap">
-                  <LineChart className="w-4 h-4 text-emerald-400 transition-transform duration-200 group-hover:scale-110 shrink-0" /> Analytics
-                </Link>
-              </>
-            )}
+
             {session ? (
               <div className="flex items-center gap-2 xl:gap-3 pl-2 border-l border-indigo-900/60 ml-1 xl:ml-2">
                 {session.user?.role === "STUDENT" && (

@@ -37,6 +37,15 @@
       </div>
     </div>
 
+    <!-- Header Dropdown Menu -->
+    <div class="header-menu" id="headerMenu">
+      <button class="menu-item" id="menuTheme" onclick="toggleTheme();closeHeaderMenu();">🌙 Dark Mode</button>
+      <button class="menu-item" onclick="toggleTrackerMode();closeHeaderMenu();">⚡ Switch Mode</button>
+      <button class="menu-item" onclick="openTutorial();closeHeaderMenu();">💡 Guided Tutorial</button>
+      <button class="menu-item" onclick="exportData();closeHeaderMenu();">📤 Export Plan Backup</button>
+      <button class="menu-item" onclick="importData();closeHeaderMenu();">📥 Import Plan Backup</button>
+      <button class="menu-item" onclick="resetAllData();closeHeaderMenu();" style="color:var(--red)">🔄 Reset All Data</button>
+    </div>
   </div>
 
 
@@ -144,7 +153,7 @@
         </div>
       </div>
 
-      <!-- Tracker View Mode Section (Above Danger Zone) -->
+      <!-- Tracker View Mode Section -->
       <div style="margin-top:24px;padding:18px 20px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--sh);">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
           <div>
@@ -157,6 +166,23 @@
           <div style="display:flex;gap:8px" id="manageModeBtnGroup">
             <button onclick="setTrackerMode('advanced')" class="hbtn" id="btnModeAdvanced" style="height:34px;padding:0 16px;font-size:12px;font-weight:800">⚙️ Advanced Mode</button>
             <button onclick="setTrackerMode('easy')" class="hbtn" id="btnModeEasy" style="height:34px;padding:0 16px;font-size:12px;font-weight:800">✨ Easy Mode</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Backup & Restore Plan Data (Below Tracker View Mode, Above Danger Zone) -->
+      <div style="margin-top:20px;padding:18px 20px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--sh);">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+              <span style="font-size:16px">💾</span>
+              <span style="font-size:14px;font-weight:800;color:var(--ink)">Backup &amp; Restore Plan Data</span>
+            </div>
+            <div style="font-size:12px;color:var(--ink3)">Export your full study timetable, logged focus hours, and custom subtopics to a JSON file, or restore a previously saved backup.</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button onclick="exportData()" class="hbtn" style="height:34px;padding:0 16px;font-size:12px;font-weight:800;background:var(--bg2);color:var(--ink);border:1px solid var(--border)">📤 Export Backup JSON</button>
+            <button onclick="importData()" class="hbtn" style="height:34px;padding:0 16px;font-size:12px;font-weight:800;background:var(--bg2);color:var(--ink);border:1px solid var(--border)">📥 Import Backup JSON</button>
           </div>
         </div>
       </div>

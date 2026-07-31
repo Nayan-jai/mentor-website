@@ -1280,10 +1280,10 @@ function buildBlockReadOnly(dayId,block,bi){
         <div class="mini-ring">
           <svg class="mr-svg" width="36" height="36" viewBox="0 0 36 36">
             <circle class="mr-bg" cx="18" cy="18" r="15"/>
-            <circle class="mr-fg" cx="18" cy="18" r="15" stroke="${s.color}"
+            <circle class="mr-fg" cx="18" cy="18" r="15" stroke="${getSolidColor(s.color)}"
               stroke-dasharray="${circ}" stroke-dashoffset="${offset}"/>
           </svg>
-          <div class="mr-label">${pct}%</div>
+          <div class="mr-label" style="color:${getSolidColor(s.color)}">${pct}%</div>
         </div>
         <div class="chevron" id="chev-${block.id}">▼</div>
       </div>
@@ -1467,10 +1467,10 @@ function buildBlock(dayId,block,bi){
         <div class="mini-ring">
           <svg class="mr-svg" width="36" height="36" viewBox="0 0 36 36">
             <circle class="mr-bg" cx="18" cy="18" r="15"/>
-            <circle class="mr-fg" cx="18" cy="18" r="15" stroke="${s.color}"
+            <circle class="mr-fg" cx="18" cy="18" r="15" stroke="${getSolidColor(s.color)}"
               stroke-dasharray="${circ}" stroke-dashoffset="${offset}"/>
           </svg>
-          <div class="mr-label">${pct}%</div>
+          <div class="mr-label" style="color:${getSolidColor(s.color)}">${pct}%</div>
         </div>
         <div class="chevron" id="chev-${block.id}">▼</div>
       </div>
@@ -1922,34 +1922,78 @@ function handleSyllabusLoadAction() {
   }
 }
 
-function loadCustomSyllabusDefaults() {
-  const confirmMsg = "Warning: Resetting to custom syllabus defaults will completely clear your current subjects, study day schedules, and checklist progress.\n\nDo you wish to proceed?";
-  if (!confirm(confirmMsg)) return;
+function showSyllabusConfirmModal({ title, subtitle, onConfirm, onCancel }){
+  const existing=document.getElementById('_sylConfirmModal');
+  if(existing) existing.remove();
+  const el=document.createElement('div');
+  el.id='_sylConfirmModal';
+  el.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:99999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)';
+  el.innerHTML=`
+    <div style="background:var(--card,#1e1e2e);border-radius:16px;padding:28px 24px;max-width:460px;width:92%;box-shadow:0 20px 56px rgba(0,0,0,.55);border:1.5px solid var(--border,#444)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <span style="font-size:28px">📚</span>
+        <div style="font-size:17px;font-weight:800;color:var(--ink,#fff)">${title}</div>
+      </div>
+      <div style="font-size:12px;color:var(--ink3,#999);line-height:1.7;margin-bottom:14px">
+        <p style="margin:0">${subtitle}</p>
+      </div>
 
-  subj = JSON.parse(JSON.stringify(DEF_SUBJ));
-  days = JSON.parse(JSON.stringify(DEF_DAYS));
-  prog = {};
-  stopAllTimers();
-  timers = {};
-  
-  conf.examName = "My Study Plan";
-  conf.startDate = formatDateLocal(new Date());
-  conf.syllabusType = "custom";
-  
-  sd();
-  curDay = 0;
-  
-  const examNameInp = document.getElementById('targetExamName');
-  if (examNameInp) examNameInp.value = conf.examName;
-  updateDaysRemaining();
-  
-  renderAll();
-  renderSyllabus();
-  renderManage();
-  renderDots();
-  renderNavLabel();
-  
-  alert('Custom syllabus defaults loaded successfully!');
+      <!-- Backup Suggestion Banner -->
+      <div style="margin-bottom:18px;padding:12px 14px;background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.3);border-radius:10px;display:flex;align-items:center;justify-content:space-between;gap:10px">
+        <div style="font-size:12px;color:var(--ink,#fff);line-height:1.4">
+          💡 <strong>Backup Suggested:</strong> Export a JSON backup before loading a new plan to prevent data loss.
+        </div>
+        <button onclick="exportData()" style="padding:6px 12px;background:#6366f1;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;shrink:0">📤 Export Backup</button>
+      </div>
+
+      <div style="display:flex;gap:10px;justify-content:flex-end">
+        <button id="_sylCancelBtn" style="padding:9px 18px;background:var(--bg2,#2a2a3e);color:var(--ink,#fff);border:1px solid var(--border,#444);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">Cancel</button>
+        <button id="_sylProceedBtn" style="padding:9px 18px;background:var(--blue,#3b82f6);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">Load New Plan</button>
+      </div>
+    </div>`;
+  document.body.appendChild(el);
+
+  document.getElementById('_sylCancelBtn').onclick = () => {
+    el.remove();
+    if(onCancel) onCancel();
+  };
+  document.getElementById('_sylProceedBtn').onclick = () => {
+    el.remove();
+    if(onConfirm) onConfirm();
+  };
+}
+
+function loadCustomSyllabusDefaults() {
+  showSyllabusConfirmModal({
+    title: "Load Custom Syllabus Defaults?",
+    subtitle: "Resetting to custom syllabus defaults will replace your current subjects, study day schedules, and progress checklist.",
+    onConfirm: () => {
+      subj = JSON.parse(JSON.stringify(DEF_SUBJ));
+      days = JSON.parse(JSON.stringify(DEF_DAYS));
+      prog = {};
+      stopAllTimers();
+      timers = {};
+      
+      conf.examName = "My Study Plan";
+      conf.startDate = formatDateLocal(new Date());
+      conf.syllabusType = "custom";
+      
+      sd();
+      curDay = 0;
+      
+      const examNameInp = document.getElementById('targetExamName');
+      if (examNameInp) examNameInp.value = conf.examName;
+      updateDaysRemaining();
+      
+      renderAll();
+      renderSyllabus();
+      renderManage();
+      renderDots();
+      renderNavLabel();
+      
+      alert('Custom syllabus defaults loaded successfully!');
+    }
+  });
 }
 
 function loadSelectedPremadeSyllabus(templateKey) {
@@ -1959,29 +2003,28 @@ function loadSelectedPremadeSyllabus(templateKey) {
   }
   
   const template = PREMADE_SYLLABI[templateKey];
-  const confirmMsg = `Warning: Loading the "${template.examName}" syllabus will completely reset your current subjects, study day schedules, and checklist progress.\n\nDo you wish to proceed?`;
-  if (!confirm(confirmMsg)) {
-    const selectEl = document.getElementById('sylModeSelect');
-    if (selectEl) {
-      selectEl.value = conf.syllabusType || 'custom';
-      toggleSyllabusModeView(selectEl.value);
-    }
-    return;
-  }
 
-  // Overwrite subjects and days
-  subj = JSON.parse(JSON.stringify(template.subj));
-  days = JSON.parse(JSON.stringify(template.days));
-  
-  // Reset progress and timers
-  prog = {};
-  stopAllTimers();
-  timers = {};
-  
-  // Set default configurations
-  conf.examName = template.examName;
-  conf.startDate = formatDateLocal(new Date());
-  conf.syllabusType = templateKey;
+  showSyllabusConfirmModal({
+    title: `Load "${template.examName}" Syllabus?`,
+    subtitle: `Loading the "${template.examName}" syllabus will replace your current subjects, study day schedules, and progress checklist.`,
+    onCancel: () => {
+      const selectEl = document.getElementById('sylModeSelect');
+      if (selectEl) {
+        selectEl.value = conf.syllabusType || 'custom';
+        toggleSyllabusModeView(selectEl.value);
+      }
+    },
+    onConfirm: () => {
+      subj = JSON.parse(JSON.stringify(template.subj));
+      days = JSON.parse(JSON.stringify(template.days));
+      
+      prog = {};
+      stopAllTimers();
+      timers = {};
+      
+      conf.examName = template.examName;
+      conf.startDate = formatDateLocal(new Date());
+      conf.syllabusType = templateKey;
   
   // Save to localStorage and API
   sd();
@@ -2001,7 +2044,9 @@ function loadSelectedPremadeSyllabus(templateKey) {
   renderDots();
   renderNavLabel();
   
-  alert(`"${template.examName}" syllabus loaded successfully!`);
+      alert(`"${template.examName}" syllabus loaded successfully!`);
+    }
+  });
 }
 
 /* Arrange / Reorder items functions */
@@ -2329,13 +2374,21 @@ function delSubj(id){
 function openModal(id){document.getElementById(id).classList.add('open');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 
+function selectSubjColor(idx) {
+  selColor = COLORS[idx];
+  document.querySelectorAll('#colorRow .c-opt').forEach((x, i) => {
+    x.classList.toggle('sel', i === idx);
+  });
+}
+
 function openSubjModal(id){
   editSubjId=id;const s=id?subj.find(x=>x.id===id):null;
   document.getElementById('smTitle').textContent=id?'Edit Subject':'Add Subject';
   document.getElementById('smName').value=s?.name||'';
   document.getElementById('smHrs').value=s?.defaultHrs||3;
   selColor=s?.color||COLORS[0];selIcon=s?.icon||ICONS[0];
-  document.getElementById('colorRow').innerHTML=COLORS.map(c=>`<div class="c-opt${c===selColor?' sel':''}" style="background:${c}" onclick="selColor='${c}';document.querySelectorAll('.c-opt').forEach(x=>{x.classList.toggle('sel',x.style.background===selColor)})"></div>`).join('');
+  const curColorIdx = COLORS.findIndex(c => c === selColor);
+  document.getElementById('colorRow').innerHTML=COLORS.map((c, i)=>`<div class="c-opt${(i === curColorIdx || c === selColor)?' sel':''}" style="background:${c}" onclick="selectSubjColor(${i})"></div>`).join('');
   document.getElementById('iconRow').innerHTML=ICONS.map(ic=>`<div class="i-opt${ic===selIcon?' sel':''}" onclick="selIcon='${ic}';document.querySelectorAll('.i-opt').forEach(x=>{x.classList.toggle('sel',x.textContent===selIcon)})">${ic}</div>`).join('');
   openModal('subjOverlay');setTimeout(()=>document.getElementById('smName').focus(),100);
 }
@@ -2934,22 +2987,28 @@ function showResetModal(){
   el.id='_resetModal';
   el.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:99999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)';
   el.innerHTML=`
-    <div style="background:var(--card,#1e1e2e);border-radius:16px;padding:28px 24px;max-width:420px;width:92%;box-shadow:0 20px 56px rgba(0,0,0,.55);border:1.5px solid #d94f3d66">
+    <div style="background:var(--card,#1e1e2e);border-radius:16px;padding:28px 24px;max-width:440px;width:92%;box-shadow:0 20px 56px rgba(0,0,0,.55);border:1.5px solid #d94f3d66">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
         <span style="font-size:28px">⚠️</span>
         <div style="font-size:17px;font-weight:800;color:#d94f3d">Reset All Progress?</div>
       </div>
-      <div style="font-size:12px;color:var(--ink3,#999);line-height:1.7;margin-bottom:16px">
-        <p style="margin:0 0 10px">This action <strong style="color:#d94f3d">cannot be undone</strong>. The following will be permanently cleared:</p>
-        <ul style="margin:0 0 10px;padding-left:18px">
+      <div style="font-size:12px;color:var(--ink3,#999);line-height:1.7;margin-bottom:14px">
+        <p style="margin:0 0 8px">This action <strong style="color:#d94f3d">cannot be undone</strong>. The following will be permanently cleared:</p>
+        <ul style="margin:0 0 8px;padding-left:18px">
           <li>All subtopic &amp; custom task checkmarks</li>
           <li>All logged study time (timers)</li>
           <li>All block notes</li>
         </ul>
-        <p style="margin:0;padding:10px 12px;background:#d94f3d18;border-radius:8px;border-left:3px solid #d94f3d;color:var(--ink,#fff)">
-          ✅ Your <strong>plan structure</strong> (subjects, days, topics) is <strong>kept intact</strong> — only progress is wiped.
-        </p>
       </div>
+
+      <!-- Backup Suggestion Banner -->
+      <div style="margin-bottom:18px;padding:12px 14px;background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.3);border-radius:10px;display:flex;align-items:center;justify-content:space-between;gap:10px">
+        <div style="font-size:12px;color:var(--ink,#fff);line-height:1.4">
+          💡 <strong>Backup Suggested:</strong> Export a JSON backup before resetting to prevent data loss.
+        </div>
+        <button onclick="exportData()" style="padding:6px 12px;background:#6366f1;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;shrink:0">📤 Export Backup</button>
+      </div>
+
       <div style="display:flex;gap:10px;justify-content:flex-end">
         <button onclick="document.getElementById('_resetModal').remove()" style="padding:9px 18px;background:var(--bg2,#2a2a3e);color:var(--ink,#fff);border:1px solid var(--border,#444);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">Cancel</button>
         <button onclick="_confirmReset()" style="padding:9px 18px;background:#d94f3d;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">↺ Yes, Reset Everything</button>
@@ -2970,6 +3029,61 @@ function resetPlan(){
   localStorage.removeItem('_runningTimer');
   sp();
   refreshAllViews();
+}
+
+function exportData() {
+  try {
+    const payload = {
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      subj,
+      days,
+      prog,
+      conf,
+    };
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(payload, null, 2));
+    const dlAnchorElem = document.createElement('a');
+    dlAnchorElem.setAttribute("href", dataStr);
+    dlAnchorElem.setAttribute("download", `study_planner_backup_${new Date().toISOString().slice(0, 10)}.json`);
+    document.body.appendChild(dlAnchorElem);
+    dlAnchorElem.click();
+    dlAnchorElem.remove();
+  } catch (err) {
+    console.error("Export error:", err);
+    alert("Failed to export data. Please try again.");
+  }
+}
+
+function importData() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  input.onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const data = JSON.parse(event.target.result);
+        if (data.subj && data.days) {
+          subj = data.subj;
+          days = data.days;
+          if (data.prog) prog = data.prog;
+          if (data.conf) conf = data.conf;
+          sd();
+          sp();
+          refreshAllViews();
+          alert("Study plan backup imported successfully!");
+        } else {
+          alert("Invalid backup file structure.");
+        }
+      } catch (err) {
+        alert("Failed to parse backup JSON file.");
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
 }
 
 function toggleHeaderMenu(){

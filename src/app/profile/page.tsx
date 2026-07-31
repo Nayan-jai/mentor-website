@@ -35,6 +35,12 @@ import {
   CalendarCheck,
   LineChart,
   ShieldCheck,
+  MessageSquarePlus,
+  Upload,
+  Bug,
+  Lightbulb,
+  AlertCircle,
+  Paperclip,
 } from "lucide-react";
 
 const MALE_AVATARS = [
@@ -87,6 +93,108 @@ export default function ProfilePage() {
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [avatarGenderCategory, setAvatarGenderCategory] = useState<"male" | "female">("male");
   const [showCompetencyInfoModal, setShowCompetencyInfoModal] = useState(false);
+
+  // Contact Developer / Bug Report State
+  const [showContactDevModal, setShowContactDevModal] = useState(false);
+  const [devQueryType, setDevQueryType] = useState<"BUG" | "FEATURE" | "GENERAL">("BUG");
+  const [devQuerySubject, setDevQuerySubject] = useState("");
+  const [devQueryDescription, setDevQueryDescription] = useState("");
+  const [devQueryScreenshot, setDevQueryScreenshot] = useState<string | null>(null);
+  const [submittingDevQuery, setSubmittingDevQuery] = useState(false);
+  const [devQuerySuccessMsg, setDevQuerySuccessMsg] = useState("");
+  const [mySubmittedQueries, setMySubmittedQueries] = useState<any[]>([]);
+  const [loadingMyQueries, setLoadingMyQueries] = useState(false);
+
+  const fetchMyDeveloperQueries = async () => {
+    try {
+      setLoadingMyQueries(true);
+      const res = await fetch("/api/developer-queries");
+      if (res.ok) {
+        const data = await res.json();
+        setMySubmittedQueries(data || []);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoadingMyQueries(false);
+    }
+  };
+
+  const handleScreenshotUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      alert("Image size must be less than 10MB");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let width = img.width;
+        let height = img.height;
+        const maxDim = 1200;
+        if (width > maxDim || height > maxDim) {
+          if (width > height) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          } else {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressedDataUrl = canvas.toDataURL("image/jpeg", 0.8);
+          setDevQueryScreenshot(compressedDataUrl);
+        } else {
+          setDevQueryScreenshot(event.target?.result as string);
+        }
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSubmitDevQuery = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!devQuerySubject.trim() || !devQueryDescription.trim()) return;
+
+    try {
+      setSubmittingDevQuery(true);
+      const res = await fetch("/api/developer-queries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: devQueryType,
+          subject: devQuerySubject,
+          description: devQueryDescription,
+          screenshotUrl: devQueryScreenshot,
+        }),
+      });
+
+      if (res.ok) {
+        setDevQuerySuccessMsg("Submitted successfully to the development team!");
+        setDevQuerySubject("");
+        setDevQueryDescription("");
+        setDevQueryScreenshot(null);
+        fetchMyDeveloperQueries();
+        setTimeout(() => setDevQuerySuccessMsg(""), 5000);
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        alert(errData.message || "Failed to submit request. Please try again.");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("An error occurred while submitting.");
+    } finally {
+      setSubmittingDevQuery(false);
+    }
+  };
 
   // Form state
   const [formFields, setFormFields] = useState({
@@ -386,6 +494,20 @@ export default function ProfilePage() {
               )}
             </button>
 
+            {/* Contact Developer Button */}
+            {!isAdmin && (
+              <Button
+                onClick={() => {
+                  setShowContactDevModal(true);
+                  fetchMyDeveloperQueries();
+                }}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
+              >
+                <MessageSquarePlus className="w-4 h-4" />
+                <span>Contact Developer</span>
+              </Button>
+            )}
+
             {/* Single Edit Profile Button */}
             <Button
               onClick={() => setIsEditing(true)}
@@ -572,6 +694,18 @@ export default function ProfilePage() {
                         </h5>
                         <p className="text-[11px] text-slate-500 dark:text-slate-400">
                           Configure global premade study templates available to all platform students.
+                        </p>
+                      </div>
+
+                      <div
+                        onClick={() => router.push("/dashboard/admin/developer-queries")}
+                        className="p-4 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-900 hover:border-indigo-500 cursor-pointer transition-all group sm:col-span-2"
+                      >
+                        <h5 className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5 mb-1 text-xs group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
+                          <MessageSquarePlus className="w-4 h-4 text-indigo-500" /> Developer Queries &amp; Bug Reports &rarr;
+                        </h5>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                          Review student feature requests, inspect bug reports with screenshots, and post resolution notes.
                         </p>
                       </div>
                     </div>
@@ -1295,6 +1429,241 @@ export default function ProfilePage() {
               >
                 Got it
               </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Contact Developer / Feature Request & Bug Report Modal */}
+      {showContactDevModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 max-w-2xl w-full shadow-2xl relative animate-in fade-in zoom-in duration-200 my-8">
+            <button
+              type="button"
+              onClick={() => setShowContactDevModal(false)}
+              className="absolute top-5 right-5 p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-100 dark:border-indigo-900 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                <MessageSquarePlus className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+                  Contact Developer &amp; Feedback
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Report bugs, suggest new platform features, or request support directly from our dev team.
+                </p>
+              </div>
+            </div>
+
+            {devQuerySuccessMsg && (
+              <div className="mb-4 p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs font-semibold flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 shrink-0" />
+                <span>{devQuerySuccessMsg}</span>
+              </div>
+            )}
+
+            {/* Form */}
+            <form onSubmit={handleSubmitDevQuery} className="space-y-4">
+              {/* Type Selection */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                  Request Category
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setDevQueryType("BUG")}
+                    className={`py-2 px-3 rounded-xl border text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
+                      devQueryType === "BUG"
+                        ? "bg-rose-500/10 border-rose-500 text-rose-600 dark:text-rose-400 ring-2 ring-rose-500/20"
+                        : "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400"
+                    }`}
+                  >
+                    <Bug className="w-3.5 h-3.5" /> Report Bug
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDevQueryType("FEATURE")}
+                    className={`py-2 px-3 rounded-xl border text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
+                      devQueryType === "FEATURE"
+                        ? "bg-indigo-500/10 border-indigo-500 text-indigo-600 dark:text-indigo-400 ring-2 ring-indigo-500/20"
+                        : "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400"
+                    }`}
+                  >
+                    <Lightbulb className="w-3.5 h-3.5" /> Request Feature
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDevQueryType("GENERAL")}
+                    className={`py-2 px-3 rounded-xl border text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
+                      devQueryType === "GENERAL"
+                        ? "bg-blue-500/10 border-blue-500 text-blue-600 dark:text-blue-400 ring-2 ring-blue-500/20"
+                        : "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400"
+                    }`}
+                  >
+                    <MessageSquarePlus className="w-3.5 h-3.5" /> Feedback
+                  </button>
+                </div>
+              </div>
+
+              {/* Subject */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Subject / Summary
+                </label>
+                <Input
+                  type="text"
+                  required
+                  placeholder={
+                    devQueryType === "BUG"
+                      ? "e.g. Timer stops counting when switching tabs"
+                      : devQueryType === "FEATURE"
+                      ? "e.g. Add dark mode chart options in study tracker"
+                      : "e.g. Suggestion for Mains answer evaluation panel"
+                  }
+                  value={devQuerySubject}
+                  onChange={(e) => setDevQuerySubject(e.target.value)}
+                  className="bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-xs"
+                />
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Detailed Explanation
+                </label>
+                <textarea
+                  required
+                  rows={4}
+                  placeholder="Describe the bug steps to reproduce, or explain the new feature you would like to see..."
+                  value={devQueryDescription}
+                  onChange={(e) => setDevQueryDescription(e.target.value)}
+                  className="w-full p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none text-slate-900 dark:text-white placeholder:text-slate-400"
+                />
+              </div>
+
+              {/* Screenshot Upload */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center justify-between">
+                  <span>Attach Screenshot (Optional)</span>
+                  <span className="text-[10px] text-slate-400">PNG, JPG (Max 5MB)</span>
+                </label>
+
+                {devQueryScreenshot ? (
+                  <div className="relative rounded-2xl overflow-hidden border border-indigo-200 dark:border-indigo-900 max-h-48 group">
+                    <img src={devQueryScreenshot} alt="Screenshot Preview" className="w-full h-48 object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => setDevQueryScreenshot(null)}
+                      className="absolute top-2 right-2 p-1.5 rounded-full bg-black/70 text-white hover:bg-rose-600 transition-colors"
+                      title="Remove Screenshot"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-2xl cursor-pointer bg-slate-50/50 dark:bg-slate-800/50 hover:bg-indigo-50/50 dark:hover:bg-slate-800 transition-colors">
+                    <div className="flex flex-col items-center justify-center py-2 text-slate-500 dark:text-slate-400">
+                      <Upload className="w-5 h-5 mb-1 text-indigo-500" />
+                      <p className="text-xs font-semibold">Click to upload screenshot</p>
+                    </div>
+                    <input type="file" accept="image/*" onChange={handleScreenshotUpload} className="hidden" />
+                  </label>
+                )}
+              </div>
+
+              <div className="pt-2 flex justify-end gap-2">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setShowContactDevModal(false)}
+                  className="text-xs text-slate-600 dark:text-slate-400 rounded-xl"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={submittingDevQuery || !devQuerySubject.trim() || !devQueryDescription.trim()}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold px-5 flex items-center gap-2"
+                >
+                  {submittingDevQuery ? "Submitting..." : "Submit to Developer"}
+                </Button>
+              </div>
+            </form>
+
+            {/* List of Previously Submitted Requests */}
+            <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800">
+              <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-3 flex items-center gap-2">
+                <Clock className="w-4 h-4 text-indigo-500" /> Your Previous Requests ({mySubmittedQueries.length})
+              </h4>
+
+              {loadingMyQueries ? (
+                <div className="text-center py-4 text-xs text-slate-400">Loading your submitted requests...</div>
+              ) : mySubmittedQueries.length === 0 ? (
+                <div className="text-center py-4 text-xs text-slate-400 bg-slate-50 dark:bg-slate-800/40 rounded-2xl">
+                  No requests submitted yet.
+                </div>
+              ) : (
+                <div className="space-y-3 max-h-48 overflow-y-auto pr-1">
+                  {mySubmittedQueries.map((q: any) => (
+                    <div
+                      key={q.id}
+                      className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs space-y-1.5"
+                    >
+                      <div className="flex justify-between items-start">
+                        <div className="flex items-center gap-2 font-bold text-slate-900 dark:text-white">
+                          <span
+                            className={`px-2 py-0.5 rounded-md text-[10px] uppercase font-bold ${
+                              q.type === "BUG"
+                                ? "bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300"
+                                : q.type === "FEATURE"
+                                ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300"
+                                : "bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300"
+                            }`}
+                          >
+                            {q.type}
+                          </span>
+                          <span>{q.subject}</span>
+                        </div>
+                        <Badge
+                          className={`text-[10px] font-semibold px-2 py-0.5 ${
+                            q.status === "RESOLVED"
+                              ? "bg-emerald-600 text-white"
+                              : q.status === "IN_PROGRESS"
+                              ? "bg-amber-500 text-white"
+                              : "bg-slate-600 text-white"
+                          }`}
+                        >
+                          {q.status}
+                        </Badge>
+                      </div>
+                      <p className="text-slate-600 dark:text-slate-300 text-[11px] line-clamp-2">{q.description}</p>
+                      {q.screenshotUrl && (
+                        <div className="pt-1">
+                          <a
+                            href={q.screenshotUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-indigo-600 dark:text-indigo-400 hover:underline text-[10px] inline-flex items-center gap-1"
+                          >
+                            <Paperclip className="w-3 h-3" /> View Attached Screenshot
+                          </a>
+                        </div>
+                      )}
+                      {q.adminNotes && (
+                        <div className="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-100 dark:border-indigo-900/60 text-[11px] text-indigo-900 dark:text-indigo-200">
+                          <strong className="font-semibold">Dev Note:</strong> {q.adminNotes}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
