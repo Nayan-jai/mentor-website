@@ -31,7 +31,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: space-between;
+      justify-content: center;
       padding: 12px;
       user-select: none;
       -webkit-user-select: none;
@@ -119,7 +119,7 @@
       width: 100%;
       aspect-ratio: 16 / 8;
       max-height: 60vh;
-      background-color: #9ee4cb;
+      background-color: #050811;
       overflow: hidden;
       display: flex;
       align-items: center;
@@ -140,9 +140,12 @@
     }
     
     #pixelCanvas {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+      aspect-ratio: 640 / 280;
+      object-fit: contain;
     }
     
     /* CRT SCANLINE EFFECT */
@@ -254,6 +257,40 @@
       background: rgba(34, 197, 94, 0.9);
       border-color: #4ade80;
     }
+
+    @media (max-width: 768px), (max-height: 550px) {
+      .control-overlay {
+        bottom: 6px;
+        left: 8px;
+        right: 8px;
+      }
+      
+      .prompt-banner {
+        padding: 3px 8px;
+        font-size: clamp(0.6rem, 1.8vw, 0.8rem);
+        border-radius: 6px;
+        background-color: rgba(0, 0, 0, 0.45);
+      }
+      
+      .btn-group {
+        gap: 5px;
+      }
+
+      .btn-touch {
+        min-width: 32px;
+        min-height: 32px;
+        padding: 4px 8px;
+        border-radius: 8px;
+        font-size: 11px;
+        border-width: 1px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      }
+
+      .btn-jump-touch {
+        font-size: 8px;
+        padding: 4px 6px;
+      }
+    }
     
     /* BOTTOM INFOBAR */
     .cabinet-bar {
@@ -309,6 +346,102 @@
     
     .btn-retry:active {
       transform: translateY(2px);
+    }
+
+    /* ACTION BUTTONS DESIGN */
+    .btn-action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      color: #ffffff;
+      min-height: 44px;
+      padding: 12px 18px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+      font-size: clamp(9px, 1.8vw, 11px);
+      touch-action: manipulation;
+    }
+
+    /* MOBILE COMPACT ADAPTATION - SLIGHTLY TALLER GAME AREA */
+    @media (max-width: 640px) {
+      body {
+        padding: 6px;
+        justify-content: center;
+      }
+
+      header {
+        margin: 2px 0 6px 0;
+      }
+
+      header h1 {
+        font-size: 0.75rem;
+      }
+
+      main {
+        width: 100%;
+        max-width: 100%;
+        border-width: 2px;
+        border-radius: 10px;
+      }
+
+      .canvas-wrapper {
+        width: 100%;
+        max-height: 62vh;
+        aspect-ratio: 16 / 8.5;
+      }
+
+      .canvas-wrapper #pixelCanvas {
+        max-width: 100% !important;
+        max-height: 100% !important;
+        width: auto !important;
+        height: auto !important;
+        aspect-ratio: 16 / 8.5 !important;
+        object-fit: contain !important;
+      }
+
+      footer {
+        width: 100%;
+        gap: 6px;
+        margin: 6px 0 2px 0;
+      }
+
+      .btn-action, .btn-retry {
+        flex: 1;
+        min-height: 38px;
+        padding: 8px 4px;
+        font-size: 8.5px;
+      }
+    }
+
+    /* FULLSCREEN & NATIVE LANDSCAPE VIEWPORT ADAPTATION */
+    @media (orientation: landscape) and (max-height: 550px) {
+      body {
+        padding: 0;
+      }
+
+      header, footer, .cabinet-bar {
+        display: none !important;
+      }
+
+      main {
+        width: 100vw !important;
+        height: 100vh !important;
+        max-width: 100vw !important;
+        max-height: 100vh !important;
+        border: none !important;
+        border-radius: 0 !important;
+      }
+
+      .canvas-wrapper {
+        width: 100vw !important;
+        height: 100vh !important;
+        max-height: 100vh !important;
+        aspect-ratio: 640 / 280 !important;
+      }
     }
   </style>
 </head>
@@ -383,6 +516,8 @@
     const hudScore = document.getElementById('hudScore');
     const hudStatus = document.getElementById('hudStatus');
     const hudStatusHeader = document.getElementById('hudStatusHeader');
+
+
 
     function checkConnectionAndReload() {
       if (navigator.onLine) {
@@ -619,9 +754,13 @@
         ctx.fillRect(screenX + 40, 140, 120, 35);
         ctx.fillRect(screenX + 460, 135, 110, 40);
 
-        // Sand Floor
+        // Sand Floor & Underground Fillers (Solid deep ground extending to bottom of canvas)
         ctx.fillStyle = COLORS.sand;
-        ctx.fillRect(screenX, 165, LOOP_WIDTH, canvas.height - 165);
+        ctx.fillRect(screenX, 165, LOOP_WIDTH, 40);
+        ctx.fillStyle = '#d97706';
+        ctx.fillRect(screenX, 205, LOOP_WIDTH, 45);
+        ctx.fillStyle = '#78350f';
+        ctx.fillRect(screenX, 250, LOOP_WIDTH, Math.max(200, canvas.height - 250));
 
         // Foreground Stacked Cubes & Oasis Blocks
         ctx.fillStyle = COLORS.blockBlue;
