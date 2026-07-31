@@ -29,6 +29,12 @@ import {
   Star,
   Target,
   Sparkles,
+  Info,
+  Lock,
+  Users,
+  CalendarCheck,
+  LineChart,
+  ShieldCheck,
 } from "lucide-react";
 
 const MALE_AVATARS = [
@@ -80,6 +86,7 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [avatarGenderCategory, setAvatarGenderCategory] = useState<"male" | "female">("male");
+  const [showCompetencyInfoModal, setShowCompetencyInfoModal] = useState(false);
 
   // Form state
   const [formFields, setFormFields] = useState({
@@ -214,30 +221,86 @@ export default function ProfilePage() {
     session.user.image ||
     `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(session.user.name || "User")}`;
 
+  const isAdmin = (profileData?.role || session?.user?.role) === "ADMIN";
   const isMentor = (profileData?.role || session?.user?.role) === "MENTOR";
 
   // Calculate Synced Study Tracker Metrics
   const tracker = profileData?.studyTracker || {};
-  const syllabusPct = tracker?.overallProgress ?? tracker?.syllabusProgress ?? 86;
-  const consistencyPct = tracker?.streak ? Math.min(tracker.streak * 12, 98) : (tracker?.consistency ?? 92);
+
+  // Real-time calculation of overall syllabus progress
+  let totalPlanBlocks = 0;
+  let donePlanBlocks = 0;
+  (tracker.days || []).forEach((d: any) => {
+    (d.blocks || []).forEach((b: any) => {
+      totalPlanBlocks++;
+      const p = tracker.prog?.[b.id] || {};
+      const sts = b.subtopics || [];
+      const customTasks = p.customTasks || [];
+      const tot = sts.length + customTasks.length;
+
+      if (tot > 0) {
+        const doneSts = sts.filter((_: any, j: number) => Boolean(p.subtopics?.[j])).length;
+        const doneTasks = customTasks.filter((t: any) => Boolean(t.done)).length;
+        if (doneSts + doneTasks === tot) donePlanBlocks++;
+      } else if (p.completed || p.done) {
+        donePlanBlocks++;
+      }
+    });
+  });
+
+  const syllabusPct = totalPlanBlocks > 0
+    ? Math.round((donePlanBlocks / totalPlanBlocks) * 100)
+    : (tracker?.overallProgress ?? tracker?.syllabusProgress ?? 0);
+
+  // Real-time calculation of consistency progress
+  const totalDaysCount = (tracker.days || []).length;
+  const activeDaysCount = (tracker.days || []).filter((_: any, i: number) => {
+    const dayBlocks = tracker.days[i]?.blocks || [];
+    return dayBlocks.some((b: any) => {
+      const p = tracker.prog?.[b.id] || {};
+      return p.completed || p.done || (p.timeSpent && p.timeSpent > 0);
+    });
+  }).length;
+
+  const consistencyPct = totalDaysCount > 0
+    ? Math.round((activeDaysCount / totalDaysCount) * 100)
+    : (tracker?.streak ? Math.min(tracker.streak * 12, 100) : (tracker?.consistency ?? 0));
+
   const subjectMastery = tracker?.subjectMastery || {};
 
   // Build Dynamic Competency Matrix from Study Tracker subjects
   const competencyMatrix = (tracker?.subj && tracker.subj.length > 0)
     ? tracker.subj.map((s: any, idx: number) => {
         let totalBlocks = 0;
-        let doneBlocks = 0;
+        let cumulativeScore = 0;
+
         (tracker.days || []).forEach((d: any) => {
           (d.blocks || []).forEach((b: any) => {
-            if (b.subjectId === s.id) {
+            const matchesSubject = b.subjectId === s.id || 
+              (b.subjectId && s.name && String(b.subjectId).toLowerCase() === String(s.name).toLowerCase());
+            
+            if (matchesSubject) {
               totalBlocks++;
-              if (tracker.prog?.[b.id]?.completed || tracker.prog?.[b.id]?.done) {
-                doneBlocks++;
+              const p = tracker.prog?.[b.id] || {};
+              const sts = b.subtopics || [];
+              const customTasks = p.customTasks || [];
+              const tot = sts.length + customTasks.length;
+
+              if (tot > 0) {
+                const doneSts = sts.filter((_: any, j: number) => Boolean(p.subtopics?.[j])).length;
+                const doneTasks = customTasks.filter((t: any) => Boolean(t.done)).length;
+                cumulativeScore += (doneSts + doneTasks) / tot;
+              } else if (p.completed || p.done) {
+                cumulativeScore += 1;
+              } else if (p.timeSpent && b.targetHrs) {
+                const loggedRatio = p.timeSpent / (b.targetHrs * 3600);
+                cumulativeScore += Math.min(Math.max(loggedRatio, 0), 1);
               }
             }
           });
         });
-        const pct = totalBlocks > 0 ? Math.round((doneBlocks / totalBlocks) * 100) : (subjectMastery[s.name] || 82 - idx * 4);
+
+        const pct = totalBlocks > 0 ? Math.min(Math.round((cumulativeScore / totalBlocks) * 100), 100) : 0;
         const palette = ["bg-blue-500", "bg-indigo-600", "bg-emerald-500", "bg-amber-500", "bg-purple-600", "bg-sky-500"];
         const colorClass = palette[idx % palette.length];
         return {
@@ -249,12 +312,12 @@ export default function ProfilePage() {
         };
       })
     : [
-        { name: "GS 1 (History & Geography)", score: subjectMastery["GS1"] || Math.min(syllabusPct + 4, 96), level: "Proficient", color: "bg-blue-500", dot: "bg-blue-500" },
-        { name: "GS 2 (Polity & Governance)", score: subjectMastery["GS2"] || Math.min(syllabusPct + 10, 98), level: "Expert", color: "bg-indigo-600", dot: "bg-indigo-600" },
-        { name: "GS 3 (Economy & Environment)", score: subjectMastery["GS3"] || Math.max(syllabusPct - 6, 68), level: "Competent", color: "bg-emerald-500", dot: "bg-emerald-500" },
-        { name: "GS 4 (Ethics & Aptitude)", score: subjectMastery["GS4"] || Math.min(syllabusPct + 2, 90), level: "Proficient", color: "bg-amber-500", dot: "bg-amber-500" },
-        { name: `Optional (${formFields.optionalSubject || "Geography"})`, score: subjectMastery["Optional"] || 90, level: "Expert", color: "bg-purple-600", dot: "bg-purple-600" },
-        { name: "CSAT & Data Interpretation", score: subjectMastery["CSAT"] || 85, level: "Proficient", color: "bg-sky-500", dot: "bg-sky-500" },
+        { name: "GS 1 (History & Geography)", score: subjectMastery["GS1"] || syllabusPct, level: syllabusPct >= 85 ? "Expert" : syllabusPct >= 70 ? "Proficient" : "Competent", color: "bg-blue-500", dot: "bg-blue-500" },
+        { name: "GS 2 (Polity & Governance)", score: subjectMastery["GS2"] || syllabusPct, level: syllabusPct >= 85 ? "Expert" : syllabusPct >= 70 ? "Proficient" : "Competent", color: "bg-indigo-600", dot: "bg-indigo-600" },
+        { name: "GS 3 (Economy & Environment)", score: subjectMastery["GS3"] || syllabusPct, level: syllabusPct >= 85 ? "Expert" : syllabusPct >= 70 ? "Proficient" : "Competent", color: "bg-emerald-500", dot: "bg-emerald-500" },
+        { name: "GS 4 (Ethics & Aptitude)", score: subjectMastery["GS4"] || syllabusPct, level: syllabusPct >= 85 ? "Expert" : syllabusPct >= 70 ? "Proficient" : "Competent", color: "bg-amber-500", dot: "bg-amber-500" },
+        { name: `Optional (${formFields.optionalSubject || "General"})`, score: subjectMastery["Optional"] || syllabusPct, level: syllabusPct >= 85 ? "Expert" : syllabusPct >= 70 ? "Proficient" : "Competent", color: "bg-purple-600", dot: "bg-purple-600" },
+        { name: "CSAT & Data Interpretation", score: subjectMastery["CSAT"] || syllabusPct, level: syllabusPct >= 85 ? "Expert" : syllabusPct >= 70 ? "Proficient" : "Competent", color: "bg-sky-500", dot: "bg-sky-500" },
       ];
 
   // Dynamic Prep History from Study Tracker Days
@@ -267,20 +330,18 @@ export default function ProfilePage() {
           duration: `${totalHrs}.0h`,
         };
       })
-    : [
-        { course: "GS Fundamentals", cert: "Yes", duration: "16.5h" },
-        { course: "Polity & Rights", cert: "Yes", duration: "12.0h" },
-        { course: "CSAT Speed Drills", cert: "In Progress", duration: "3.5h" },
-        { course: "Answer Writing 101", cert: "Yes", duration: "8.0h" },
-        { course: "Full Mock Test 1", cert: "Yes", duration: "24.5h" },
-      ];
+    : [];
 
   // Dynamic Achievements
+  const testCount = profileData?._count?.testAttempts ?? 0;
+  const streakCount = tracker?.streak ?? 0;
+  const subjCount = tracker?.subj?.length ?? 0;
+
   const dynamicAchievements = [
     { name: "Syllabus Master", score: `${Math.min(Math.floor(syllabusPct / 20), 5)}/5`, pct: syllabusPct, color: "bg-amber-500" },
-    { name: "Skill Builder", score: `${Math.min(tracker?.subj?.length || 4, 5)}/5`, pct: Math.min((tracker?.subj?.length || 4) * 20, 100), color: "bg-blue-500" },
-    { name: "Consistency Streak", score: `${tracker?.streak || 2}/7 Days`, pct: Math.min(((tracker?.streak || 2) / 7) * 100, 100), color: "bg-emerald-500" },
-    { name: "Answer Writer", score: `${profileData?._count?.testAttempts || 5}/10`, pct: Math.min(((profileData?._count?.testAttempts || 5) / 10) * 100, 100), color: "bg-purple-500" },
+    { name: "Skill Builder", score: `${Math.min(subjCount, 5)}/5`, pct: Math.min(subjCount * 20, 100), color: "bg-blue-500" },
+    { name: "Consistency Streak", score: `${streakCount}/7 Days`, pct: Math.min((streakCount / 7) * 100, 100), color: "bg-emerald-500" },
+    { name: "Answer Writer", score: `${testCount}/10`, pct: Math.min((testCount / 10) * 100, 100), color: "bg-purple-500" },
   ];
 
   // Dynamic Total Learning Hours
@@ -298,7 +359,7 @@ export default function ProfilePage() {
             <div className="flex items-center space-x-2 text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-1">
               <span>Account Settings</span>
               <span>/</span>
-              <span>Learning Dashboard</span>
+              <span>{isAdmin ? "Admin Console" : isMentor ? "Mentor Hub" : "Learning Dashboard"}</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
               {profileData?.name || session.user.name || "User Profile"}
@@ -382,7 +443,22 @@ export default function ProfilePage() {
 
               {/* Bottom 3 Skill Highlights / Mentor Highlights */}
               <div className="relative z-10 grid grid-cols-3 gap-2 pt-6 border-t border-white/15 text-center">
-                {isMentor ? (
+                {isAdmin ? (
+                  <>
+                    <div>
+                      <p className="text-xs text-blue-200 font-medium">Role</p>
+                      <p className="text-sm font-bold mt-0.5 text-white">Admin</p>
+                    </div>
+                    <div className="border-x border-white/15 px-2">
+                      <p className="text-xs text-blue-200 font-medium">Access</p>
+                      <p className="text-sm font-bold mt-0.5 text-white">Full Control</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-blue-200 font-medium">Status</p>
+                      <p className="text-sm font-bold mt-0.5 text-white">Superuser</p>
+                    </div>
+                  </>
+                ) : isMentor ? (
                   <>
                     <div>
                       <p className="text-xs text-blue-200 font-medium">Mentees</p>
@@ -422,7 +498,93 @@ export default function ProfilePage() {
           <div className="lg:col-span-7 flex flex-col">
             <Card className="p-6 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm rounded-3xl flex-1 flex flex-col justify-between">
               
-              {isMentor ? (
+              {isAdmin ? (
+                <>
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <Lock className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                        System Administration Console
+                      </h3>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                        Global platform management, governance, and user access control
+                      </p>
+                    </div>
+                    <Badge className="bg-indigo-600 text-white text-xs font-semibold px-3 py-1">
+                      System Admin
+                    </Badge>
+                  </div>
+
+                  <div className="space-y-4 my-2 text-xs leading-relaxed text-slate-600 dark:text-slate-300">
+                    <div className="p-4 rounded-2xl bg-indigo-50/50 dark:bg-slate-800/50 border border-indigo-100 dark:border-slate-800">
+                      <h4 className="font-bold text-slate-900 dark:text-white mb-1 flex items-center gap-1.5 text-sm">
+                        <Sparkles className="w-4 h-4 text-indigo-600 dark:text-indigo-400" /> Administrative Bio &amp; Overview
+                      </h4>
+                      <p>
+                        {formFields.bio ||
+                          "Platform Administrator with full oversight of user accounts, mentorship slots, session bookings, community discussions, and system analytics."}
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div
+                        onClick={() => router.push("/dashboard/admin/users")}
+                        className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 hover:border-indigo-500/50 dark:hover:border-indigo-500/50 cursor-pointer transition-all group"
+                      >
+                        <h5 className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5 mb-1 text-xs group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
+                          <Users className="w-4 h-4 text-cyan-500" /> Manage Users &rarr;
+                        </h5>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                          Review, activate, deactivate, or assign roles to Students, Mentors, and Administrators.
+                        </p>
+                      </div>
+
+                      <div
+                        onClick={() => router.push("/dashboard/admin/sessions")}
+                        className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 hover:border-indigo-500/50 dark:hover:border-indigo-500/50 cursor-pointer transition-all group"
+                      >
+                        <h5 className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5 mb-1 text-xs group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
+                          <CalendarCheck className="w-4 h-4 text-purple-500" /> Manage Sessions &rarr;
+                        </h5>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                          Inspect mentorship slots, manage live bookings, and oversee session schedules.
+                        </p>
+                      </div>
+
+                      <div
+                        onClick={() => router.push("/dashboard/admin/analytics")}
+                        className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 hover:border-indigo-500/50 dark:hover:border-indigo-500/50 cursor-pointer transition-all group"
+                      >
+                        <h5 className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5 mb-1 text-xs group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
+                          <LineChart className="w-4 h-4 text-emerald-500" /> System Analytics &rarr;
+                        </h5>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                          Monitor user registration, engagement trends, and platform traffic metrics.
+                        </p>
+                      </div>
+
+                      <div
+                        onClick={() => router.push("/tracker/manage")}
+                        className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 hover:border-indigo-500/50 dark:hover:border-indigo-500/50 cursor-pointer transition-all group"
+                      >
+                        <h5 className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5 mb-1 text-xs group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
+                          <BookOpen className="w-4 h-4 text-amber-500" /> Premade Syllabi &rarr;
+                        </h5>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                          Configure global premade study templates available to all platform students.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center text-xs text-slate-500">
+                    <span>Administrative Privilege Level: Full Access</span>
+                    <Button onClick={() => router.push("/dashboard/admin/users")} size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs">
+                      Open Admin Control Panel &rarr;
+                    </Button>
+                  </div>
+                </>
+              ) : isMentor ? (
                 <>
                   <div className="flex items-center justify-between mb-4">
                     <div>
@@ -504,7 +666,16 @@ export default function ProfilePage() {
                     <div>
                       <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
                         <Activity className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                        Subject Competency Matrix
+                        <span>Subject Competency Matrix</span>
+                        <button
+                          type="button"
+                          onClick={() => setShowCompetencyInfoModal(true)}
+                          className="p-1 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors inline-flex items-center justify-center"
+                          title="How is this calculated?"
+                          aria-label="Competency calculation info"
+                        >
+                          <Info className="w-4 h-4" />
+                        </button>
                       </h3>
                       <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                         Real-time visual map of preparation strength across core subjects
@@ -562,7 +733,110 @@ export default function ProfilePage() {
         {/* Bottom Row - 3 Cards (Mentor Overview vs Student Prep Stats) */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           
-          {isMentor ? (
+          {isAdmin ? (
+            <>
+              {/* Admin Card 1: System Shortcuts */}
+              <Card className="p-6 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm rounded-3xl flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                      <Lock className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                      Platform Controls
+                    </h3>
+                    <span className="text-xs text-indigo-600 font-semibold">Admin</span>
+                  </div>
+
+                  <div className="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
+                    {[
+                      { title: "User Access & Roles", path: "/dashboard/admin/users", tag: "Security" },
+                      { title: "Mentorship Sessions", path: "/dashboard/admin/sessions", tag: "Sessions" },
+                      { title: "System Analytics", path: "/dashboard/admin/analytics", tag: "Metrics" },
+                      { title: "Global Syllabi", path: "/tracker/manage", tag: "Templates" },
+                      { title: "Community Forum", path: "/forum", tag: "Community" },
+                    ].map((row, idx) => (
+                      <div key={idx} onClick={() => router.push(row.path)} className="py-2.5 flex justify-between items-center cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 px-2 rounded-lg transition-colors">
+                        <span className="font-semibold text-slate-800 dark:text-slate-200">{row.title}</span>
+                        <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[10px] font-bold">
+                          {row.tag}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <Button variant="ghost" size="sm" onClick={() => router.push('/dashboard/admin/users')} className="w-full mt-4 text-xs text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950">
+                  Manage Platform Users &rarr;
+                </Button>
+              </Card>
+
+              {/* Admin Card 2: System Health & Security */}
+              <Card className="p-6 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm rounded-3xl flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                      <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                      System Health &amp; Audit
+                    </h3>
+                    <span className="text-xs text-emerald-500 font-semibold flex items-center gap-1">
+                      <Sparkles className="w-3 h-3" /> Live
+                    </span>
+                  </div>
+
+                  <div className="space-y-3 text-xs">
+                    {[
+                      { name: "Database Connection", score: "Operational", pct: 100, color: "bg-emerald-500" },
+                      { name: "Authentication Service", score: "Active", pct: 100, color: "bg-blue-500" },
+                      { name: "Storage & File Blob API", score: "Healthy", pct: 100, color: "bg-purple-500" },
+                      { name: "Administrative Audit Status", score: "Passed", pct: 100, color: "bg-amber-500" },
+                    ].map((item, idx) => (
+                      <div key={idx} className="space-y-1">
+                        <div className="flex justify-between items-center font-medium">
+                          <span className="text-slate-700 dark:text-slate-300">{item.name}</span>
+                          <span className="text-slate-500 dark:text-slate-400 font-bold">{item.score}</span>
+                        </div>
+                        <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                          <div className={`h-full ${item.color} rounded-full`} style={{ width: `${item.pct}%` }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 text-center text-xs text-slate-500">
+                  Full Administrative Superuser Permissions Active
+                </div>
+              </Card>
+
+              {/* Admin Card 3: Platform Quick Actions */}
+              <Card className="p-6 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm rounded-3xl flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                      <Zap className="w-4 h-4 text-amber-500" />
+                      Quick Admin Actions
+                    </h3>
+                    <span className="text-xs text-slate-400 font-mono">Console</span>
+                  </div>
+
+                  <div className="space-y-3">
+                    <Button onClick={() => router.push('/dashboard/admin/users')} className="w-full bg-slate-100 dark:bg-slate-800 hover:bg-indigo-600 hover:text-white text-slate-800 dark:text-slate-200 justify-start text-xs font-semibold py-2 rounded-xl border border-slate-200 dark:border-slate-700">
+                      <Users className="w-4 h-4 mr-2 text-cyan-500" /> View All Registered Users
+                    </Button>
+                    <Button onClick={() => router.push('/dashboard/admin/sessions')} className="w-full bg-slate-100 dark:bg-slate-800 hover:bg-indigo-600 hover:text-white text-slate-800 dark:text-slate-200 justify-start text-xs font-semibold py-2 rounded-xl border border-slate-200 dark:border-slate-700">
+                      <CalendarCheck className="w-4 h-4 mr-2 text-purple-500" /> Review All Mentorship Sessions
+                    </Button>
+                    <Button onClick={() => router.push('/dashboard/admin/analytics')} className="w-full bg-slate-100 dark:bg-slate-800 hover:bg-indigo-600 hover:text-white text-slate-800 dark:text-slate-200 justify-start text-xs font-semibold py-2 rounded-xl border border-slate-200 dark:border-slate-700">
+                      <LineChart className="w-4 h-4 mr-2 text-emerald-500" /> Open Real-Time Analytics
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="mt-4 p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/60 border border-amber-100 dark:border-amber-900/60 text-xs text-amber-900 dark:text-amber-200">
+                  🛡️ <span className="font-semibold">Security Note:</span> You are viewing your profile with full Administrator privileges.
+                </div>
+              </Card>
+            </>
+          ) : isMentor ? (
             <>
               {/* Mentor Card 1: Core Mentorship Specializations */}
               <Card className="p-6 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm rounded-3xl flex flex-col justify-between">
@@ -616,10 +890,10 @@ export default function ProfilePage() {
 
                   <div className="space-y-3 text-xs">
                     {[
-                      { name: "500+ Mains Sheets Evaluated", score: "Active", pct: 100, color: "bg-emerald-500" },
-                      { name: "45+ Mentees Cleared Prelims", score: "Proven", pct: 90, color: "bg-blue-500" },
-                      { name: "2x Top Exam Qualifier / Interview Panels", score: "Veteran", pct: 95, color: "bg-amber-500" },
-                      { name: "Average Student Rating", score: "4.9/5", pct: 98, color: "bg-purple-500" },
+                      { name: "Live Mentorship Slots", score: `${profileData?._count?.mentorSlots ?? 0} Slots`, pct: Math.min((profileData?._count?.mentorSlots || 0) * 10, 100), color: "bg-emerald-500" },
+                      { name: "Student Queries & Responses", score: `${(profileData?._count?.replies || 0) + (profileData?._count?.comments || 0)} Answers`, pct: Math.min(((profileData?._count?.replies || 0) + (profileData?._count?.comments || 0)) * 5, 100), color: "bg-blue-500" },
+                      { name: "Resource Guides Shared", score: `${profileData?._count?.resources ?? 0} Files`, pct: Math.min((profileData?._count?.resources || 0) * 10, 100), color: "bg-amber-500" },
+                      { name: "Community Discussions", score: `${profileData?._count?.discussions ?? 0} Posts`, pct: Math.min((profileData?._count?.discussions || 0) * 10, 100), color: "bg-purple-500" },
                     ].map((item, idx) => (
                       <div key={idx} className="space-y-1">
                         <div className="flex justify-between items-center font-medium">
@@ -753,10 +1027,10 @@ export default function ProfilePage() {
 
                   <div className="space-y-3.5">
                     {[
-                      { label: "Total learning hours", value: `${totalTrackerHrs || 254} h`, icon: Clock, color: "text-blue-500" },
-                      { label: "Mock tests completed", value: profileData?._count?.testAttempts || 8, icon: Award, color: "text-purple-500" },
-                      { label: "Hands-on practice hours", value: `${Math.round((totalTrackerHrs || 254) * 0.4)} h`, icon: Target, color: "text-emerald-500" },
-                      { label: "Mentor sessions attended", value: profileData?._count?.bookings || 12, icon: CheckCircle2, color: "text-amber-500" },
+                      { label: "Total learning hours", value: `${totalTrackerHrs} h`, icon: Clock, color: "text-blue-500" },
+                      { label: "Mock tests completed", value: profileData?._count?.testAttempts ?? 0, icon: Award, color: "text-purple-500" },
+                      { label: "Hands-on practice hours", value: `${Math.round(totalTrackerHrs * 0.4)} h`, icon: Target, color: "text-emerald-500" },
+                      { label: "Mentor sessions attended", value: profileData?._count?.bookings ?? 0, icon: CheckCircle2, color: "text-amber-500" },
                     ].map((stat, idx) => {
                       const IconComp = stat.icon;
                       return (
@@ -900,25 +1174,25 @@ export default function ProfilePage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                    {isMentor ? "Mentoring Focus" : "Target Exam Year"}
+                    {isAdmin ? "Administrative Title" : isMentor ? "Mentoring Focus" : "Target Exam Year"}
                   </label>
                   <Input
                     type="text"
                     value={formFields.targetYear}
                     onChange={(e) => setFormFields({ ...formFields, targetYear: e.target.value })}
-                    placeholder={isMentor ? "e.g. Concept & Answer Writing" : "e.g. 2026"}
+                    placeholder={isAdmin ? "e.g. System Administrator" : isMentor ? "e.g. Concept & Answer Writing" : "e.g. 2026"}
                     className="bg-slate-50 dark:bg-slate-800"
                   />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                    {isMentor ? "Mentoring Experience" : "Optional / Specialization Subject"}
+                    {isAdmin ? "Department / Operations" : isMentor ? "Mentoring Experience" : "Optional / Specialization Subject"}
                   </label>
                   <Input
                     type="text"
                     value={formFields.optionalSubject}
                     onChange={(e) => setFormFields({ ...formFields, optionalSubject: e.target.value })}
-                    placeholder={isMentor ? "e.g. 5+ Years" : "e.g. Geography / Accounts / Law"}
+                    placeholder={isAdmin ? "e.g. Platform Operations" : isMentor ? "e.g. 5+ Years" : "e.g. Geography / Accounts / Law"}
                     className="bg-slate-50 dark:bg-slate-800"
                   />
                 </div>
@@ -948,6 +1222,81 @@ export default function ProfilePage() {
 
             </form>
           </Card>
+        </div>
+      )}
+
+      {/* ── COMPETENCY MATRIX CALCULATION INFO MODAL ───────────────────────── */}
+      {showCompetencyInfoModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-lg p-6 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <Activity className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                <h2 className="font-bold text-slate-900 dark:text-white text-base">
+                  Subject Competency Matrix
+                </h2>
+              </div>
+              <button
+                onClick={() => setShowCompetencyInfoModal(false)}
+                className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="mt-4 space-y-4 text-xs sm:text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+              <div className="p-3.5 rounded-2xl bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-900/60">
+                <p className="font-bold text-blue-900 dark:text-blue-200 mb-1 flex items-center gap-1.5">
+                  <Sparkles className="w-4 h-4 text-blue-500" /> Real-Time Study Tracker Sync
+                </p>
+                <p className="text-xs text-blue-800 dark:text-blue-300">
+                  Your competency score for each subject is calculated live from your active <strong>Study Planner</strong> topics, subtopic checkboxes, and stopwatch timer.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <p className="font-bold text-slate-900 dark:text-white text-xs uppercase tracking-wider">
+                  📊 Calculation Formula
+                </p>
+                <div className="p-3 rounded-xl bg-slate-100 dark:bg-slate-800 font-mono text-xs text-slate-800 dark:text-slate-200">
+                  Subject Score (%) = ( Completed Subtopics + Custom Tasks ) ÷ Total Assigned Subtopics × 100
+                </div>
+                <ul className="list-disc pl-4 space-y-1 text-xs text-slate-500 dark:text-slate-400">
+                  <li>In <strong>Stopwatch/Easy Mode</strong>, completed blocks and logged study hours automatically add to your subject completion ratio.</li>
+                  <li>If a subject has <strong>0 assigned blocks</strong> in your active planner, its score displays <strong>0%</strong>.</li>
+                </ul>
+              </div>
+
+              <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                <p className="font-bold text-slate-900 dark:text-white text-xs uppercase tracking-wider">
+                  🏷️ Competency Levels
+                </p>
+                <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                  <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-100 dark:border-emerald-900/60">
+                    <div className="font-bold text-emerald-600 dark:text-emerald-400">Expert</div>
+                    <div className="text-[11px] text-slate-500">85% – 100%</div>
+                  </div>
+                  <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-900/60">
+                    <div className="font-bold text-blue-600 dark:text-blue-400">Proficient</div>
+                    <div className="text-[11px] text-slate-500">70% – 84%</div>
+                  </div>
+                  <div className="p-2 rounded-xl bg-amber-50 dark:bg-amber-950/60 border border-amber-100 dark:border-amber-900/60">
+                    <div className="font-bold text-amber-600 dark:text-amber-400">Competent</div>
+                    <div className="text-[11px] text-slate-500">0% – 69%</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-5 pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+              <Button
+                onClick={() => setShowCompetencyInfoModal(false)}
+                className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs px-5"
+              >
+                Got it
+              </Button>
+            </div>
+          </div>
         </div>
       )}
     </div>

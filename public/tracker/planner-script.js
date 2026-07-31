@@ -664,7 +664,8 @@ function renderStats(){
 
   const statsRow = document.getElementById('statsRow');
   if (statsRow) {
-    if (conf.trackerMode === 'easy') {
+    const activeTab = conf.activeTab || 'daily';
+    if (activeTab !== 'daily' || conf.trackerMode === 'easy') {
       statsRow.style.display = 'none';
     } else {
       statsRow.style.display = 'grid';
@@ -879,7 +880,8 @@ function showStatsDetail(type) {
 
 function renderHoursBar(){
   const hoursBar = document.getElementById('hoursBar');
-  if (hoursBar && conf.trackerMode === 'easy') {
+  const activeTab = conf.activeTab || 'daily';
+  if (hoursBar && (activeTab !== 'daily' || conf.trackerMode === 'easy')) {
     hoursBar.style.display = 'none';
     return;
   } else if (hoursBar) {
@@ -1117,6 +1119,13 @@ function renderDaily(){
   const dayNav = document.querySelector('.day-nav');
   const dayDots = document.getElementById('dayDots');
 
+  const activeTab = conf.activeTab || 'daily';
+  if (activeTab !== 'daily') {
+    if (statsRow) statsRow.style.display = 'none';
+    if (hoursBar) hoursBar.style.display = 'none';
+    return;
+  }
+
   if (conf.trackerMode === 'easy') {
     document.body.setAttribute('data-tracker-mode', 'easy');
     if (statsRow) statsRow.style.display = 'none';
@@ -1139,8 +1148,9 @@ function renderDaily(){
 }
 
 function renderTodayBanner(){
-  const ti=days.findIndex((_,i)=>isToday(getDd(i)));
   const el=document.getElementById('todayBanner');
+  if(!el) return;
+  const ti=days.findIndex((_,i)=>isToday(getDd(i)));
   if(ti<0){el.style.display='none';return;}
   el.style.display='flex';
   const d=days[ti],s=sj(d.blocks[0]?.subjectId||'');
@@ -2448,7 +2458,132 @@ function confirmAddBlock(){
 }
 
 /* Bulk */
-function openBulkModal(){document.getElementById('bulkInput').value='';openModal('bulkOverlay');}
+function openBulkModal(){
+  document.getElementById('bulkInput').value = '';
+  const nameEl = document.getElementById('excelFileName');
+  if (nameEl) nameEl.textContent = 'No file chosen';
+  const fileEl = document.getElementById('excelFileInput');
+  if (fileEl) fileEl.value = '';
+  openModal('bulkOverlay');
+}
+
+function downloadSampleExcel() {
+  const sampleCsv = `Day Title,Subjects (Subject:Hours),Subtopics (separated by ;)
+Polity + CSAT Day,Polity:3 | CSAT:2,Fundamental Rights; Art 19-22 Freedom
+Economy Focus,Economy:4 | Revision:1.5,GDP and Inflation; Monetary Policy
+History Day,History:5,Ancient India; Harappan Civilization
+Environment Day,Environment:4,Biodiversity; Climate Change Notes`;
+
+  const blob = new Blob([sampleCsv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.setAttribute('download', 'sample_study_plan_template.csv');
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+function handleExcelFileUpload(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  const fileNameSpan = document.getElementById('excelFileName');
+  if (fileNameSpan) fileNameSpan.textContent = file.name;
+
+  const reader = new FileReader();
+
+  if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+    reader.onload = function(e) {
+      try {
+        if (typeof XLSX !== 'undefined') {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+          const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+          processRowsToBulkText(json);
+        } else {
+          alert('Excel parser library loading... If offline, please upload a .csv file.');
+        }
+      } catch (err) {
+        alert('Failed to parse Excel file: ' + err.message);
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  } else {
+    reader.onload = function(e) {
+      const text = e.target.result;
+      parseCsvToBulkText(text);
+    };
+    reader.readAsText(file);
+  }
+}
+
+function processRowsToBulkText(rows) {
+  if (!rows || !rows.length) return;
+  
+  let formattedLines = [];
+  let startIdx = 0;
+  
+  const firstRowStr = (rows[0] || []).join(' ').toLowerCase();
+  if (firstRowStr.includes('title') || firstRowStr.includes('subject') || firstRowStr.includes('subtopic')) {
+    startIdx = 1;
+  }
+
+  for (let i = startIdx; i < rows.length; i++) {
+    const row = rows[i];
+    if (!row || !row.length || !row.some(c => String(c || '').trim())) continue;
+
+    const dayTitle = String(row[0] || '').trim();
+    const subjects = String(row[1] || '').trim();
+    const subtopicsRaw = String(row[2] || '').trim();
+
+    if (!dayTitle) continue;
+
+    if (subjects) {
+      formattedLines.push(`${dayTitle} | ${subjects}`);
+    } else {
+      formattedLines.push(dayTitle);
+    }
+
+    if (subtopicsRaw) {
+      const subtopicItems = subtopicsRaw.split(/;|\||\n/).map(s => s.trim()).filter(Boolean);
+      subtopicItems.forEach(st => {
+        formattedLines.push(`  - ${st}`);
+      });
+    }
+  }
+
+  if (formattedLines.length) {
+    const textarea = document.getElementById('bulkInput');
+    if (textarea) {
+      textarea.value = formattedLines.join('\n');
+    }
+  }
+}
+
+function parseCsvToBulkText(csvText) {
+  const lines = csvText.split(/\r?\n/);
+  const rows = [];
+
+  lines.forEach(line => {
+    if (!line.trim()) return;
+    let cols = [];
+    if (line.includes('\t')) {
+      cols = line.split('\t');
+    } else {
+      const regex = /(?:^|,)(?:"([^"]*)"|([^,]*))/g;
+      let match;
+      while ((match = regex.exec(line)) !== null) {
+        cols.push((match[1] !== undefined ? match[1] : match[2]).trim());
+      }
+    }
+    rows.push(cols);
+  });
+
+  processRowsToBulkText(rows);
+}
+
 function saveBulk(){
   const lines=document.getElementById('bulkInput').value.split('\n');
   let added=0,cur=null,curBlocks=[];
@@ -2466,13 +2601,14 @@ function saveBulk(){
    TABS & NAV
 ══════════════════════════════════════════ */
 function switchView(v){
+  conf.activeTab = v;
   document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.view===v));
   document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id==='view-'+v));
   
   const statsEl = document.getElementById('statsRow');
   const hoursEl = document.getElementById('hoursBar');
-  if (statsEl) statsEl.style.display = (v === 'daily') ? '' : 'none';
-  if (hoursEl) hoursEl.style.display = (v === 'daily') ? '' : 'none';
+  if (statsEl) statsEl.style.display = (v === 'daily' && conf.trackerMode !== 'easy') ? 'grid' : 'none';
+  if (hoursEl) hoursEl.style.display = (v === 'daily' && conf.trackerMode !== 'easy') ? 'block' : 'none';
 
   if(v==='syllabus')renderSyllabus();
   if(v==='manage'){renderManage();updateDaysRemaining();}
@@ -2480,7 +2616,6 @@ function switchView(v){
   if(v==='revision')renderRevision();
   if(v==='group')renderGroup();
 
-  conf.activeTab = v;
   sc();
 }
 

@@ -2,63 +2,96 @@
 
 import Link from "next/link";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { AnimatedBackground } from "@/components/animated-background";
 
 export default function HomePage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [sessions, setSessions] = useState<any[]>([]);
   const [loadingSessions, setLoadingSessions] = useState(false);
   const [discussions, setDiscussions] = useState<any[]>([]);
   const [loadingDiscussions, setLoadingDiscussions] = useState(false);
 
   useEffect(() => {
-    if (!session) {
-      setLoadingSessions(true);
-      fetch("/api/sessions")
-        .then((res) => res.json())
-        .then((data) => {
-          const sessionsArray = Array.isArray(data) ? data : data.sessions || [];
-          const now = new Date();
-          const mapped = sessionsArray
-            .filter((s: any) => new Date(s.startTime) > now)
-            .sort((a: any, b: any) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
-            .slice(0, 6)
-            .map((s: any) => ({
-              id: s.id,
-              title: s.title,
-              description: s.description,
-              date: s.startTime ? new Date(s.startTime).toLocaleDateString() : '',
-              time: s.startTime && s.endTime
-                ? `${new Date(s.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${new Date(s.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
-                : '',
-              mentorName: s.mentor?.name || '',
-            }));
-          setSessions(mapped);
-        })
-        .finally(() => setLoadingSessions(false));
-
-      setLoadingDiscussions(true);
-      fetch("/api/discussions")
-        .then((res) => res.json())
-        .then((data) => {
-          const discussionsArray =
-            Array.isArray(data)
-              ? data
-              : Array.isArray(data?.discussions)
-              ? data.discussions
-              : [];
-          const mapped = discussionsArray
-            .filter((d: any) => !d.isPrivate)
-            .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-            .slice(0, 6);
-          setDiscussions(mapped);
-        })
-        .finally(() => setLoadingDiscussions(false));
+    if (status === "loading") return;
+    if (session) {
+      router.replace("/dashboard");
+      return;
     }
-  }, [session]);
+
+    setLoadingSessions(true);
+    fetch("/api/sessions")
+      .then((res) => res.json())
+      .then((data) => {
+        const sessionsArray = Array.isArray(data) ? data : data.sessions || [];
+        const now = new Date();
+        const mapped = sessionsArray
+          .filter((s: any) => new Date(s.startTime) > now)
+          .sort((a: any, b: any) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
+          .slice(0, 6)
+          .map((s: any) => ({
+            id: s.id,
+            title: s.title,
+            description: s.description,
+            date: s.startTime ? new Date(s.startTime).toLocaleDateString() : '',
+            time: s.startTime && s.endTime
+              ? `${new Date(s.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${new Date(s.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+              : '',
+            mentorName: s.mentor?.name || '',
+          }));
+        setSessions(mapped);
+      })
+      .finally(() => setLoadingSessions(false));
+
+    setLoadingDiscussions(true);
+    fetch("/api/discussions")
+      .then((res) => res.json())
+      .then((data) => {
+        const discussionsArray =
+          Array.isArray(data)
+            ? data
+            : Array.isArray(data?.discussions)
+            ? data.discussions
+            : [];
+        const mapped = discussionsArray
+          .filter((d: any) => !d.isPrivate)
+          .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+          .slice(0, 6);
+        setDiscussions(mapped);
+      })
+      .finally(() => setLoadingDiscussions(false));
+  }, [session, status, router]);
+
+  if (status === "loading" || session) {
+    return (
+      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+        <div className="flex justify-center items-center">
+          <div aria-label="Loading..." role="img" className="wheel-and-hamster">
+            <div className="wheel"></div>
+            <div className="hamster">
+              <div className="hamster__body">
+                <div className="hamster__head">
+                  <div className="hamster__ear"></div>
+                  <div className="hamster__eye"></div>
+                  <div className="hamster__nose"></div>
+                </div>
+                <div className="hamster__limb hamster__limb--fr"></div>
+                <div className="hamster__limb hamster__limb--fl"></div>
+                <div className="hamster__limb hamster__limb--br"></div>
+                <div className="hamster__limb hamster__limb--bl"></div>
+                <div className="hamster__tail"></div>
+              </div>
+            </div>
+            <div className="spoke"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100 pb-8">

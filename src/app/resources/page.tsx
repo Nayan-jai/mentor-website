@@ -19,6 +19,7 @@ import {
   Edit3,
   ChevronRight,
   Plus,
+  ExternalLink,
 } from "lucide-react";
 
 interface Resource {
@@ -55,6 +56,7 @@ export default function ResourcesPage() {
   const [uploading, setUploading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [previewResource, setPreviewResource] = useState<Resource | null>(null);
+  const [useGoogleViewer, setUseGoogleViewer] = useState(true);
 
   // Folder creation/renaming states
   const [showFolderModal, setShowFolderModal] = useState(false);
@@ -737,7 +739,10 @@ export default function ResourcesPage() {
 
                         <div className="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
                           <button
-                            onClick={() => setPreviewResource(resource)}
+                            onClick={() => {
+                              setUseGoogleViewer(true);
+                              setPreviewResource(resource);
+                            }}
                             className="flex items-center gap-1 px-3 py-1.5 bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900 border border-blue-100 dark:border-blue-900/60 text-xs font-semibold rounded-lg transition-colors"
                           >
                             <Eye className="w-3.5 h-3.5" /> View
@@ -846,50 +851,77 @@ export default function ResourcesPage() {
       )}
 
       {/* ── PDF PREVIEW MODAL ───────────────────────── */}
-      {previewResource && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-5xl h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
-              <div className="flex items-center gap-3 shrink min-w-0 pr-4">
-                <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0" />
-                <h2 className="font-bold text-slate-900 dark:text-white text-sm sm:text-base truncate" title={previewResource.title}>
-                  {previewResource.title}
-                </h2>
+      {previewResource && (() => {
+        const isHttpUrl = previewResource.url.startsWith("http://") || previewResource.url.startsWith("https://");
+        const iframeSrc = (isHttpUrl && useGoogleViewer)
+          ? `https://docs.google.com/gview?url=${encodeURIComponent(previewResource.url)}&embedded=true`
+          : previewResource.url;
+
+        return (
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-5xl h-[88vh] sm:h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+              {/* Modal Header */}
+              <div className="flex items-center justify-between px-3.5 sm:px-5 py-3 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
+                <div className="flex items-center gap-2.5 shrink min-w-0 pr-2">
+                  <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0" />
+                  <h2 className="font-bold text-slate-900 dark:text-white text-xs sm:text-base truncate" title={previewResource.title}>
+                    {previewResource.title}
+                  </h2>
+                </div>
+                <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                  {isHttpUrl && (
+                    <button
+                      onClick={() => setUseGoogleViewer((prev) => !prev)}
+                      className="hidden sm:inline-flex items-center px-2.5 py-1.5 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-medium rounded-xl transition-all"
+                      title="Toggle viewer engine"
+                    >
+                      {useGoogleViewer ? "Direct File" : "Google Viewer"}
+                    </button>
+                  )}
+                  <a
+                    href={previewResource.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 px-2.5 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold rounded-xl transition-all"
+                    title="Open in new browser tab"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">Open</span>
+                  </a>
+                  <a
+                    href={previewResource.url}
+                    download={previewResource.title}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl shadow-md transition-all"
+                  >
+                    <Download className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Download</span>
+                  </a>
+                  <button
+                    onClick={() => setPreviewResource(null)}
+                    className="p-1.5 text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
-              <div className="flex items-center gap-3 shrink-0">
-                <a
-                  href={previewResource.url}
-                  download={previewResource.title}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl shadow-md transition-all"
-                >
-                  <Download className="w-3.5 h-3.5" /> Download
-                </a>
-                <button
-                  onClick={() => setPreviewResource(null)}
-                  className="p-1.5 text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-            {/* Modal Iframe (Browser-Native PDF Viewer) */}
-            <div className="flex-1 w-full h-full bg-slate-900 relative">
-              <iframe
-                src={previewResource.url}
-                className="w-full h-full border-0 relative z-10"
-                title={previewResource.title}
-              />
-              {/* Spinner fallback in background while PDF loads */}
-              <div className="absolute inset-0 z-0 flex items-center justify-center">
-                <Loader2 className="w-10 h-10 text-slate-500 animate-spin" />
+              {/* Modal Iframe (Google Docs Embedded PDF Viewer for Mobile & Cross-Browser compatibility) */}
+              <div className="flex-1 w-full h-full bg-slate-900 relative">
+                <iframe
+                  src={iframeSrc}
+                  className="w-full h-full border-0 relative z-10"
+                  title={previewResource.title}
+                  allowFullScreen
+                />
+                {/* Spinner fallback in background while PDF loads */}
+                <div className="absolute inset-0 z-0 flex items-center justify-center">
+                  <Loader2 className="w-10 h-10 text-slate-500 animate-spin" />
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 }

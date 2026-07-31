@@ -22,7 +22,7 @@ export default function DashboardRedirectPage() {
     } else if (role === "MENTOR") {
       router.replace("/dashboard/mentor");
     } else if (role === "ADMIN") {
-      router.replace("/dashboard/admin");
+      router.replace("/profile");
     } else {
       router.replace("/");
     }

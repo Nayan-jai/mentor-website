@@ -8,6 +8,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <title>Study Planner</title>
   <link rel="stylesheet" href="planner-styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 
 <body>
@@ -24,9 +25,9 @@
       </div>
       <div class="tabs">
         <button class="tab active" data-view="daily">📅 Daily</button>
+        <button class="tab" data-view="group">👥 Group</button>
         <button class="tab" data-view="syllabus">📚 Syllabus</button>
         <button class="tab" data-view="manage">⚙️ Manage</button>
-        <button class="tab" data-view="group">👥 Group</button>
         <button class="tab" data-view="revision" id="tab-revision" style="display:none">🔄 Revision</button>
       </div>
       <div class="hdr-btns">
@@ -47,7 +48,6 @@
 
     <!-- DAILY VIEW -->
     <div class="view active" id="view-daily">
-      <div class="today-banner" id="todayBanner"></div>
       <div class="day-nav">
         <button class="nav-btn" id="prevBtn">←</button>
         <div class="nav-label" id="navLabel"></div>
@@ -316,29 +316,69 @@
 
   <!-- Bulk Modal -->
   <div class="overlay" id="bulkOverlay" onclick="if(event.target===this)closeModal('bulkOverlay')">
-    <div class="modal">
+    <div class="modal" style="max-width:620px">
       <div class="modal-drag"></div>
       <div class="modal-hd">
         <div class="modal-title">⚡ Bulk Add Days</div>
         <button class="modal-close" onclick="closeModal('bulkOverlay')">✕</button>
       </div>
       <div class="modal-body">
-        <p style="font-size:12px;color:var(--ink3);margin-bottom:12px;line-height:1.6">
-          One day per line:<br>
-          <code
-            style="background:var(--bg2);padding:2px 6px;border-radius:4px">Day Title | Subject:hrs | Subject:hrs</code><br>
-          Sub-topics: next line starting with two spaces and <code>-</code>
+        <!-- Excel / CSV Import Section -->
+        <div style="background:var(--bg2);padding:14px;border:1px solid var(--border);border-radius:10px;margin-bottom:14px">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px">
+            <span style="font-size:13px;font-weight:700;color:var(--ink)">📊 Import from Excel / CSV Sheet</span>
+            <button onclick="downloadSampleExcel()" class="hbtn" style="font-size:12px;padding:4px 10px;background:var(--card);border:1px solid var(--border);color:var(--blue);display:inline-flex;align-items:center;gap:4px">
+              📥 Sample Format (.csv)
+            </button>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv, .txt" style="display:none" onchange="handleExcelFileUpload(event)" />
+            <button onclick="document.getElementById('excelFileInput').click()" class="hbtn" style="background:var(--green);color:#fff;border-color:var(--green);font-size:12px;padding:6px 14px;display:inline-flex;align-items:center;gap:6px">
+              📁 Upload Excel / CSV File
+            </button>
+            <span id="excelFileName" style="font-size:12px;color:var(--ink3)">No file chosen</span>
+          </div>
+        </div>
+
+        <!-- Sample format preview table snippet -->
+        <div style="margin-bottom:14px;padding:10px 12px;background:var(--card);border:1px dashed var(--border);border-radius:8px;font-size:11px;color:var(--ink3)">
+          <div style="font-weight:700;color:var(--ink);margin-bottom:6px">💡 Sample Excel / CSV Format:</div>
+          <div style="overflow-x:auto">
+            <table style="width:100%;border-collapse:collapse;font-size:11px">
+              <thead>
+                <tr style="background:var(--bg2);text-align:left;color:var(--ink)">
+                  <th style="padding:4px 8px;border:1px solid var(--border)">Day Title</th>
+                  <th style="padding:4px 8px;border:1px solid var(--border)">Subjects (Subject:Hours)</th>
+                  <th style="padding:4px 8px;border:1px solid var(--border)">Subtopics (separated by ;)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="padding:4px 8px;border:1px solid var(--border)">Polity + CSAT Day</td>
+                  <td style="padding:4px 8px;border:1px solid var(--border)">Polity:3 | CSAT:2</td>
+                  <td style="padding:4px 8px;border:1px solid var(--border)">Fundamental Rights; Art 19-22 Freedom</td>
+                </tr>
+                <tr>
+                  <td style="padding:4px 8px;border:1px solid var(--border)">Economy Focus</td>
+                  <td style="padding:4px 8px;border:1px solid var(--border)">Economy:4 | Revision:1.5</td>
+                  <td style="padding:4px 8px;border:1px solid var(--border)">GDP and Inflation; Monetary Policy</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <p style="font-size:12px;color:var(--ink3);margin-bottom:8px;line-height:1.5">
+          Or paste / edit text directly below (One day per line: <code>Day Title | Subject:hrs | Subject:hrs</code>):
         </p>
         <div class="mfg">
-          <label>Input</label>
-          <textarea id="bulkInput" rows="10"
+          <textarea id="bulkInput" rows="8"
             placeholder="Polity + CSAT Day | Polity:3 | CSAT:2&#10;  - Fundamental Rights&#10;  - Art 19–22 Freedom&#10;Economy Focus | Economy:4 | Revision:1.5&#10;  - GDP and Inflation"></textarea>
         </div>
       </div>
       <div class="modal-footer">
         <button class="hbtn" onclick="closeModal('bulkOverlay')">Cancel</button>
-        <button class="hbtn" style="background:var(--blue);color:#fff;border-color:var(--blue)" onclick="saveBulk()">Add
-          Days</button>
+        <button class="hbtn" style="background:var(--blue);color:#fff;border-color:var(--blue)" onclick="saveBulk()">Add Days</button>
       </div>
     </div>
   </div>

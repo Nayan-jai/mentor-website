@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { BookOpen } from "lucide-react";
 
 interface Session {
   id: string;
@@ -137,14 +138,25 @@ export default function SessionsPage() {
               Live &amp; Scheduled Sessions
             </h1>
           </div>
-          {session?.user?.role === "MENTOR" && (
-            <Link
-              href="/sessions/create"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-semibold shadow-md hover:shadow-lg transition-all flex items-center gap-2 text-sm self-start sm:self-auto"
-            >
-              <span>+ Create Session</span>
-            </Link>
-          )}
+          <div className="flex items-center gap-3 self-start sm:self-auto flex-wrap">
+            {session && (
+              <Link
+                href="/test"
+                className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white px-4 py-2.5 rounded-xl font-semibold shadow-md hover:shadow-lg transition-all flex items-center gap-2 text-sm"
+              >
+                <BookOpen className="w-4 h-4" />
+                <span>Test Series &amp; OMR</span>
+              </Link>
+            )}
+            {session?.user?.role === "MENTOR" && (
+              <Link
+                href="/sessions/create"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-semibold shadow-md hover:shadow-lg transition-all flex items-center gap-2 text-sm"
+              >
+                <span>+ Create Session</span>
+              </Link>
+            )}
+          </div>
         </div>
 
         {/* Sessions Grid */}

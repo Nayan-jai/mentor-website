@@ -20,6 +20,8 @@ import {
   UserPlus,
   Menu,
   User,
+  Clock,
+  ShieldCheck,
 } from "lucide-react";
 
 import BrandLogo from "@/components/brand-logo";
@@ -50,7 +52,7 @@ export default function Navbar() {
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link href="/">
+          <Link href={session ? "/dashboard" : "/"}>
             <BrandLogo variant="navbar" />
           </Link>
 
@@ -80,9 +82,9 @@ export default function Navbar() {
             <Link href="/forum" className="group nav-link flex items-center gap-1.5 xl:gap-2 px-2 xl:px-3 py-1.5 text-xs xl:text-sm 2xl:text-base font-semibold tracking-wide whitespace-nowrap">
               <MessageCircle className="w-4 h-4 text-emerald-400 transition-transform duration-200 group-hover:scale-110" /> Forum
             </Link>
-            {session && (
-              <Link href="/test" className="group nav-link flex items-center gap-1.5 xl:gap-2 px-2 xl:px-3 py-1.5 text-xs xl:text-sm 2xl:text-base font-semibold tracking-wide whitespace-nowrap">
-                <BookOpen className="w-4 h-4 text-amber-400 transition-transform duration-200 group-hover:scale-110" /> Test
+            {session?.user?.role === "STUDENT" && (
+              <Link href="/my-queries?ask=true" className="group nav-link flex items-center gap-1.5 xl:gap-2 px-2 xl:px-3 py-1.5 text-xs xl:text-sm 2xl:text-base font-semibold tracking-wide whitespace-nowrap">
+                <HelpCircle className="w-4 h-4 text-rose-400 transition-transform duration-200 group-hover:scale-110 shrink-0" /> Ask Mentor
               </Link>
             )}
             {session && (
@@ -91,8 +93,8 @@ export default function Navbar() {
               </Link>
             )}
             {session?.user?.role === "STUDENT" && (
-              <Link href="/my-queries?ask=true" className="group nav-link flex items-center gap-1.5 xl:gap-2 px-2 xl:px-3 py-1.5 text-xs xl:text-sm 2xl:text-base font-semibold tracking-wide whitespace-nowrap">
-                <HelpCircle className="w-4 h-4 text-rose-400 transition-transform duration-200 group-hover:scale-110 shrink-0" /> Ask Mentor
+              <Link href="/dashboard/student/study-tracker" className="group nav-link flex items-center gap-1.5 xl:gap-2 px-2 xl:px-3 py-1.5 text-xs xl:text-sm 2xl:text-base font-semibold tracking-wide whitespace-nowrap">
+                <Clock className="w-4 h-4 text-amber-400 transition-transform duration-200 group-hover:scale-110" /> Tracker
               </Link>
             )}
             {session?.user?.role === "MENTOR" && (
@@ -123,6 +125,11 @@ export default function Navbar() {
                 {session.user?.role === "MENTOR" && (
                   <Link href="/dashboard/mentor" className="group nav-link flex items-center gap-1.5 xl:gap-2 px-2 xl:px-3 py-1.5 text-xs xl:text-sm 2xl:text-base font-semibold tracking-wide whitespace-nowrap">
                     <BookOpen className="w-4 h-4 text-emerald-400 transition-transform duration-200 group-hover:scale-110 shrink-0" /> Dashboard
+                  </Link>
+                )}
+                {session.user?.role === "ADMIN" && (
+                  <Link href="/profile" className="group nav-link flex items-center gap-1.5 xl:gap-2 px-2 xl:px-3 py-1.5 text-xs xl:text-sm 2xl:text-base font-semibold tracking-wide whitespace-nowrap">
+                    <ShieldCheck className="w-4 h-4 text-indigo-400 transition-transform duration-200 group-hover:scale-110 shrink-0" /> Admin Console
                   </Link>
                 )}
 
@@ -170,11 +177,11 @@ export default function Navbar() {
                 ...(!session ? [{ key: "home", href: "/", label: "Home", icon: Home, color: "text-sky-400" }] : []),
                 { key: "sessions", href: "/sessions", label: "Sessions", icon: Calendar, color: "text-violet-400" },
                 { key: "forum", href: "/forum", label: "Forum", icon: MessageCircle, color: "text-emerald-400" },
-                ...(session ? [{ key: "test", href: "/test", label: "Test", icon: BookOpen, color: "text-amber-400" }] : []),
-                ...(session ? [{ key: "resources", href: "/resources", label: "Resources", icon: BookOpen, color: "text-purple-400" }] : []),
                 ...(session?.user?.role === "STUDENT"
                   ? [{ key: "ask", href: "/my-queries?ask=true", label: "Ask Mentor", icon: HelpCircle, color: "text-rose-400" }]
                   : []),
+                ...(session ? [{ key: "resources", href: "/resources", label: "Resources", icon: BookOpen, color: "text-purple-400" }] : []),
+                ...(session?.user?.role === "STUDENT" ? [{ key: "tracker", href: "/dashboard/student/study-tracker", label: "Tracker", icon: Clock, color: "text-amber-400" }] : []),
                 ...(session?.user?.role === "MENTOR"
                   ? [{ key: "private", href: "/mentor/private-queries", label: "Private Queries", icon: Lock, color: "text-rose-400" }]
                   : []),
