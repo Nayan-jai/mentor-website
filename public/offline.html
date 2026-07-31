@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Lost Signal - Pixel Wasteland</title>
+  <style>
+    /* Pure standalone responsive CSS - zero external network dependencies */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 15px rgba(239, 68, 68, 0.4), inset 0 0 10px rgba(239, 68, 68, 0.2); }
+      50% { box-shadow: 0 0 25px rgba(239, 68, 68, 0.7), inset 0 0 15px rgba(239, 68, 68, 0.4); }
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow-x: hidden;
+      background-color: #050811;
+    }
+
+    body {
+      color: #f1f5f9;
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px;
+      user-select: none;
+      -webkit-user-select: none;
+      font-family: 'Press Start 2P', 'Courier New', Courier, monospace;
+      touch-action: manipulation;
+    }
+    
+    @media (min-width: 640px) {
+      body {
+        padding: 20px;
+      }
+    }
+    
+    .font-pixel {
+      font-family: 'Press Start 2P', 'Courier New', Courier, monospace;
+    }
+    
+    .font-condensed {
+      font-family: 'Oswald', 'Arial Narrow', Arial, sans-serif;
+    }
+    
+    canvas {
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+    
+    /* TOP ARCADE HEADER */
+    header {
+      width: 100%;
+      max-width: 60rem;
+      text-align: center;
+      margin-top: 4px;
+      margin-bottom: 8px;
+      flex-shrink: 0;
+    }
+    
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background-color: rgba(30, 10, 10, 0.85);
+      border: 2px solid #ef4444;
+      padding: 6px 16px;
+      border-radius: 9999px;
+      animation: pulse-glow 2s infinite;
+      backdrop-filter: blur(8px);
+    }
+    
+    .ping-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 9999px;
+      background-color: #ef4444;
+      box-shadow: 0 0 8px #ef4444;
+    }
+    
+    h1 {
+      font-size: clamp(0.9rem, 3vw, 1.5rem);
+      color: #ffd154;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      text-shadow: 0 3px 0 #000000, 0 0 10px rgba(255, 209, 84, 0.3);
+      margin-top: 6px;
+    }
+    
+    /* MAIN GAME CABINET CONTAINER */
+    main {
+      width: 100%;
+      max-width: 60rem;
+      background-color: #0b1120;
+      border: 4px solid #1e293b;
+      border-radius: 1.25rem;
+      overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 30px rgba(14, 165, 233, 0.15);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex-shrink: 1;
+    }
+    
+    /* CANVAS CONTAINER WITH CRT SCANLINE OVERLAY */
+    .canvas-wrapper {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 8;
+      max-height: 60vh;
+      background-color: #9ee4cb;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    @media (min-width: 640px) {
+      .canvas-wrapper {
+        aspect-ratio: 16 / 7.5;
+        max-height: 62vh;
+      }
+    }
+
+    @media (max-height: 550px) {
+      .canvas-wrapper {
+        max-height: 48vh;
+      }
+    }
+    
+    #pixelCanvas {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    /* CRT SCANLINE EFFECT */
+    .crt-lines {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(
+        rgba(18, 16, 16, 0) 50%, 
+        rgba(0, 0, 0, 0.08) 50%
+      );
+      background-size: 100% 4px;
+      z-index: 10;
+    }
+
+    .hud-overlay {
+      position: absolute;
+      top: 12px;
+      left: 16px;
+      right: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+      z-index: 25;
+      font-size: clamp(8px, 1.8vw, 12px);
+      color: #000000;
+      font-weight: bold;
+    }
+    
+    .status-tag {
+      background-color: rgba(0, 0, 0, 0.25);
+      backdrop-filter: blur(4px);
+      padding: 4px 10px;
+      border-radius: 6px;
+      color: #dc2626;
+      border: 1px solid rgba(220, 38, 38, 0.3);
+    }
+    
+    /* OVERLAY CONTROL BAR INSIDE CANVAS FRAME */
+    .control-overlay {
+      position: absolute;
+      bottom: 12px;
+      left: 16px;
+      right: 16px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      pointer-events: none;
+      z-index: 25;
+    }
+
+    .prompt-banner {
+      background-color: rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 6px 14px;
+      border-radius: 8px;
+      color: #ffffff;
+      font-family: 'Oswald', sans-serif;
+      font-size: clamp(0.9rem, 2.5vw, 1.35rem);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+      pointer-events: auto;
+    }
+
+    .btn-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      pointer-events: auto;
+    }
+    
+    .btn-touch {
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(6px);
+      color: #ffffff;
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      min-width: 48px;
+      min-height: 48px;
+      padding: 10px 18px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      touch-action: manipulation;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      transition: all 0.15s ease;
+    }
+    
+    .btn-touch:active {
+      background: rgba(14, 165, 233, 0.7);
+      border-color: #38bdf8;
+      transform: scale(0.95);
+    }
+    
+    .btn-jump-touch {
+      background: rgba(62, 142, 86, 0.75);
+      border-color: rgba(74, 222, 128, 0.4);
+      font-size: clamp(9px, 1.8vw, 11px);
+    }
+
+    .btn-jump-touch:active {
+      background: rgba(34, 197, 94, 0.9);
+      border-color: #4ade80;
+    }
+    
+    /* BOTTOM INFOBAR */
+    .cabinet-bar {
+      width: 100%;
+      padding: 12px 20px;
+      background-color: #0f172a;
+      border-top: 3px solid #1e293b;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 9px;
+      color: #64748b;
+    }
+
+    .controls-hint {
+      display: flex;
+      gap: 16px;
+    }
+    
+    footer {
+      width: 100%;
+      max-width: 60rem;
+      margin: 10px 0;
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+    
+    .btn-retry {
+      background: linear-gradient(135deg, #0891b2, #0284c7);
+      color: #ffffff;
+      min-height: 44px;
+      padding: 12px 28px;
+      border-radius: 10px;
+      border: none;
+      border-bottom: 4px solid #075985;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+      font-size: clamp(9px, 2vw, 11px);
+      box-shadow: 0 4px 15px rgba(2, 132, 199, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .btn-retry:hover {
+      background: linear-gradient(135deg, #06b6d4, #0369a1);
+      box-shadow: 0 6px 20px rgba(2, 132, 199, 0.5);
+    }
+    
+    .btn-retry:active {
+      transform: translateY(2px);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP HEADER BANNER -->
+  <header>
+    <div class="status-badge">
+      <span class="ping-dot"></span>
+      <span id="hudStatusHeader" class="font-pixel" style="font-size: 10px; color: #f87171; letter-spacing: 0.1em;">CONNECTION INTERRUPTED</span>
+    </div>
+    <h1 class="font-pixel">
+      LOST SIGNAL - PIXEL WASTELAND
+    </h1>
+  </header>
+
+  <!-- MAIN GAME CONTAINER -->
+  <main>
+    
+    <!-- CANVAS GAME SCREEN WITH CRT EFFECT -->
+    <div class="canvas-wrapper">
+      <canvas id="pixelCanvas" width="640" height="280"></canvas>
+      <div class="crt-lines"></div>
+      
+      <!-- TOP HUD OVERLAY -->
+      <div class="hud-overlay font-pixel">
+        <div id="hudScore">LOOPS: 0 | NODES: 0</div>
+        <div id="hudStatus" class="status-tag">SIGNAL LOST</div>
+      </div>
+
+      <!-- OVERLAY CONTROLS ON CANVAS -->
+      <div class="control-overlay">
+        <div class="prompt-banner">
+          WAIT OR EXPLORE?
+        </div>
+
+        <div class="btn-group">
+          <button id="btnLeft" class="btn-touch" aria-label="Move Left">
+            ◄
+          </button>
+          <button id="btnJump" class="btn-touch btn-jump-touch font-pixel">
+            JUMP
+          </button>
+          <button id="btnRight" class="btn-touch" aria-label="Move Right">
+            ►
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CABINET FOOTER INFO BAR -->
+    <div class="cabinet-bar font-pixel">
+      <div>COLLECT SIGNAL NODES</div>
+      <div class="controls-hint">
+        <div>[A]/[D] : MOVE</div>
+        <div>[SPACE] : JUMP</div>
+      </div>
+    </div>
+  </main>
+
+  <!-- UTILITY FOOTER -->
+  <footer>
+    <button id="btnRetry" onclick="checkConnectionAndReload()" class="btn-retry font-pixel">
+      RETRY CONNECTION
+    </button>
+  </footer>
+
+  <!-- INFINITE LOOP GAME ENGINE -->
+  <script>
+    const canvas = document.getElementById('pixelCanvas');
+    const ctx = canvas.getContext('2d');
+    const hudScore = document.getElementById('hudScore');
+    const hudStatus = document.getElementById('hudStatus');
+    const hudStatusHeader = document.getElementById('hudStatusHeader');
+
+    function checkConnectionAndReload() {
+      if (navigator.onLine) {
+        window.location.href = '/';
+      } else {
+        window.location.reload();
+      }
+    }
+
+    window.addEventListener('online', () => {
+      hudStatus.innerText = 'ONLINE';
+      hudStatus.style.color = '#059669';
+      hudStatus.style.backgroundColor = 'rgba(16, 185, 129, 0.25)';
+      hudStatusHeader.innerText = 'CONNECTION RESTORED';
+      hudStatusHeader.style.color = '#34d399';
+    });
+
+    window.addEventListener('offline', () => {
+      hudStatus.innerText = 'SIGNAL LOST';
+      hudStatus.style.color = '#dc2626';
+      hudStatus.style.backgroundColor = 'rgba(0, 0, 0, 0.25)';
+      hudStatusHeader.innerText = 'CONNECTION INTERRUPTED';
+      hudStatusHeader.style.color = '#f87171';
+    });
+
+    // --- COLOR PALETTE ---
+    const COLORS = {
+      sky: '#9ee4cb',
+      duneFar: '#f2a265',
+      sand: '#ffd154',
+      pondOuter: '#3ca2d2',
+      pondInner: '#71c2eb',
+      cactus: '#3ca046',
+      blockBlue: '#33a1b8',
+      blockPink: '#c34fa5',
+      blockRed: '#e83a54',
+      tower: '#3a414f',
+      signalRed: '#e63333',
+      shirt: '#1eb5a3',
+      pants: '#5c2827',
+      skin: '#f4a181',
+      hair: '#211c1d',
+      textBlack: '#111827'
+    };
+
+    // --- GAME ENGINE STATE ---
+    const LOOP_WIDTH = 800;
+    let cameraX = 0;
+    let targetCameraX = 0;
+    let loopCount = 0;
+    let collectedNodes = 0;
+    const collectedSegments = new Set();
+    const floatingTextList = [];
+
+    const groundY = 175;
+
+    const player = {
+      worldX: 300,
+      y: groundY,
+      width: 18,
+      height: 28,
+      vx: 0,
+      vy: 0,
+      speed: 3.2,
+      jumpPower: -8.5,
+      gravity: 0.45,
+      isGrounded: true,
+      facingRight: true
+    };
+
+    const keys = { left: false, right: false, jump: false };
+
+    // --- CONTROLS LISTENERS ---
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft' || e.key === 'a') keys.left = true;
+      if (e.key === 'ArrowRight' || e.key === 'd') keys.right = true;
+      if (e.key === ' ' || e.key === 'ArrowUp' || e.key === 'w') {
+        keys.jump = true;
+        e.preventDefault();
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      if (e.key === 'ArrowLeft' || e.key === 'a') keys.left = false;
+      if (e.key === 'ArrowRight' || e.key === 'd') keys.right = false;
+      if (e.key === ' ' || e.key === 'ArrowUp' || e.key === 'w') keys.jump = false;
+    });
+
+    const bindControl = (id, key) => {
+      const btn = document.getElementById(id);
+      if (!btn) return;
+      btn.addEventListener('mousedown', (e) => { e.preventDefault(); keys[key] = true; });
+      btn.addEventListener('mouseup', (e) => { e.preventDefault(); keys[key] = false; });
+      btn.addEventListener('touchstart', (e) => { e.preventDefault(); keys[key] = true; }, { passive: false });
+      btn.addEventListener('touchend', (e) => { e.preventDefault(); keys[key] = false; }, { passive: false });
+    };
+    bindControl('btnLeft', 'left');
+    bindControl('btnRight', 'right');
+    bindControl('btnJump', 'jump');
+
+    function spawnFloatingText(x, y, text) {
+      floatingTextList.push({
+        x: x,
+        y: y,
+        text: text,
+        alpha: 1.0,
+        vy: -1.2
+      });
+    }
+
+    // --- PHYSICS & INFINITE LOOP UPDATES ---
+    function update() {
+      if (keys.left) {
+        player.vx = -player.speed;
+        player.facingRight = false;
+      } else if (keys.right) {
+        player.vx = player.speed;
+        player.facingRight = true;
+      } else {
+        player.vx = 0;
+      }
+
+      if (keys.jump && player.isGrounded) {
+        player.vy = player.jumpPower;
+        player.isGrounded = false;
+      }
+
+      player.vy += player.gravity;
+      player.worldX += player.vx;
+      player.y += player.vy;
+
+      if (player.y >= groundY) {
+        player.y = groundY;
+        player.vy = 0;
+        player.isGrounded = true;
+      }
+
+      // Smooth Camera Linear Interpolation to prevent jittering
+      targetCameraX = player.worldX - 280;
+      cameraX += (targetCameraX - cameraX) * 0.15;
+      
+      loopCount = Math.floor(player.worldX / LOOP_WIDTH);
+
+      // Node Collection Collision Check
+      const currentSegment = Math.floor((player.worldX + 150) / LOOP_WIDTH);
+      const nodeRelativeX = (currentSegment * LOOP_WIDTH) + 242;
+      const nodeY = 125;
+      
+      if (!collectedSegments.has(currentSegment)) {
+        if (Math.abs(player.worldX - nodeRelativeX) < 24 && Math.abs(player.y - nodeY) < 30) {
+          collectedSegments.add(currentSegment);
+          collectedNodes++;
+          spawnFloatingText(player.worldX - cameraX, player.y - 20, '+1 NODE!');
+        }
+      }
+
+      // Update particles
+      for (let i = floatingTextList.length - 1; i >= 0; i--) {
+        const p = floatingTextList[i];
+        p.y += p.vy;
+        p.alpha -= 0.025;
+        if (p.alpha <= 0) {
+          floatingTextList.splice(i, 1);
+        }
+      }
+
+      hudScore.innerText = `LOOPS: ${Math.max(0, loopCount)} | NODES: ${collectedNodes}`;
+    }
+
+    // --- PIXEL RENDERING FUNCTIONS ---
+    function drawCactus(x, y, scale = 1) {
+      ctx.fillStyle = COLORS.cactus;
+      ctx.fillRect(x, y, 7 * scale, 32 * scale);
+      ctx.fillRect(x - 5 * scale, y + 10 * scale, 5 * scale, 4 * scale);
+      ctx.fillRect(x - 5 * scale, y + 4 * scale, 4 * scale, 8 * scale);
+      ctx.fillRect(x + 7 * scale, y + 14 * scale, 5 * scale, 4 * scale);
+      ctx.fillRect(x + 8 * scale, y + 8 * scale, 4 * scale, 8 * scale);
+    }
+
+    function drawTower(tx, ty) {
+      ctx.fillStyle = COLORS.tower;
+      ctx.fillRect(tx + 22, ty + 20, 6, 85);
+      ctx.fillRect(tx + 10, ty + 60, 5, 45);
+      ctx.fillRect(tx + 34, ty + 60, 5, 45);
+      ctx.fillRect(tx, ty + 90, 5, 20);
+      ctx.fillRect(tx + 44, ty + 90, 5, 20);
+
+      ctx.fillRect(tx + 10, ty + 60, 29, 4);
+      ctx.fillRect(tx + 15, ty + 80, 20, 4);
+
+      // Red Top Light Beacon
+      ctx.fillStyle = COLORS.signalRed;
+      ctx.fillRect(tx + 20, ty + 12, 10, 10);
+
+      // Animated Wave Arcs (Radio Frequency Pulse)
+      const pulse = Math.floor(Date.now() / 250) % 3;
+      ctx.fillStyle = COLORS.signalRed;
+      if (pulse >= 0) {
+        ctx.fillRect(tx + 12, ty + 2, 4, 10);
+        ctx.fillRect(tx + 34, ty + 2, 4, 10);
+      }
+      if (pulse >= 1) {
+        ctx.fillRect(tx + 4, ty - 6, 4, 18);
+        ctx.fillRect(tx + 42, ty - 6, 4, 18);
+      }
+      if (pulse >= 2) {
+        ctx.fillRect(tx - 4, ty - 12, 4, 26);
+        ctx.fillRect(tx + 50, ty - 12, 4, 26);
+      }
+    }
+
+    // --- MAIN RENDER LOOP ---
+    function render() {
+      // 1. Sky Background
+      ctx.fillStyle = COLORS.sky;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // 2. Big Arcade Title Printed Directly on Canvas Sky
+      ctx.fillStyle = COLORS.textBlack;
+      ctx.font = 'bold 22px "Press Start 2P", "Courier New", monospace';
+      ctx.fillText('LOST SIGNAL -', 50, 42);
+      ctx.fillText('PIXEL WASTELAND', 68, 68);
+
+      // Render contiguous segments (-1 to 2) for zero gap / seamless looping
+      for (let i = -1; i <= 2; i++) {
+        const segIndex = Math.floor(cameraX / LOOP_WIDTH) + i;
+        const baseWorldX = segIndex * LOOP_WIDTH;
+        const screenX = baseWorldX - cameraX;
+
+        if (screenX < -LOOP_WIDTH || screenX > canvas.width + LOOP_WIDTH) continue;
+
+        // Distant Dunes
+        ctx.fillStyle = COLORS.duneFar;
+        ctx.fillRect(screenX + 40, 140, 120, 35);
+        ctx.fillRect(screenX + 460, 135, 110, 40);
+
+        // Sand Floor
+        ctx.fillStyle = COLORS.sand;
+        ctx.fillRect(screenX, 165, LOOP_WIDTH, canvas.height - 165);
+
+        // Foreground Stacked Cubes & Oasis Blocks
+        ctx.fillStyle = COLORS.blockBlue;
+        ctx.fillRect(screenX + 35, 210, 48, 35);
+        ctx.fillStyle = COLORS.blockPink;
+        ctx.fillRect(screenX + 75, 222, 42, 30);
+        ctx.fillStyle = COLORS.blockRed;
+        ctx.fillRect(screenX + 110, 228, 42, 30);
+
+        // Oasis Pond
+        ctx.fillStyle = COLORS.pondOuter;
+        ctx.fillRect(screenX + 115, 178, 150, 32);
+        ctx.fillStyle = COLORS.pondInner;
+        ctx.fillRect(screenX + 130, 182, 120, 24);
+
+        // Floating Magenta Cubes near Oasis
+        ctx.fillStyle = COLORS.blockPink;
+        ctx.fillRect(screenX + 240, 168, 12, 12);
+        ctx.fillRect(screenX + 225, 192, 12, 12);
+        ctx.fillRect(screenX + 155, 194, 10, 10);
+
+        // Cacti
+        drawCactus(screenX + 80, 160);
+        drawCactus(screenX + 345, 135, 0.9);
+        drawCactus(screenX + 530, 172);
+
+        // Radio Signal Tower
+        drawTower(screenX + 410, 75);
+
+        // Collectible Signal Node (White square with Red Border)
+        if (!collectedSegments.has(segIndex)) {
+          const hoverY = 125 + Math.sin(Date.now() / 200) * 3;
+          // Outer Red Border Box
+          ctx.fillStyle = COLORS.signalRed;
+          ctx.fillRect(screenX + 239, hoverY - 3, 16, 16);
+          // Inner White Box
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(screenX + 242, hoverY, 10, 10);
+          // Center Red Core Dot
+          ctx.fillStyle = COLORS.signalRed;
+          ctx.fillRect(screenX + 245, hoverY + 3, 4, 4);
+        }
+      }
+
+      // Player Character
+      const px = player.worldX - cameraX;
+      const py = player.y;
+
+      const isWalking = Math.abs(player.vx) > 0;
+      const legStep = isWalking ? Math.floor(Date.now() / 120) % 2 : 0;
+
+      ctx.fillStyle = COLORS.hair;
+      ctx.fillRect(px, py, 18, 6);
+      ctx.fillStyle = COLORS.skin;
+      ctx.fillRect(px, py + 6, 18, 8);
+      ctx.fillStyle = COLORS.hair;
+      const eyeOffset = player.facingRight ? 10 : 2;
+      ctx.fillRect(px + eyeOffset, py + 8, 3, 4);
+      ctx.fillStyle = COLORS.shirt;
+      ctx.fillRect(px - 2, py + 14, 22, 10);
+      ctx.fillStyle = COLORS.pants;
+      if (player.isGrounded) {
+        if (legStep === 0) {
+          ctx.fillRect(px + 1, py + 24, 6, 6);
+          ctx.fillRect(px + 11, py + 24, 6, 6);
+        } else {
+          ctx.fillRect(px - 1, py + 24, 6, 6);
+          ctx.fillRect(px + 13, py + 24, 6, 6);
+        }
+      } else {
+        ctx.fillRect(px - 1, py + 22, 7, 5);
+        ctx.fillRect(px + 10, py + 20, 7, 5);
+      }
+
+      // Floating Score Text Particles
+      for (const p of floatingTextList) {
+        ctx.fillStyle = `rgba(255, 209, 84, ${Math.max(0, p.alpha)})`;
+        ctx.font = 'bold 10px "Press Start 2P", monospace';
+        ctx.fillText(p.text, p.x, p.y);
+      }
+    }
+
+    // --- GAME LOOP ---
+    function gameLoop() {
+      update();
+      render();
+      requestAnimationFrame(gameLoop);
+    }
+    requestAnimationFrame(gameLoop);
+  </script>
+</body>
+</html>
