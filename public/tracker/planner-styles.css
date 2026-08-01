@@ -1195,10 +1195,28 @@ input, textarea, select { font-family: var(--font); }
 .mblk-info { flex: 1; min-width: 0; }
 .mblk-name { font-size: 13px; font-weight: 700; }
 .mblk-topic {
-  width: 100%; padding: 4px 8px; margin-top: 4px;
+  width: 100%; padding: 6px 8px; margin-top: 0;
   border-radius: 5px; border: 1px solid var(--border);
   background: var(--card); color: var(--ink);
-  font-size: 12px; outline: none;
+  font-size: 12px; outline: none; box-sizing: border-box;
+}
+.mblk-quick-select {
+  max-width: 100%;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.mblk-quick-select option {
+  font-size: 13px;
+  padding: 6px;
+  background: var(--bg);
+  color: var(--ink);
+}
+@media (max-width: 600px) {
+  .mblk-topic-row > div {
+    flex: 1 1 100% !important;
+    width: 100% !important;
+  }
 }
 .mblk-hrs {
   display: flex; align-items: center; gap: 5px; flex-shrink: 0;

@@ -1,51 +1,36 @@
 "use client";
 
-import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useEffect, useRef } from "react";
 
 export function ThemeRouteManager({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
   const { theme, setTheme } = useTheme();
-  const isMountedRef = useRef(false);
+  const initializedRef = useRef(false);
 
+  // Restore user theme strictly without any automatic route/system overrides
   useEffect(() => {
-    isMountedRef.current = true;
-  }, []);
+    if (initializedRef.current) return;
+    initializedRef.current = true;
 
-  // Handle route transitions between homepage (/) and other pages
-  useEffect(() => {
-    let savedUserTheme: string | null = null;
     try {
-      savedUserTheme = localStorage.getItem("app-user-theme");
-    } catch (e) {}
-
-    if (pathname === "/") {
-      // Force light mode on homepage without wiping saved user preference
-      if (theme !== "light") {
-        setTheme("light");
-      }
-    } else {
-      // Restore user's preferred theme on non-homepage
+      const savedUserTheme = localStorage.getItem("app-user-theme") || localStorage.getItem("theme");
       if (savedUserTheme === "dark" || savedUserTheme === "light") {
         if (theme !== savedUserTheme) {
           setTheme(savedUserTheme);
         }
       }
-    }
-  }, [pathname]);
+    } catch (e) {}
+  }, [theme, setTheme]);
 
-  // Update saved user theme ONLY when user is on a non-homepage and theme changes
+  // Persist user theme whenever theme changes
   useEffect(() => {
-    if (!isMountedRef.current) return;
-    if (pathname !== "/") {
-      if (theme && (theme === "dark" || theme === "light")) {
-        try {
-          localStorage.setItem("app-user-theme", theme);
-        } catch (e) {}
-      }
+    if (theme === "dark" || theme === "light") {
+      try {
+        localStorage.setItem("app-user-theme", theme);
+        localStorage.setItem("theme", theme);
+      } catch (e) {}
     }
-  }, [theme, pathname]);
+  }, [theme]);
 
   return <>{children}</>;
 }

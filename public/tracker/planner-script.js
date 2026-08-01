@@ -589,6 +589,20 @@ function repeatCurrentPattern() {
 
 function getExistingTopicsForSubject(subjectId) {
   const topicsMap = new Map();
+  
+  // 1. Include pre-configured topics defined on the subject (from syllabus templates)
+  const s = sj(subjectId);
+  if (s && Array.isArray(s.topics)) {
+    s.topics.forEach(t => {
+      const topicName = (typeof t === 'string' ? t : t.name || t.topic || '').trim();
+      const subtopics = Array.isArray(t.subtopics) ? t.subtopics : [];
+      if (topicName) {
+        topicsMap.set(topicName, subtopics);
+      }
+    });
+  }
+
+  // 2. Include all topics scheduled across day blocks
   days.forEach(d => {
     d.blocks.forEach(b => {
       if (b.subjectId === subjectId && b.topic && b.topic.trim()) {
@@ -599,6 +613,7 @@ function getExistingTopicsForSubject(subjectId) {
       }
     });
   });
+
   return Array.from(topicsMap.entries()).map(([topic, subtopics]) => ({ topic, subtopics }));
 }
 
@@ -2422,9 +2437,9 @@ function renderModalBlocks(){
     if (existing.length > 0) {
       if (!window.sylTopicCache) window.sylTopicCache = {};
       window.sylTopicCache[b.subjectId] = existing;
-      quickPopulateHtml = `<select style="padding:4px 6px;border-radius:4px;border:1px solid color-mix(in srgb, ${s.color} 30%, transparent);background:var(--card);color:var(--ink);font-size:11px;outline:none;max-width:180px;" onchange="if(this.value!==''){ const item=window.sylTopicCache['${b.subjectId}'][this.value]; modalBlocks[${i}].topic=item.topic; modalBlocks[${i}].subtopics=[...item.subtopics]; renderModalBlocks(); }">
-        <option value="">📋 Select Existing Topic...</option>
-        ${existing.map((item, idx) => `<option value="${idx}">${esc(item.topic)} (${item.subtopics.length} st)</option>`).join('')}
+      quickPopulateHtml = `<select class="mblk-quick-select" style="padding:6px 10px;border-radius:6px;border:1px solid color-mix(in srgb, ${s.color} 30%, transparent);background:var(--card);color:var(--ink);font-size:12px;outline:none;width:100%;box-sizing:border-box;cursor:pointer;font-weight:600;" onchange="if(this.value!==''){ const item=window.sylTopicCache['${b.subjectId}'][this.value]; modalBlocks[${i}].topic=item.topic; modalBlocks[${i}].subtopics=[...item.subtopics]; renderModalBlocks(); }">
+        <option value="">📋 Select Existing Topic (${existing.length})...</option>
+        ${existing.map((item, idx) => `<option value="${idx}">${esc(item.topic)} (${item.subtopics.length} subtopics)</option>`).join('')}
       </select>`;
     }
 
@@ -2448,9 +2463,11 @@ function renderModalBlocks(){
         </div>
       </div>
       <!-- Line 2: Topic Input & Quick Populate -->
-      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:2px;">
-        <input class="mblk-topic" value="${esc(b.topic||'')}" placeholder="Topic name…" onchange="modalBlocks[${i}].topic=this.value" style="flex:2;min-width:180px;margin:0;">
-        ${quickPopulateHtml ? `<div style="flex:1;min-width:160px;display:flex;justify-content:flex-end;">${quickPopulateHtml}</div>` : ''}
+      <div class="mblk-topic-row" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:2px;width:100%;">
+        <div style="flex:1 1 180px;min-width:0;width:100%;">
+          <input class="mblk-topic" value="${esc(b.topic||'')}" placeholder="Topic name…" onchange="modalBlocks[${i}].topic=this.value" style="width:100%;box-sizing:border-box;margin:0;">
+        </div>
+        ${quickPopulateHtml ? `<div style="flex:1 1 180px;min-width:0;width:100%;">${quickPopulateHtml}</div>` : ''}
       </div>
       <!-- Sub-topics Section -->
       <div style="border-top:1px solid color-mix(in srgb, ${s.color} 15%, transparent);padding-top:8px">
@@ -2790,8 +2807,28 @@ document.addEventListener('keydown',e=>{
 
 // Theme & Menu
 function toggleTheme(){
-  conf.dark=!conf.dark;
+  const isCurrentlyDark = document.body.classList.contains('dark') || document.documentElement.classList.contains('dark') || conf.dark;
+  const newTheme = isCurrentlyDark ? 'light' : 'dark';
+  conf.dark = !isCurrentlyDark;
   sc();
+  
+  document.body.classList.toggle('dark', !isCurrentlyDark);
+  document.documentElement.classList.toggle('dark', !isCurrentlyDark);
+
+  try {
+    localStorage.setItem('theme', newTheme);
+    localStorage.setItem('app-user-theme', newTheme);
+  } catch(e){}
+
+  try {
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: 'TOGGLE_THEME', theme: newTheme }, '*');
+      if (window.parent.document && window.parent.document.documentElement) {
+        window.parent.document.documentElement.classList.toggle('dark', !isCurrentlyDark);
+      }
+    }
+  } catch(e){}
+
   applyTheme();
   closeHeaderMenu();
 }
@@ -3097,12 +3134,18 @@ function closeHeaderMenu(){
 }
 
 function applyTheme(){
-  document.body.classList.toggle('dark',conf.dark);
+  const isDark = document.body.classList.contains('dark') || document.documentElement.classList.contains('dark') || conf.dark;
+  conf.dark = isDark;
+  document.body.classList.toggle('dark', isDark);
+  document.documentElement.classList.toggle('dark', isDark);
+
   const themeBtn=document.getElementById('themeBtn');
   const menuTheme=document.getElementById('menuTheme');
-  const icon=conf.dark?'☀️':'🌙';
-  if(themeBtn)themeBtn.textContent=icon;
-  if(menuTheme)menuTheme.textContent=icon+' '+(conf.dark?'Light Mode':'Dark Mode');
+  const icon = isDark ? '☀️' : '🌙';
+  const label = isDark ? 'Light Mode' : 'Dark Mode';
+
+  if(themeBtn) themeBtn.textContent = icon;
+  if(menuTheme) menuTheme.textContent = icon + ' ' + label;
 }
 
 document.addEventListener('DOMContentLoaded',()=>{

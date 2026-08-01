@@ -300,12 +300,12 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-20 sm:pt-24 pb-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-950 pt-20 sm:pt-24 pb-8 transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Manage Users</h1>
-          <p className="text-gray-600">View and manage all platform users</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">Manage Users</h1>
+          <p className="text-gray-600 dark:text-slate-400">View and manage all platform users</p>
         </div>
 
         {error && (
@@ -315,16 +315,16 @@ export default function AdminUsersPage() {
         )}
 
         {/* Search and Filters */}
-        <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 mb-6">
+        <div className="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-gray-200 dark:border-slate-800 p-4 sm:p-6 mb-6">
           <div className="flex flex-col lg:flex-row gap-4">
             {/* Search */}
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-slate-500 h-4 w-4" />
               <Input
                 placeholder="Search by name or email..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="pl-10 w-full"
+                className="pl-10 w-full dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100 dark:placeholder-slate-500"
               />
             </div>
 
@@ -333,7 +333,7 @@ export default function AdminUsersPage() {
               <Button
                 variant="outline"
                 onClick={() => setShowFilters(!showFilters)}
-                className="w-full"
+                className="w-full dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
               >
                 <Filter className="h-4 w-4 mr-2" />
                 Filters
@@ -345,7 +345,7 @@ export default function AdminUsersPage() {
               <select
                 value={roleFilter}
                 onChange={e => setRoleFilter(e.target.value)}
-                className="w-full lg:w-auto border border-gray-300 rounded-md px-3 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full lg:w-auto border border-gray-300 dark:border-slate-700 rounded-md px-3 py-2 bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="">All Roles</option>
                 <option value="ADMIN">Admin</option>
@@ -357,51 +357,51 @@ export default function AdminUsersPage() {
         </div>
 
         {/* Users List */}
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+        <div className="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden">
           {/* Desktop Table View */}
           <div className="hidden lg:block">
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+              <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+                <thead className="bg-gray-50 dark:bg-slate-800/60">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                       User
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                       Role
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                       Registered
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                       Last Login
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                       Bookings
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                       Status
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                       Actions
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800">
                   {filteredUsers.map((user) => (
-                    <tr key={user.id} className={user.deleted ? "bg-gray-50" : "hover:bg-gray-50"}>
+                    <tr key={user.id} className={user.deleted ? "bg-gray-50 dark:bg-slate-800/30" : "hover:bg-gray-50 dark:hover:bg-slate-800/50"}>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="flex-shrink-0 h-10 w-10">
-                            <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
-                              <User className="h-5 w-5 text-gray-600" />
+                            <div className="h-10 w-10 rounded-full bg-gray-300 dark:bg-slate-700 flex items-center justify-center">
+                              <User className="h-5 w-5 text-gray-600 dark:text-slate-300" />
                             </div>
                           </div>
                           <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">
+                            <div className="text-sm font-medium text-gray-900 dark:text-slate-100">
                               {user.name || "No Name"}
                             </div>
-                            <div className="text-sm text-gray-500 flex items-center">
+                            <div className="text-sm text-gray-500 dark:text-slate-400 flex items-center">
                               <Mail className="h-3 w-3 mr-1" />
                               {user.email}
                             </div>
@@ -413,19 +413,19 @@ export default function AdminUsersPage() {
                           {user.role}
                         </Badge>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-slate-400">
                         <div className="flex items-center">
                           <Calendar className="h-3 w-3 mr-1" />
                           {new Date(user.createdAt).toLocaleDateString()}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-slate-400">
                         <div className="flex items-center">
                           <Clock className="h-3 w-3 mr-1" />
                           {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : "-"}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-slate-400">
                         <div className="flex items-center">
                           <BookOpen className="h-3 w-3 mr-1" />
                           {user.bookingsCount ?? 0}
@@ -617,15 +617,16 @@ export default function AdminUsersPage() {
 
       {/* Edit Modal */}
       {editingUser && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <Card className="w-full max-w-md bg-white">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <Card className="w-full max-w-md bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 text-gray-900 dark:text-slate-100">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold">Edit User</h2>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Edit User</h2>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setEditingUser(null)}
+                  className="text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200"
                 >
                   <X className="h-4 w-4" />
                 </Button>
@@ -633,48 +634,48 @@ export default function AdminUsersPage() {
               
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="name">Name</Label>
+                  <Label htmlFor="name" className="text-gray-700 dark:text-slate-300">Name</Label>
                   <Input
                     id="name"
                     name="name"
                     value={form.name}
                     onChange={handleChange}
-                    className="mt-1"
+                    className="mt-1 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
                   />
                 </div>
                 
                 <div>
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email" className="text-gray-700 dark:text-slate-300">Email</Label>
                   <Input
                     id="email"
                     name="email"
                     type="email"
                     value={form.email}
                     onChange={handleChange}
-                    className="mt-1"
+                    className="mt-1 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
                   />
                 </div>
                 
                 <div>
-                  <Label htmlFor="password">Password (leave blank to keep unchanged)</Label>
+                  <Label htmlFor="password" className="text-gray-700 dark:text-slate-300">Password (leave blank to keep unchanged)</Label>
                   <Input
                     id="password"
                     name="password"
                     type="password"
                     value={form.password}
                     onChange={handleChange}
-                    className="mt-1"
+                    className="mt-1 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
                   />
                 </div>
                 
                 <div>
-                  <Label htmlFor="role">Role</Label>
+                  <Label htmlFor="role" className="text-gray-700 dark:text-slate-300">Role</Label>
                   <select
                     id="role"
                     name="role"
                     value={form.role}
                     onChange={handleChange}
-                    className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 w-full border border-gray-300 dark:border-slate-700 rounded-md px-3 py-2 bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   >
                     <option value="ADMIN">Admin</option>
                     <option value="MENTOR">Mentor</option>
@@ -684,13 +685,13 @@ export default function AdminUsersPage() {
               </div>
               
               <div className="flex gap-2 mt-6">
-                <Button onClick={handleSave} className="flex-1" disabled={saving}>
+                <Button onClick={handleSave} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white" disabled={saving}>
                   {saving ? "Saving..." : "Save Changes"}
                 </Button>
                 <Button
                   variant="outline"
                   onClick={() => setEditingUser(null)}
-                  className="flex-1"
+                  className="flex-1 dark:border-slate-700 dark:text-slate-200"
                 >
                   Cancel
                 </Button>
@@ -702,38 +703,39 @@ export default function AdminUsersPage() {
 
         {/* Study Tracker Manager Modal */}
         {selectedStudentTracker && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <Card className="w-full max-w-xl bg-white text-slate-800">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <Card className="w-full max-w-xl bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 text-gray-900 dark:text-slate-100">
               <div className="p-6">
-                <div className="flex items-center justify-between mb-4 border-b pb-4">
+                <div className="flex items-center justify-between mb-4 border-b border-gray-200 dark:border-slate-800 pb-4">
                   <div>
-                    <h2 className="text-xl font-bold text-gray-900">Manage Study Tracker Data</h2>
-                    <p className="text-sm text-gray-500">{selectedStudentTracker.name} ({selectedStudentTracker.email})</p>
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">Manage Study Tracker Data</h2>
+                    <p className="text-sm text-gray-500 dark:text-slate-400">{selectedStudentTracker.name} ({selectedStudentTracker.email})</p>
                   </div>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setSelectedStudentTracker(null)}
+                    className="text-gray-500 dark:text-slate-400"
                   >
                     <X className="h-4 w-4" />
                   </Button>
                 </div>
 
                 {trackerError && (
-                  <div className="mb-4 rounded bg-red-50 text-red-700 border border-red-200 px-3 py-2 text-xs">
+                  <div className="mb-4 rounded bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900 px-3 py-2 text-xs">
                     {trackerError}
                   </div>
                 )}
 
                 <div className="space-y-4">
                   <div className="flex flex-col gap-1">
-                    <Label htmlFor="trackerJson" className="text-sm font-semibold text-gray-700">Raw Study Tracker JSON Data</Label>
+                    <Label htmlFor="trackerJson" className="text-sm font-semibold text-gray-700 dark:text-slate-300">Raw Study Tracker JSON Data</Label>
                     <textarea
                       id="trackerJson"
                       rows={12}
                       value={jsonText}
                       onChange={(e) => setJsonText(e.target.value)}
-                      className="mt-1 w-full font-mono text-xs p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 text-slate-800"
+                      className="mt-1 w-full font-mono text-xs p-3 border border-gray-300 dark:border-slate-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200"
                       placeholder="{}"
                     />
                   </div>
@@ -743,13 +745,13 @@ export default function AdminUsersPage() {
                   <Button onClick={handleSaveTrackerJson} className="flex-grow bg-blue-600 hover:bg-blue-700 text-white" disabled={savingTracker}>
                     {savingTracker ? "Saving..." : "Save JSON Changes"}
                   </Button>
-                  <Button variant="destructive" onClick={handleDeleteTrackerData} className="flex-grow bg-red-100 text-red-700 border-red-200 hover:bg-red-200 hover:text-red-800" disabled={savingTracker}>
+                  <Button variant="destructive" onClick={handleDeleteTrackerData} className="flex-grow bg-red-100 dark:bg-red-950/60 text-red-700 dark:text-red-300 border-red-200 dark:border-red-900 hover:bg-red-200 dark:hover:bg-red-900" disabled={savingTracker}>
                     Wipe &amp; Reset Tracker
                   </Button>
                   <Button
                     variant="outline"
                     onClick={() => setSelectedStudentTracker(null)}
-                    className="flex-grow"
+                    className="flex-grow dark:border-slate-700 dark:text-slate-200"
                   >
                     Cancel
                   </Button>

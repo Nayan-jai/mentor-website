@@ -477,7 +477,14 @@ export default function ProfilePage() {
           <div className="flex items-center gap-3">
             {/* Dark Mode Toggle */}
             <button
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              onClick={() => {
+                const nextTheme = theme === "dark" ? "light" : "dark";
+                setTheme(nextTheme);
+                try {
+                  localStorage.setItem("app-user-theme", nextTheme);
+                  localStorage.setItem("theme", nextTheme);
+                } catch (e) {}
+              }}
               className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-semibold transition-all duration-200 border border-slate-200 dark:border-slate-700"
               title="Toggle Dark / Light Mode"
             >
@@ -686,7 +693,7 @@ export default function ProfilePage() {
                       </div>
 
                       <div
-                        onClick={() => router.push("/tracker/manage")}
+                        onClick={() => router.push("/dashboard/admin/syllabus")}
                         className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 hover:border-indigo-500/50 dark:hover:border-indigo-500/50 cursor-pointer transition-all group"
                       >
                         <h5 className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5 mb-1 text-xs group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
@@ -885,7 +892,7 @@ export default function ProfilePage() {
                       { title: "User Access & Roles", path: "/dashboard/admin/users", tag: "Security" },
                       { title: "Mentorship Sessions", path: "/dashboard/admin/sessions", tag: "Sessions" },
                       { title: "System Analytics", path: "/dashboard/admin/analytics", tag: "Metrics" },
-                      { title: "Global Syllabi", path: "/tracker/manage", tag: "Templates" },
+                      { title: "Global Syllabi", path: "/dashboard/admin/syllabus", tag: "Templates" },
                       { title: "Community Forum", path: "/forum", tag: "Community" },
                     ].map((row, idx) => (
                       <div key={idx} onClick={() => router.push(row.path)} className="py-2.5 flex justify-between items-center cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 px-2 rounded-lg transition-colors">

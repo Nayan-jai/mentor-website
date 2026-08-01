@@ -117,64 +117,64 @@ export default function AdminSessionsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-20 sm:pt-24 pb-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-950 pt-20 sm:pt-24 pb-8 transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Manage Sessions & Bookings</h1>
-          <p className="text-gray-600">Monitor and manage all platform sessions and student bookings</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">Manage Sessions &amp; Bookings</h1>
+          <p className="text-gray-600 dark:text-slate-400">Monitor and manage all platform sessions and student bookings</p>
         </div>
 
         {/* Stats Overview */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <Card className="p-4 border-l-4 border-l-blue-500 bg-blue-50/50">
+          <Card className="p-4 border-l-4 border-l-blue-500 bg-blue-50/50 dark:bg-blue-950/40 dark:border-slate-800">
             <div className="flex items-center">
               <div className="p-2 bg-blue-100 rounded-lg flex-shrink-0">
                 <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
               </div>
               <div className="ml-3 min-w-0">
-                <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Total Sessions</p>
-                <p className="text-xl sm:text-2xl font-bold text-blue-600">{sessions?.length || 0}</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-slate-400 truncate">Total Sessions</p>
+                <p className="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400">{sessions?.length || 0}</p>
               </div>
             </div>
           </Card>
           
-          <Card className="p-4 border-l-4 border-l-green-500 bg-green-50/50">
+          <Card className="p-4 border-l-4 border-l-green-500 bg-green-50/50 dark:bg-green-950/40 dark:border-slate-800">
             <div className="flex items-center">
-              <div className="p-2 bg-green-100 rounded-lg flex-shrink-0">
-                <Users className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
+              <div className="p-2 bg-green-100 dark:bg-green-950/60 rounded-lg flex-shrink-0">
+                <Users className="h-4 w-4 sm:h-5 sm:w-5 text-green-600 dark:text-green-400" />
               </div>
               <div className="ml-3 min-w-0">
-                <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Total Bookings</p>
-                <p className="text-xl sm:text-2xl font-bold text-green-600">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-slate-400 truncate">Total Bookings</p>
+                <p className="text-xl sm:text-2xl font-bold text-green-600 dark:text-green-400">
                   {sessions?.reduce((total, session) => total + (session.bookings?.length || 0), 0) || 0}
                 </p>
               </div>
             </div>
           </Card>
           
-          <Card className="p-4 border-l-4 border-l-purple-500 bg-purple-50/50">
+          <Card className="p-4 border-l-4 border-l-purple-500 bg-purple-50/50 dark:bg-purple-950/40 dark:border-slate-800">
             <div className="flex items-center">
-              <div className="p-2 bg-purple-100 rounded-lg flex-shrink-0">
-                <User className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600" />
+              <div className="p-2 bg-purple-100 dark:bg-purple-950/60 rounded-lg flex-shrink-0">
+                <User className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600 dark:text-purple-400" />
               </div>
               <div className="ml-3 min-w-0">
-                <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Active Mentors</p>
-                <p className="text-xl sm:text-2xl font-bold text-purple-600">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-slate-400 truncate">Active Mentors</p>
+                <p className="text-xl sm:text-2xl font-bold text-purple-600 dark:text-purple-400">
                   {new Set(sessions?.map(s => s.mentor?.id).filter(Boolean) || []).size}
                 </p>
               </div>
             </div>
           </Card>
           
-          <Card className="p-4 border-l-4 border-l-orange-500 bg-orange-50/50">
+          <Card className="p-4 border-l-4 border-l-orange-500 bg-orange-50/50 dark:bg-orange-950/40 dark:border-slate-800">
             <div className="flex items-center">
-              <div className="p-2 bg-orange-100 rounded-lg flex-shrink-0">
-                <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600" />
+              <div className="p-2 bg-orange-100 dark:bg-orange-950/60 rounded-lg flex-shrink-0">
+                <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600 dark:text-orange-400" />
               </div>
               <div className="ml-3 min-w-0">
-                <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Upcoming</p>
-                <p className="text-xl sm:text-2xl font-bold text-orange-600">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-slate-400 truncate">Upcoming</p>
+                <p className="text-xl sm:text-2xl font-bold text-orange-600 dark:text-orange-400">
                   {sessions?.filter(s => getSessionStatus(s.startTime, s.endTime).status === 'upcoming').length || 0}
                 </p>
               </div>
@@ -199,34 +199,34 @@ export default function AdminSessionsPage() {
               const endTime = formatDateTime(session.endTime);
               
               return (
-                <Card key={session.id} className="overflow-hidden border-2 hover:shadow-lg transition-shadow duration-200">
+                <Card key={session.id} className="overflow-hidden border-2 dark:bg-slate-900 dark:border-slate-800 hover:shadow-lg transition-shadow duration-200">
                   {/* Session Header */}
-                  <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
+                  <div className="p-6 border-b border-gray-200 dark:border-slate-800 bg-gradient-to-r from-gray-50 to-white dark:from-slate-900 dark:to-slate-800/80">
                     <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
                       <div className="flex-1">
                         <div className="flex items-center space-x-3 mb-2">
-                          <h3 className="text-lg font-semibold text-gray-900">{session.title}</h3>
+                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{session.title}</h3>
                           <Badge className={`${status.color} border`}>
                             {status.status.charAt(0).toUpperCase() + status.status.slice(1)}
                           </Badge>
                         </div>
-                        <p className="text-gray-600 mb-3">{session.description}</p>
+                        <p className="text-gray-600 dark:text-slate-400 mb-3">{session.description}</p>
                         
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 text-xs sm:text-sm">
-                          <div className="flex items-center space-x-2 p-2 bg-blue-50 rounded-lg overflow-hidden">
+                          <div className="flex items-center space-x-2 p-2 bg-blue-50 dark:bg-blue-950/40 rounded-lg overflow-hidden border border-transparent dark:border-blue-900/40">
                             <User className="h-4 w-4 text-blue-500 flex-shrink-0" />
-                            <span className="text-gray-600 flex-shrink-0">Mentor:</span>
-                            <span className="font-medium text-blue-700 truncate">{session.mentor?.name || 'Unknown'}</span>
+                            <span className="text-gray-600 dark:text-slate-400 flex-shrink-0">Mentor:</span>
+                            <span className="font-medium text-blue-700 dark:text-blue-300 truncate">{session.mentor?.name || 'Unknown'}</span>
                           </div>
-                          <div className="flex items-center space-x-2 p-2 bg-green-50 rounded-lg overflow-hidden">
+                          <div className="flex items-center space-x-2 p-2 bg-green-50 dark:bg-green-950/40 rounded-lg overflow-hidden border border-transparent dark:border-green-900/40">
                             <Calendar className="h-4 w-4 text-green-500 flex-shrink-0" />
-                            <span className="text-gray-600 flex-shrink-0">Date:</span>
-                            <span className="font-medium text-green-700 truncate">{startTime.date}</span>
+                            <span className="text-gray-600 dark:text-slate-400 flex-shrink-0">Date:</span>
+                            <span className="font-medium text-green-700 dark:text-green-300 truncate">{startTime.date}</span>
                           </div>
-                          <div className="flex items-center space-x-2 p-2 bg-purple-50 rounded-lg overflow-hidden sm:col-span-2 lg:col-span-1">
+                          <div className="flex items-center space-x-2 p-2 bg-purple-50 dark:bg-purple-950/40 rounded-lg overflow-hidden sm:col-span-2 lg:col-span-1 border border-transparent dark:border-purple-900/40">
                             <Clock className="h-4 w-4 text-purple-500 flex-shrink-0" />
-                            <span className="text-gray-600 flex-shrink-0">Time:</span>
-                            <span className="font-medium text-purple-700 truncate">{startTime.time} - {endTime.time}</span>
+                            <span className="text-gray-600 dark:text-slate-400 flex-shrink-0">Time:</span>
+                            <span className="font-medium text-purple-700 dark:text-purple-300 truncate">{startTime.time} - {endTime.time}</span>
                           </div>
                         </div>
                       </div>
@@ -251,10 +251,10 @@ export default function AdminSessionsPage() {
                   </div>
 
                   {/* Bookings Section */}
-                  <div className="p-6 bg-white">
+                  <div className="p-6 bg-white dark:bg-slate-900">
                     <div className="flex items-center justify-between mb-4">
-                      <h4 className="text-md font-semibold text-gray-900 flex items-center">
-                        <Users className="h-4 w-4 mr-2 text-indigo-600" />
+                      <h4 className="text-md font-semibold text-gray-900 dark:text-white flex items-center">
+                        <Users className="h-4 w-4 mr-2 text-indigo-600 dark:text-indigo-400" />
                         Bookings ({session.bookings?.length || 0})
                       </h4>
                     </div>

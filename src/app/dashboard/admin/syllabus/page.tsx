@@ -546,18 +546,18 @@ export default function AdminSyllabusPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-20 sm:pt-24 pb-12">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-950 pt-20 sm:pt-24 pb-12 transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-6 flex items-center justify-between">
           <div>
             <Link 
               href="/dashboard/admin" 
-              className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 mb-2 transition-colors"
+              className="inline-flex items-center text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 mb-2 transition-colors"
             >
               <ArrowLeft className="h-4 w-4 mr-1" /> Back to Dashboard
             </Link>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Manage Syllabus Templates</h1>
-            <p className="text-sm text-gray-600">Configure exam templates synced to student planner dropdown options</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Manage Syllabus Templates</h1>
+            <p className="text-sm text-gray-600 dark:text-slate-400">Configure exam templates synced to student planner dropdown options</p>
           </div>
           <button
             onClick={handleCreateNew}
@@ -595,10 +595,10 @@ export default function AdminSyllabusPage() {
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* List column */}
-            <div className="lg:col-span-1 bg-white p-6 rounded-lg shadow-sm border border-gray-200 h-fit">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Active Syllabi</h2>
+            <div className="lg:col-span-1 bg-white dark:bg-slate-900 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-slate-800 h-fit">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Active Syllabi</h2>
               {Object.keys(syllabi).length === 0 ? (
-                <p className="text-sm text-gray-500 italic">No syllabus templates found. Click "Add Template" to start.</p>
+                <p className="text-sm text-gray-500 dark:text-slate-400 italic">No syllabus templates found. Click "Add Template" to start.</p>
               ) : (
                 <div className="space-y-3">
                   {Object.keys(syllabi).map((key) => (
@@ -606,14 +606,14 @@ export default function AdminSyllabusPage() {
                       key={key}
                       className={`p-4 rounded-md border transition-all cursor-pointer flex items-center justify-between ${
                         selectedKey === key 
-                          ? "border-blue-500 bg-blue-50" 
-                          : "border-gray-200 hover:bg-gray-50"
+                          ? "border-blue-500 bg-blue-50 dark:bg-blue-950/40" 
+                          : "border-gray-200 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800/50"
                       }`}
                       onClick={() => handleSelectTemplate(key)}
                     >
                       <div className="truncate pr-2">
-                        <p className="font-medium text-gray-900 truncate">{syllabi[key].examName}</p>
-                        <p className="text-xs text-gray-500 font-mono">key: {key}</p>
+                        <p className="font-medium text-gray-900 dark:text-slate-100 truncate">{syllabi[key].examName}</p>
+                        <p className="text-xs text-gray-500 dark:text-slate-400 font-mono">key: {key}</p>
                       </div>
                       <div className="flex items-center gap-1 shrink-0">
                         <button
@@ -648,14 +648,14 @@ export default function AdminSyllabusPage() {
               {selectedKey || isNew ? (
                 <div className="space-y-6">
                   {/* General Config Card */}
-                  <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                    <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                  <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-slate-800">
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                       {isNew ? "Create New Syllabus Template" : "Exam Template Configuration"}
                     </h2>
                     
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                        <label className="block text-xs font-bold text-gray-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                           Template Key (URL/ID Safe)
                         </label>
                         <input
@@ -663,12 +663,12 @@ export default function AdminSyllabusPage() {
                           value={editKey}
                           onChange={(e) => setEditKey(e.target.value)}
                           placeholder="e.g. upsc, mppsc"
-                          className="w-full px-3 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm font-mono"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 rounded shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm font-mono"
                           disabled={!isNew}
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                        <label className="block text-xs font-bold text-gray-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                           Display Exam Title
                         </label>
                         <input
@@ -676,17 +676,17 @@ export default function AdminSyllabusPage() {
                           value={editName}
                           onChange={(e) => setEditName(e.target.value)}
                           placeholder="e.g. UPSC Civil Services"
-                          className="w-full px-3 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 rounded shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm"
                         />
                       </div>
                     </div>
                   </div>
 
                   {/* Subjects Configuration */}
-                  <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                  <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-slate-800">
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                        <Layers className="h-5 w-5 mr-2 text-blue-600" /> Subjects Structure
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                        <Layers className="h-5 w-5 mr-2 text-blue-600 dark:text-blue-400" /> Subjects Structure
                       </h3>
                       <button
                         type="button"
@@ -704,81 +704,76 @@ export default function AdminSyllabusPage() {
                           onMouseEnter={() => setHoveredIdx(idx)}
                           onMouseLeave={() => setHoveredIdx(null)}
                           style={{
-                            borderColor: hoveredIdx === idx ? (subj.color.includes("gradient") ? "#3b82f6" : subj.color) : "rgba(229, 231, 235, 1)",
-                            background: hoveredIdx === idx 
-                              ? (subj.color.includes("gradient") 
-                                ? `${subj.color.replace("linear-gradient(", "linear-gradient(rgba(255,255,255,0.94), rgba(255,255,255,0.94)), linear-gradient(")}` 
-                                : `color-mix(in srgb, ${subj.color} 6%, #f9fafb)`)
-                              : "#f9fafb",
+                            borderColor: hoveredIdx === idx ? (subj.color.includes("gradient") ? "#3b82f6" : subj.color) : undefined,
                             boxShadow: hoveredIdx === idx ? `0 4px 20px -2px ${subj.color.includes("gradient") ? "rgba(59, 130, 246, 0.15)" : `color-mix(in srgb, ${subj.color} 15%, transparent)`}` : "none",
                             transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
                           }}
-                          className="p-4 border rounded-md flex flex-col gap-4"
+                          className="p-4 border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800/80 rounded-md flex flex-col gap-4 transition-all"
                         >
                           <div className="flex flex-wrap gap-4 items-center w-full">
                             <div className="flex-1 min-w-[150px]">
-                              <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-0.5">Subject Name</label>
+                              <label className="block text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">Subject Name</label>
                               <input
                                 type="text"
                                 value={subj.name}
                                 onChange={(e) => handleUpdateSubject(idx, { name: e.target.value })}
                                 placeholder="e.g. History"
-                                className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                className="w-full px-3 py-1.5 border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
                               />
                             </div>
 
                             <div className="w-[120px]">
-                              <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-0.5">Theme Color</label>
+                              <label className="block text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">Theme Color</label>
                               <select
                                 value={subj.color}
                                 onChange={(e) => handleUpdateSubject(idx, { color: e.target.value })}
-                                className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                className="w-full px-2 py-1.5 border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
                               >
                                 {PRESET_COLORS.map(c => (
-                                  <option key={c.value} value={c.value}>{c.label}</option>
+                                  <option key={c.value} value={c.value} className="bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100">{c.label}</option>
                                 ))}
                               </select>
                             </div>
 
                             <div className="w-[90px]">
-                              <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-0.5">Icon Emoji</label>
+                              <label className="block text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">Icon Emoji</label>
                               <select
                                 value={subj.icon}
                                 onChange={(e) => handleUpdateSubject(idx, { icon: e.target.value })}
-                                className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                className="w-full px-2 py-1.5 border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
                               >
                                 {PRESET_ICONS.map(i => (
-                                  <option key={i} value={i}>{i}</option>
+                                  <option key={i} value={i} className="bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100">{i}</option>
                                 ))}
                               </select>
                             </div>
 
                             <div className="w-[100px]">
-                              <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-0.5">Default Hrs</label>
+                              <label className="block text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">Default Hrs</label>
                               <input
                                 type="number"
                                 value={subj.defaultHrs}
                                 min={1}
                                 max={24}
                                 onChange={(e) => handleUpdateSubject(idx, { defaultHrs: Math.max(1, parseInt(e.target.value) || 3) })}
-                                className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 text-center"
+                                className="w-full px-3 py-1.5 border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 text-center"
                               />
                             </div>
 
                             <button
                               type="button"
                               onClick={() => handleDeleteSubject(idx)}
-                              className="p-1.5 text-gray-400 hover:text-red-600 rounded hover:bg-red-50 mt-4 transition-colors shrink-0"
+                              className="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 rounded hover:bg-red-50 dark:hover:bg-red-950/50 mt-4 transition-colors shrink-0"
                               title="Delete Subject"
                             >
                               <Trash2 className="h-4 w-4" />
                             </button>
                           </div>
 
-                          <div className="w-full border-t border-gray-200 pt-3 space-y-3">
+                          <div className="w-full border-t border-gray-200 dark:border-slate-700/80 pt-3 space-y-3">
                             <div className="flex items-center justify-between flex-wrap gap-2">
                               <div className="flex items-center gap-2">
-                                <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                                <label className="block text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                                   Topics &amp; Subtopics Structure
                                 </label>
                                 <button
@@ -789,7 +784,7 @@ export default function AdminSyllabusPage() {
                                       [subj.id]: !collapsedSubjects[subj.id]
                                     });
                                   }}
-                                  className="text-[10px] text-blue-600 font-semibold hover:underline"
+                                  className="text-[10px] text-blue-600 dark:text-blue-400 font-semibold hover:underline"
                                 >
                                   {collapsedSubjects[subj.id] ? "🔽 Expand" : "🔼 Collapse"}
                                 </button>
@@ -798,11 +793,11 @@ export default function AdminSyllabusPage() {
                                 <a
                                   href="data:text/csv;charset=utf-8,Topic,Subtopic%0APolity%20Basics,Preamble%0APolity%20Basics,Fundamental%20Rights%0AUnion%20Executive,President"
                                   download="syllabus_template.csv"
-                                  className="text-[10px] text-gray-500 hover:text-blue-600 font-semibold underline shrink-0"
+                                  className="text-[10px] text-gray-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 font-semibold underline shrink-0"
                                 >
                                   📄 Sample CSV
                                 </a>
-                                <label className="text-[10px] text-gray-500 font-semibold shrink-0 cursor-pointer flex items-center bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded transition-colors">
+                                <label className="text-[10px] text-gray-500 dark:text-slate-300 font-semibold shrink-0 cursor-pointer flex items-center bg-gray-100 dark:bg-slate-700/80 hover:bg-gray-200 dark:hover:bg-slate-700 px-2 py-1 rounded transition-colors">
                                   <span>📥 Import CSV</span>
                                   <input
                                     type="file"
@@ -818,7 +813,7 @@ export default function AdminSyllabusPage() {
                                 <button
                                   type="button"
                                   onClick={() => handleAddSyllabusTopic(idx)}
-                                  className="inline-flex items-center px-2 py-1 bg-blue-50 text-blue-700 hover:bg-blue-100 text-[10px] font-semibold rounded"
+                                  className="inline-flex items-center px-2 py-1 bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/60 text-[10px] font-semibold rounded border border-transparent dark:border-blue-900/50"
                                 >
                                   <Plus className="h-3 w-3 mr-1" /> Add Topic
                                 </button>
@@ -829,19 +824,19 @@ export default function AdminSyllabusPage() {
                               <>
                                 <div className="space-y-3">
                                   {(subj.topics || []).map((t, tIdx) => (
-                                    <div key={t.id} className="p-3 bg-white border border-gray-200 rounded-md space-y-2">
+                                    <div key={t.id} className="p-3 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700/80 rounded-md space-y-2">
                                       <div className="flex items-center gap-2">
                                         <input
                                           type="text"
                                           value={t.name}
                                           onChange={(e) => handleUpdateSyllabusTopic(idx, tIdx, e.target.value)}
                                           placeholder="Topic Name (e.g. Chapter 1)"
-                                          className="flex-1 px-2.5 py-1 border border-gray-300 rounded text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 font-semibold"
+                                          className="flex-1 px-2.5 py-1 border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-gray-900 dark:text-slate-100 rounded text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 font-semibold"
                                         />
                                         <button
                                           type="button"
                                           onClick={() => handleAddSyllabusSubtopic(idx, tIdx)}
-                                          className="p-1 text-gray-500 hover:text-blue-600 rounded hover:bg-gray-100"
+                                          className="p-1 text-gray-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 rounded hover:bg-gray-100 dark:hover:bg-slate-800"
                                           title="Add Subtopic"
                                         >
                                           <PlusCircle className="h-3.5 w-3.5" />
@@ -849,7 +844,7 @@ export default function AdminSyllabusPage() {
                                         <button
                                           type="button"
                                           onClick={() => handleDeleteSyllabusTopic(idx, tIdx)}
-                                          className="p-1 text-gray-500 hover:text-red-600 rounded hover:bg-gray-100"
+                                          className="p-1 text-gray-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 rounded hover:bg-gray-100 dark:hover:bg-slate-800"
                                           title="Delete Topic"
                                         >
                                           <X className="h-3.5 w-3.5" />
@@ -857,7 +852,7 @@ export default function AdminSyllabusPage() {
                                       </div>
 
                                       {/* Subtopics */}
-                                      <div className="pl-4 space-y-1.5 border-l-2 border-gray-150">
+                                      <div className="pl-4 space-y-1.5 border-l-2 border-gray-200 dark:border-slate-700">
                                         {t.subtopics.map((st, stIdx) => (
                                           <div key={stIdx} className="flex items-center gap-2">
                                             <input
@@ -865,12 +860,12 @@ export default function AdminSyllabusPage() {
                                               value={st}
                                               onChange={(e) => handleUpdateSyllabusSubtopic(idx, tIdx, stIdx, e.target.value)}
                                               placeholder="Subtopic Name"
-                                              className="flex-1 px-2 py-0.5 border border-gray-200 rounded text-[11px] focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                              className="flex-1 px-2 py-0.5 border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-gray-900 dark:text-slate-100 rounded text-[11px] focus:outline-none focus:ring-1 focus:ring-blue-500"
                                             />
                                             <button
                                               type="button"
                                               onClick={() => handleDeleteSyllabusSubtopic(idx, tIdx, stIdx)}
-                                              className="p-1 text-gray-400 hover:text-red-500"
+                                              className="p-1 text-gray-400 hover:text-red-500 dark:hover:text-red-400"
                                               title="Delete Subtopic"
                                             >
                                               <X className="h-3 w-3" />
@@ -887,7 +882,7 @@ export default function AdminSyllabusPage() {
                                     <button
                                       type="button"
                                       onClick={() => handleGenerateBlocksFromForm(idx)}
-                                      className="inline-flex items-center px-3 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 font-semibold text-xs rounded transition-colors"
+                                      className="inline-flex items-center px-3 py-1.5 bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/60 font-semibold text-xs rounded transition-colors border border-transparent dark:border-blue-900/50"
                                     >
                                       <PlusCircle className="h-3.5 w-3.5 mr-1" /> Generate Schedule Blocks
                                     </button>
@@ -904,8 +899,8 @@ export default function AdminSyllabusPage() {
                   {/* Day Blocks Configuration */}
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                        <Calendar className="h-5 w-5 mr-2 text-blue-600" /> Study Days Schedule
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                        <Calendar className="h-5 w-5 mr-2 text-blue-600 dark:text-blue-400" /> Study Days Schedule
                       </h3>
                       <button
                         type="button"
@@ -917,26 +912,26 @@ export default function AdminSyllabusPage() {
                     </div>
 
                     {editDays.map((day, dayIdx) => (
-                      <div key={day.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                      <div key={day.id} className="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden">
                         {/* Day Header */}
-                        <div className="px-5 py-4 bg-gray-50 border-bottom border-gray-200 flex items-center justify-between flex-wrap gap-3">
+                        <div className="px-5 py-4 bg-gray-50 dark:bg-slate-800/60 border-b border-gray-200 dark:border-slate-800 flex items-center justify-between flex-wrap gap-3">
                           <div className="flex items-center gap-3">
                             <input
                               type="text"
                               value={day.title}
                               onChange={(e) => handleUpdateDay(dayIdx, { title: e.target.value })}
                               placeholder="Day Title"
-                              className="px-3 py-1.5 border border-gray-300 rounded font-semibold text-sm bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 w-[180px]"
+                              className="px-3 py-1.5 border border-gray-300 dark:border-slate-700 rounded font-semibold text-sm bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-blue-500 w-[180px]"
                             />
                             <div className="flex items-center gap-1">
-                              <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold shrink-0">Target Hrs:</span>
+                              <span className="text-xs text-gray-500 dark:text-slate-400 uppercase tracking-wider font-semibold shrink-0">Target Hrs:</span>
                               <input
                                 type="number"
                                 value={day.targetHrs}
                                 min={1}
                                 max={24}
                                 onChange={(e) => handleUpdateDay(dayIdx, { targetHrs: Math.max(1, parseInt(e.target.value) || 8) })}
-                                className="w-[60px] px-2 py-1.5 border border-gray-300 rounded text-sm text-center focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                className="w-[60px] px-2 py-1.5 border border-gray-300 dark:border-slate-700 rounded text-sm bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100 text-center focus:outline-none focus:ring-1 focus:ring-blue-500"
                               />
                             </div>
                           </div>
@@ -945,14 +940,14 @@ export default function AdminSyllabusPage() {
                             <button
                               type="button"
                               onClick={() => handleAddBlock(dayIdx)}
-                              className="inline-flex items-center px-3 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 font-semibold text-xs rounded transition-colors"
+                              className="inline-flex items-center px-3 py-1.5 bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/60 font-semibold text-xs rounded transition-colors border border-transparent dark:border-blue-900/50"
                             >
                               <PlusCircle className="h-3.5 w-3.5 mr-1" /> Add Topic Block
                             </button>
                             <button
                               type="button"
                               onClick={() => handleDeleteDay(dayIdx)}
-                              className="inline-flex items-center px-3 py-1.5 bg-red-50 text-red-700 hover:bg-red-100 font-semibold text-xs rounded transition-colors"
+                              className="inline-flex items-center px-3 py-1.5 bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/60 font-semibold text-xs rounded transition-colors border border-transparent dark:border-red-900/50"
                             >
                               <Trash2 className="h-3.5 w-3.5 mr-1" /> Delete Day
                             </button>
@@ -962,51 +957,51 @@ export default function AdminSyllabusPage() {
                         {/* Blocks scheduled inside Day */}
                         <div className="p-5 space-y-4">
                           {day.blocks.length === 0 ? (
-                            <p className="text-xs text-gray-400 italic text-center py-4">No scheduled topics for this day. Click "Add Topic Block" to schedule study tasks.</p>
+                            <p className="text-xs text-gray-400 dark:text-slate-500 italic text-center py-4">No scheduled topics for this day. Click "Add Topic Block" to schedule study tasks.</p>
                           ) : (
                             day.blocks.map((block, blockIdx) => (
-                              <div key={block.id} className="p-4 bg-gray-50 rounded-md border border-gray-200 relative flex flex-col gap-3">
+                              <div key={block.id} className="p-4 bg-gray-50 dark:bg-slate-800/40 rounded-md border border-gray-200 dark:border-slate-800 relative flex flex-col gap-3">
                                 <div className="flex flex-wrap gap-4 items-center">
                                   <div className="w-[180px]">
-                                    <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-0.5">Subject</label>
+                                    <label className="block text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">Subject</label>
                                     <select
                                       value={block.subjectId}
                                       onChange={(e) => handleUpdateBlock(dayIdx, blockIdx, { subjectId: e.target.value })}
-                                      className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-semibold"
+                                      className="w-full px-2 py-1.5 border border-gray-300 dark:border-slate-700 rounded text-sm bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-blue-500 font-semibold"
                                     >
                                       {editSubjects.map(s => (
-                                        <option key={s.id} value={s.id}>{s.icon} {s.name}</option>
+                                        <option key={s.id} value={s.id} className="bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100">{s.icon} {s.name}</option>
                                       ))}
                                     </select>
                                   </div>
 
                                   <div className="flex-1 min-w-[200px]">
-                                    <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-0.5">Topic Name</label>
+                                    <label className="block text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">Topic Name</label>
                                     <input
                                       type="text"
                                       value={block.topic}
                                       onChange={(e) => handleUpdateBlock(dayIdx, blockIdx, { topic: e.target.value })}
                                       placeholder="e.g. Fundamental Rights"
-                                      className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                      className="w-full px-3 py-1.5 border border-gray-300 dark:border-slate-700 rounded text-sm bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-blue-500"
                                     />
                                   </div>
 
                                   <div className="w-[80px]">
-                                    <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-0.5">Hrs</label>
+                                    <label className="block text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">Hrs</label>
                                     <input
                                       type="number"
                                       value={block.targetHrs}
                                       min={1}
                                       max={24}
                                       onChange={(e) => handleUpdateBlock(dayIdx, blockIdx, { targetHrs: Math.max(1, parseInt(e.target.value) || 3) })}
-                                      className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 text-center"
+                                      className="w-full px-3 py-1.5 border border-gray-300 dark:border-slate-700 rounded text-sm bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-blue-500 text-center"
                                     />
                                   </div>
 
                                   <button
                                     type="button"
                                     onClick={() => handleDeleteBlock(dayIdx, blockIdx)}
-                                    className="p-1.5 text-gray-400 hover:text-red-600 rounded hover:bg-red-50 mt-4 transition-colors shrink-0"
+                                    className="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 rounded hover:bg-red-50 dark:hover:bg-red-950/50 mt-4 transition-colors shrink-0"
                                     title="Delete Topic Block"
                                   >
                                     <Trash2 className="h-4 w-4" />
@@ -1014,18 +1009,18 @@ export default function AdminSyllabusPage() {
                                 </div>
 
                                 {/* Subtopics Compiler */}
-                                <div className="border-t border-gray-200 pt-3">
-                                  <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Subtopics Checklist</label>
+                                <div className="border-t border-gray-200 dark:border-slate-700/80 pt-3">
+                                  <label className="block text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Subtopics Checklist</label>
                                   
                                   {/* Subtopic tag rows */}
                                   <div className="flex flex-wrap gap-2 mb-2">
                                     {block.subtopics.map((sub, sIdx) => (
-                                      <span key={sIdx} className="inline-flex items-center px-2 py-1 rounded bg-blue-50 text-blue-800 text-xs font-medium border border-blue-100">
+                                      <span key={sIdx} className="inline-flex items-center px-2 py-1 rounded bg-blue-50 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 text-xs font-medium border border-blue-100 dark:border-blue-900/50">
                                         {sub}
                                         <button
                                           type="button"
                                           onClick={() => handleDeleteSubtopic(dayIdx, blockIdx, sIdx)}
-                                          className="ml-1 text-blue-400 hover:text-blue-900 focus:outline-none"
+                                          className="ml-1 text-blue-400 hover:text-blue-900 dark:hover:text-blue-200 focus:outline-none"
                                         >
                                           <X className="h-3 w-3" />
                                         </button>
@@ -1040,7 +1035,7 @@ export default function AdminSyllabusPage() {
                                       value={newSubtopicTexts[block.id] || ""}
                                       onChange={(e) => setNewSubtopicTexts({ ...newSubtopicTexts, [block.id]: e.target.value })}
                                       placeholder="Add subtopic..."
-                                      className="flex-1 px-3 py-1 border border-gray-300 rounded text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                      className="flex-1 px-3 py-1 border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100 rounded text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
                                       onKeyDown={(e) => {
                                         if (e.key === "Enter") {
                                           e.preventDefault();
@@ -1051,7 +1046,7 @@ export default function AdminSyllabusPage() {
                                     <button
                                       type="button"
                                       onClick={() => handleAddSubtopic(dayIdx, blockIdx, block.id)}
-                                      className="px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-800 text-xs font-semibold rounded transition-colors"
+                                      className="px-3 py-1 bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 text-gray-800 dark:text-slate-200 text-xs font-semibold rounded transition-colors"
                                     >
                                       Add
                                     </button>
@@ -1066,7 +1061,7 @@ export default function AdminSyllabusPage() {
                   </div>
 
                   {/* Form Actions Footer */}
-                  <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                  <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-slate-800">
                     <button
                       type="button"
                       onClick={() => {
@@ -1075,7 +1070,7 @@ export default function AdminSyllabusPage() {
                         setError(null);
                         setSuccess(null);
                       }}
-                      className="px-5 py-2 border border-gray-300 rounded shadow text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                      className="px-5 py-2 border border-gray-300 dark:border-slate-700 rounded shadow text-sm font-medium text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
                     >
                       Cancel
                     </button>
@@ -1084,15 +1079,15 @@ export default function AdminSyllabusPage() {
                       onClick={handleSave}
                       className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm rounded shadow transition-colors"
                     >
-                      Save Template & Sync
+                      Save Template &amp; Sync
                     </button>
                   </div>
                 </div>
               ) : (
-                <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-200 text-center py-20">
-                  <BookOpen className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-1">No Template Selected</h3>
-                  <p className="text-sm text-gray-500 max-w-sm mx-auto">
+                <div className="bg-white dark:bg-slate-900 p-8 rounded-lg shadow-sm border border-gray-200 dark:border-slate-800 text-center py-20">
+                  <BookOpen className="h-16 w-16 text-gray-300 dark:text-slate-600 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">No Template Selected</h3>
+                  <p className="text-sm text-gray-500 dark:text-slate-400 max-w-sm mx-auto">
                     Select a syllabus template from the active list to configure its settings, or click "Add Template" to build a new one.
                   </p>
                 </div>

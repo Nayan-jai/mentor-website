@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 export default function StudyTrackerPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { theme, resolvedTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme } = useTheme();
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const applyThemeToIframe = () => {
@@ -19,7 +19,7 @@ export default function StudyTrackerPage() {
     
     let savedTheme: string | null = null;
     try {
-      savedTheme = localStorage.getItem("app-user-theme");
+      savedTheme = localStorage.getItem("app-user-theme") || localStorage.getItem("theme");
     } catch (e) {}
 
     const activeTheme = savedTheme || resolvedTheme || theme;
@@ -52,11 +52,18 @@ export default function StudyTrackerPage() {
     const handleMessage = (event: MessageEvent) => {
       if (event.data?.type === "NAVIGATE_BACK") {
         router.push("/dashboard/student");
+      } else if (event.data?.type === "TOGGLE_THEME") {
+        const nextTheme = event.data.theme || (theme === "dark" ? "light" : "dark");
+        setTheme(nextTheme);
+        try {
+          localStorage.setItem("app-user-theme", nextTheme);
+          localStorage.setItem("theme", nextTheme);
+        } catch (e) {}
       }
     };
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
-  }, [router]);
+  }, [router, setTheme, theme]);
 
   if (status === "loading" || !session || session.user.role !== "STUDENT") {
     return (
