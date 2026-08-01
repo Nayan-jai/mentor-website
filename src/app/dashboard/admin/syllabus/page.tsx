@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ArrowLeft, Plus, Trash2, Edit2, Check, AlertCircle, Calendar, BookOpen, Layers, PlusCircle, X } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Edit2, Check, AlertCircle, Calendar, BookOpen, Layers, PlusCircle, X, FileSpreadsheet, Download } from "lucide-react";
 
 interface Subject {
   id: string;
@@ -341,6 +341,154 @@ export default function AdminSyllabusPage() {
       alert(`Imported ${parsedTopics.length} topics from CSV successfully!`);
     };
     reader.readAsText(file);
+  };
+
+  // Study Days Schedule Bulk CSV Import & Export handlers
+  const handleImportScheduleCSV = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target?.result as string;
+      if (!text) return;
+
+      const lines = text.split(/\r?\n/);
+      if (lines.length === 0) return;
+
+      const dayGroupMap: Record<string, { targetHrs: number; blocks: Block[] }> = {};
+      const updatedSubjects = [...editSubjects];
+
+      lines.forEach((line, lineIdx) => {
+        const trimmedLine = line.trim();
+        if (!trimmedLine) return;
+
+        // Skip header row if it contains column labels
+        if (lineIdx === 0 && (trimmedLine.toLowerCase().includes("day") || trimmedLine.toLowerCase().includes("subject"))) {
+          return;
+        }
+
+        // CSV parsing supporting quoted fields or standard comma/tab separation
+        const cols: string[] = [];
+        let cur = "";
+        let inQuotes = false;
+        for (let i = 0; i < trimmedLine.length; i++) {
+          const char = trimmedLine[i];
+          if (char === '"') {
+            inQuotes = !inQuotes;
+          } else if ((char === ',' || char === '\t') && !inQuotes) {
+            cols.push(cur.trim().replace(/^"|"$/g, ''));
+            cur = "";
+          } else {
+            cur += char;
+          }
+        }
+        cols.push(cur.trim().replace(/^"|"$/g, ''));
+
+        if (cols.length < 2) return;
+
+        const dayTitle = cols[0] || "Day 1 Focus";
+        const targetHrs = parseInt(cols[1]) || 8;
+        const subjectName = cols[2] || "General";
+        const topicName = cols[3] || "Study Topic";
+        const blockHrs = parseInt(cols[4]) || 3;
+        const rawSubtopics = cols[5] ? cols[5].split(/[;|]/).map(s => s.trim()).filter(Boolean) : [];
+
+        // Match subject by name or create if missing
+        let matchedSubj = updatedSubjects.find(s => s.name.toLowerCase() === subjectName.toLowerCase());
+        if (!matchedSubj && subjectName) {
+          const newSubjId = "s_" + Date.now() + Math.random().toString(36).slice(2, 5);
+          matchedSubj = {
+            id: newSubjId,
+            name: subjectName,
+            color: PRESET_COLORS[updatedSubjects.length % PRESET_COLORS.length].value,
+            icon: "📚",
+            defaultHrs: 3,
+            topics: []
+          };
+          updatedSubjects.push(matchedSubj);
+        } else if (!matchedSubj && updatedSubjects.length > 0) {
+          matchedSubj = updatedSubjects[0];
+        }
+
+        if (!dayGroupMap[dayTitle]) {
+          dayGroupMap[dayTitle] = { targetHrs, blocks: [] };
+        }
+
+        if (matchedSubj) {
+          // Add topic to subject if not present
+          if (!matchedSubj.topics) matchedSubj.topics = [];
+          const existingTopic = matchedSubj.topics.find(t => t.name.toLowerCase() === topicName.toLowerCase());
+          if (!existingTopic) {
+            matchedSubj.topics.push({
+              id: "t_" + Date.now() + Math.random().toString(36).slice(2, 5),
+              name: topicName,
+              subtopics: rawSubtopics.length > 0 ? rawSubtopics : ["Core Principles"]
+            });
+          }
+
+          const blockId = "b_" + Date.now() + Math.random().toString(36).slice(2, 6);
+          dayGroupMap[dayTitle].blocks.push({
+            id: blockId,
+            subjectId: matchedSubj.id,
+            targetHrs: blockHrs,
+            topic: topicName,
+            subtopics: rawSubtopics
+          });
+        }
+      });
+
+      const parsedDays: Day[] = Object.keys(dayGroupMap).map((title, dIdx) => ({
+        id: "d_" + Date.now() + dIdx,
+        title,
+        dateOverride: null,
+        targetHrs: dayGroupMap[title].targetHrs,
+        blocks: dayGroupMap[title].blocks
+      }));
+
+      if (parsedDays.length === 0) {
+        alert("No valid schedule days found in the file. Format should be: DayTitle,TargetHrs,SubjectName,Topic,BlockHrs,Subtopics");
+        return;
+      }
+
+      setEditSubjects(updatedSubjects);
+      setEditDays(parsedDays);
+      alert(`Successfully imported ${parsedDays.length} study days with ${parsedDays.reduce((acc, d) => acc + d.blocks.length, 0)} schedule blocks!`);
+    };
+
+    reader.readAsText(file);
+    e.target.value = "";
+  };
+
+  const handleExportScheduleCSV = () => {
+    if (!editDays || editDays.length === 0) {
+      alert("No study days schedule data to export.");
+      return;
+    }
+
+    const rows: string[] = ["DayTitle,TargetHrs,SubjectName,Topic,BlockHrs,Subtopics"];
+
+    editDays.forEach(d => {
+      if (!d.blocks || d.blocks.length === 0) {
+        rows.push(`"${d.title.replace(/"/g, '""')}",${d.targetHrs},"","","",""`);
+      } else {
+        d.blocks.forEach(b => {
+          const s = editSubjects.find(subj => subj.id === b.subjectId);
+          const subjName = s ? s.name : "General";
+          const subtopicsStr = (b.subtopics || []).join("; ");
+          rows.push(`"${d.title.replace(/"/g, '""')}",${d.targetHrs},"${subjName.replace(/"/g, '""')}","${b.topic.replace(/"/g, '""')}",${b.targetHrs},"${subtopicsStr.replace(/"/g, '""')}"`);
+        });
+      }
+    });
+
+    const csvContent = "data:text/csv;charset=utf-8," + encodeURIComponent(rows.join("\n"));
+    const link = document.createElement("a");
+    link.setAttribute("href", csvContent);
+    const fileName = `${(editName || "study_schedule").toLowerCase().replace(/[^a-z0-9_-]/g, "_")}_days_schedule.csv`;
+    link.setAttribute("download", fileName);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   // Day actions
@@ -898,17 +1046,43 @@ export default function AdminSyllabusPage() {
 
                   {/* Day Blocks Configuration */}
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
                       <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
                         <Calendar className="h-5 w-5 mr-2 text-blue-600 dark:text-blue-400" /> Study Days Schedule
                       </h3>
-                      <button
-                        type="button"
-                        onClick={handleAddDay}
-                        className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded shadow transition-colors"
-                      >
-                        <Plus className="h-4 w-4 mr-1" /> Add Study Day
-                      </button>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <a
+                          href="data:text/csv;charset=utf-8,DayTitle,TargetHrs,SubjectName,Topic,BlockHrs,Subtopics%0ADay%201%3A%20Polity%20%26%20History,8,Polity,Fundamental%20Rights,4,Preamble%3B%20Article%2012-35%3B%20Writs%0ADay%201%3A%20Polity%20%26%20History,8,History,Ancient%20History,4,Indus%20Valley%3B%20Vedic%20Period%0ADay%202%3A%20Modern%20History,8,History,Freedom%20Struggle,5,1857%20Revolt%3B%20Non-Cooperation%20Movement"
+                          download="study_days_schedule_sample.csv"
+                          className="text-xs text-gray-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 font-semibold underline shrink-0 mr-1"
+                        >
+                          📄 Sample CSV
+                        </a>
+                        <label className="text-xs text-gray-700 dark:text-slate-300 font-semibold shrink-0 cursor-pointer flex items-center bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 px-3 py-1.5 rounded transition-colors border border-gray-200 dark:border-slate-700">
+                          <FileSpreadsheet className="h-3.5 w-3.5 mr-1 text-green-600 dark:text-green-400" />
+                          <span>📥 Import CSV/Excel</span>
+                          <input
+                            type="file"
+                            accept=".csv,.txt"
+                            onChange={handleImportScheduleCSV}
+                            className="hidden"
+                          />
+                        </label>
+                        <button
+                          type="button"
+                          onClick={handleExportScheduleCSV}
+                          className="inline-flex items-center px-3 py-1.5 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-300 text-xs font-semibold rounded border border-gray-200 dark:border-slate-700 transition-colors"
+                        >
+                          <Download className="h-3.5 w-3.5 mr-1 text-blue-600 dark:text-blue-400" /> Export Schedule CSV
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleAddDay}
+                          className="inline-flex items-center px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded shadow transition-colors"
+                        >
+                          <Plus className="h-4 w-4 mr-1" /> Add Study Day
+                        </button>
+                      </div>
                     </div>
 
                     {editDays.map((day, dayIdx) => (
