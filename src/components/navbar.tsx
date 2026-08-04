@@ -26,6 +26,8 @@ import {
 } from "lucide-react";
 
 import BrandLogo from "@/components/brand-logo";
+import LanguageSwitcher from "@/components/language-switcher";
+import ThemeToggle from "@/components/theme-toggle";
 
 export default function Navbar() {
   const { data: session } = useSession();
@@ -57,18 +59,24 @@ export default function Navbar() {
             <BrandLogo variant="navbar" />
           </Link>
 
-          {/* Hamburger for mobile */}
-          <button
-            className={`lg:hidden sw-nav-container ${mobileMenuOpen ? "sw-pushed" : ""}`}
-            onClick={() => setMobileMenuOpen((open) => !open)}
-            aria-label="Toggle menu"
-          >
-            <div className="sw-toggle-icon">
-              <span className="bar"></span>
-              <span className="bar"></span>
-              <span className="bar"></span>
-            </div>
-          </button>
+          {/* Mobile Right Controls */}
+          <div className="flex items-center gap-2 lg:hidden">
+            <LanguageSwitcher />
+            <ThemeToggle />
+            
+            {/* Hamburger for mobile */}
+            <button
+              className={`sw-nav-container ${mobileMenuOpen ? "sw-pushed" : ""}`}
+              onClick={() => setMobileMenuOpen((open) => !open)}
+              aria-label="Toggle menu"
+            >
+              <div className="sw-toggle-icon">
+                <span className="bar"></span>
+                <span className="bar"></span>
+                <span className="bar"></span>
+              </div>
+            </button>
+          </div>
 
           {/* Navigation - Desktop */}
           <nav className="hidden lg:flex items-center space-x-1 xl:space-x-2.5">
@@ -137,6 +145,9 @@ export default function Navbar() {
                   </div>
                 </Link>
 
+                <LanguageSwitcher />
+                <ThemeToggle />
+
                 <button
                   onClick={() => signOut({ callbackUrl: "/" })}
                   className="group flex items-center gap-1.5 xl:gap-2 px-2.5 xl:px-3.5 py-1.5 rounded-lg text-white bg-indigo-900/40 hover:bg-rose-600 border border-indigo-800/80 hover:border-rose-500 transition-all duration-300 text-xs xl:text-sm 2xl:text-base font-semibold tracking-wide whitespace-nowrap shadow-sm shrink-0"
@@ -146,6 +157,9 @@ export default function Navbar() {
               </div>
             ) : (
               <div className="flex items-center gap-2 pl-2 border-l border-indigo-900/60 ml-2">
+                <LanguageSwitcher />
+                <ThemeToggle />
+
                 <Link href="/auth/login" className="group nav-link flex items-center gap-1.5 xl:gap-2 px-2.5 xl:px-3 py-1.5 text-xs xl:text-sm 2xl:text-base font-semibold tracking-wide whitespace-nowrap" >
                   <LogIn className="w-4 h-4 text-sky-400 transition-transform duration-200 group-hover:scale-110 shrink-0" /> Sign In
                 </Link>
@@ -185,6 +199,14 @@ export default function Navbar() {
 
               return (
                 <>
+                  <div className="flex items-center justify-between px-4 py-2 bg-slate-900/80 border border-slate-800/80 rounded-xl my-1.5">
+                    <span className="text-xs font-semibold text-slate-300">Language & Theme</span>
+                    <div className="flex items-center gap-2">
+                      <LanguageSwitcher />
+                      <ThemeToggle />
+                    </div>
+                  </div>
+
                   {items.map((item) => {
                     const Icon = item.icon;
                     const delay = delayIndex++ * 65;

@@ -37,7 +37,7 @@ export default function BrandLogo({ variant = "navbar", className = "" }: BrandL
             </svg>
           </div>
 
-          <div className="brand-text mt-5 text-center">
+          <div className="brand-text mt-5 text-center notranslate" translate="no">
             <span className="title block font-sans font-bold text-sm tracking-[0.4em] text-slate-100 uppercase mr-[-0.4em]">
               MENTOR
             </span>
@@ -139,7 +139,7 @@ export default function BrandLogo({ variant = "navbar", className = "" }: BrandL
           />
         </svg>
       </div>
-      <div className="flex flex-col">
+      <div className="flex flex-col notranslate" translate="no">
         <span className="text-base font-extrabold tracking-[0.25em] bg-gradient-to-r from-white via-slate-100 to-sky-300 bg-clip-text text-transparent leading-none">
           MENTOR
         </span>

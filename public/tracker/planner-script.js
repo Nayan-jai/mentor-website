@@ -689,8 +689,8 @@ function renderStats(){
 
   document.getElementById('statsRow').innerHTML=`
     <div class="stat-card clickable" onclick="showStatsDetail('progress')" style="cursor:pointer"><div class="stat-label">Progress</div><div class="stat-value">${tot?Math.round(done/tot*100):0}%</div><div class="stat-sub">${done}/${tot} days done</div></div>
-    <div class="stat-card clickable" onclick="showStatsDetail('streak')" style="cursor:pointer"><div class="stat-label">🔥 Streak</div><div class="stat-value" style="color:var(--orange)">${streak}</div><div class="stat-sub">days in a row</div></div>
-    <div class="stat-card clickable" onclick="showStatsDetail('time')" style="cursor:pointer"><div class="stat-label">⏱ Time</div><div class="stat-value" style="color:var(--green)">${th?th+'h '+tm+'m':tm+'m'}</div><div class="stat-sub">total logged</div></div>
+    <div class="stat-card clickable" onclick="showStatsDetail('streak')" style="cursor:pointer"><div class="stat-label">🔥 Aviral (Streak)</div><div class="stat-value" style="color:var(--orange)">${streak}</div><div class="stat-sub">days in a row</div></div>
+    <div class="stat-card clickable" onclick="showStatsDetail('time')" style="cursor:pointer"><div class="stat-label">⏱ Time</div><div class="stat-value" style="color:var(--green)">${th ? th + ' hours ' + tm + ' mins' : tm + ' mins'}</div><div class="stat-sub">total logged</div></div>
     ${todayCardHtml}`;
   renderHoursBar();
 }
@@ -749,7 +749,7 @@ function showStatsDetail(type) {
     `;
   }
   else if (type === 'streak') {
-    titleEl.textContent = '🔥 Study Streak Analytics';
+    titleEl.textContent = '🔥 Study Aviral (Streak) Analytics';
     let currentStreak = 0;
     const today = new Date();
     today.setHours(0,0,0,0);
@@ -776,11 +776,11 @@ function showStatsDetail(type) {
         <div style="display:flex;justify-content:space-around;margin-bottom:20px;text-align:center">
           <div>
             <div style="font-size:36px;font-weight:800;color:var(--orange)">🔥 ${currentStreak}</div>
-            <div style="font-size:11px;color:var(--ink3);text-transform:uppercase;font-weight:600;margin-top:2px">Current Streak</div>
+            <div style="font-size:11px;color:var(--ink3);text-transform:uppercase;font-weight:600;margin-top:2px">Current Aviral Streak</div>
           </div>
           <div>
             <div style="font-size:36px;font-weight:800;color:var(--blue)">🏆 ${bestStreak}</div>
-            <div style="font-size:11px;color:var(--ink3);text-transform:uppercase;font-weight:600;margin-top:2px">Best Streak</div>
+            <div style="font-size:11px;color:var(--ink3);text-transform:uppercase;font-weight:600;margin-top:2px">Best Aviral Streak</div>
           </div>
         </div>
         <div style="background:var(--bg2);padding:14px;border-radius:8px;border:1px solid var(--border);margin-bottom:12px;font-size:13px;line-height:1.6;color:var(--ink2)">
@@ -827,7 +827,7 @@ function showStatsDetail(type) {
     bodyEl.innerHTML = `
       <div style="padding:0 16px">
         <div style="text-align:center;margin-bottom:20px">
-          <div style="font-size:32px;font-weight:800;color:var(--green)">${th}h ${tm}m</div>
+          <div style="font-size:32px;font-weight:800;color:var(--green)">${th ? th + ' hours ' + tm + ' mins' : tm + ' mins'}</div>
           <div style="font-size:12px;color:var(--ink3)">Total focus time logged</div>
         </div>
         <div style="font-size:12px;font-weight:700;text-transform:uppercase;color:var(--ink3);margin-bottom:12px">Time Distribution</div>
@@ -1222,7 +1222,7 @@ function renderDayContent(){
       <div class="day-title-input" style="font-size:15px;font-weight:700;color:var(--ink);border:none;background:transparent;padding:0;margin:0">${esc(day.title||'Untitled Day')}</div>
       <div class="day-meta-row">
         <div style="font-size:12px;color:var(--ink3);padding:3px 0">${fd(getDd(curDay))}</div>
-        <div class="target-ctrl">Target: <strong id="tgt-${day.id}">${day.targetHrs||9}h</strong></div>
+        <div class="target-ctrl">Target: <strong id="tgt-${day.id}">${day.targetHrs||9} hours</strong></div>
       </div>
     </div>
 
@@ -1268,14 +1268,14 @@ function buildBlockReadOnly(dayId,block,bi){
     const done=!!p.subtopics[j];
     return `<div class="st-row ${done?'done':''}">
       <div class="st-check ${done?'on':''}" onclick="toggleST('${block.id}',${j},'${dayId}')">${done?'✓':''}</div>
-      <input class="st-text" value="${esc(st)}" onchange="editST('${dayId}','${block.id}',${j},this.value)">
+      <span class="st-text-val" contenteditable="true" spellcheck="false" onblur="editST('${dayId}','${block.id}',${j},this.innerText.trim())">${esc(st)}</span>
       <button class="st-del" onclick="delST('${dayId}','${block.id}',${j})">✕</button>
     </div>`;
   }).join('');
   const ctHtml=(p.customTasks||[]).map((ct,j)=>`
     <div class="st-row ${ct.done?'done':''}">
       <div class="st-check ${ct.done?'on':''}" onclick="toggleCT('${block.id}',${j},'${dayId}')">${ct.done?'✓':''}</div>
-      <input class="st-text" value="${esc(ct.text)}" onchange="editCT('${block.id}',${j},this.value)">
+      <span class="st-text-val" contenteditable="true" spellcheck="false" onblur="editCT('${block.id}',${j},this.innerText.trim())">${esc(ct.text)}</span>
       <button class="st-del" onclick="delCT('${block.id}',${j},'${dayId}')">✕</button>
     </div>`).join('');
   return `<div class="block-card" id="sb-${block.id}" style="border-left-color:${s.color}; box-shadow:0 4px 14px ${s.color}15; animation-delay:${bi*0.05}s; --subj-color-solid:${getSolidColor(s.color)}; --subj-color-bg:${s.color}">
@@ -1283,12 +1283,12 @@ function buildBlockReadOnly(dayId,block,bi){
       <div class="block-icon" style="background:${s.color}20">${s.icon}</div>
       <div class="block-info">
         <div class="block-name" style="color:${s.color}">${s.name}</div>
-        <div class="block-subtitle">${pct}% · ${Math.round(tot/360)/10}/${block.targetHrs}h · ${esc(block.topic||'No topic set')}</div>
+        <div class="block-subtitle">${pct}% · ${Math.round(tot/360)/10}/${block.targetHrs} hours · ${esc(block.topic||'No topic set')}</div>
       </div>
       <div class="block-right">
         <div class="hrs-widget">
           <div style="text-align:center">
-            <div class="hw-val" style="color:${s.color}" id="bhv-${block.id}">${block.targetHrs}h</div>
+            <div class="hw-val" style="color:${s.color}" id="bhv-${block.id}">${block.targetHrs} hours</div>
             <div class="hw-lbl">target</div>
           </div>
         </div>
@@ -1311,7 +1311,7 @@ function buildBlockReadOnly(dayId,block,bi){
         <input class="manual-inp" type="number" id="mi-${block.id}" placeholder="min" min="1">
         <button class="manual-btn" onclick="addManTime('${block.id}','${dayId}')">+Add</button>
       </div>
-      <div class="target-badge">Target: <strong>${block.targetHrs}h</strong></div>
+      <div class="target-badge">Target: <strong>${block.targetHrs} hours</strong></div>
       <div class="timer-bar-wrap"><div class="timer-bar-fill" id="tbar-${block.id}" style="background:${s.color};width:${barW}%"></div></div>
     </div>
     <div class="block-body" id="sbb-${block.id}">
@@ -1535,7 +1535,7 @@ function jumpTo(i){stopAllTimers();curDay=i;renderDaily();renderStats();window.s
 
 /* Day edits */
 function saveDayDate(id,v){const d=days.find(x=>x.id===id);if(d)d.dateOverride=v?new Date(v).toISOString():null;sd();renderNavLabel();renderDots();}
-function changeTgt(id,delta){const d=days.find(x=>x.id===id);if(!d)return;d.targetHrs=+(Math.max(1,Math.min(16,(d.targetHrs||9)+delta)).toFixed(1));sd();const el=document.getElementById('tgt-'+id);if(el)el.textContent=d.targetHrs+'h';renderHoursBar();renderStats();}
+function changeTgt(id,delta){const d=days.find(x=>x.id===id);if(!d)return;d.targetHrs=+(Math.max(1,Math.min(16,(d.targetHrs||9)+delta)).toFixed(1));sd();const el=document.getElementById('tgt-'+id);if(el)el.textContent=d.targetHrs+' hours';renderHoursBar();renderStats();}
 
 /* Block edits */
 function chBlkHrs(dayId,bid,delta){
@@ -2528,21 +2528,73 @@ function confirmAddBlock(){
 }
 
 /* Bulk */
+function parseAnyDateString(val) {
+  if (val === null || val === undefined) return null;
+  if (typeof val === 'number') {
+    if (val > 30000 && val < 60000) {
+      const dateObj = new Date((val - (25567 + 2)) * 86400 * 1000);
+      if (!isNaN(dateObj.getTime())) {
+        return formatDateLocal(dateObj);
+      }
+    }
+  }
+  const s = String(val).trim();
+  if (!s) return null;
+
+  // YYYY-MM-DD or YYYY/MM/DD
+  let match = s.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})$/);
+  if (match) {
+    const y = parseInt(match[1], 10);
+    const m = String(match[2]).padStart(2, '0');
+    const d = String(match[3]).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
+  // DD-MM-YYYY or DD/MM/YYYY
+  match = s.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})$/);
+  if (match) {
+    const d = String(match[1]).padStart(2, '0');
+    const m = String(match[2]).padStart(2, '0');
+    const y = parseInt(match[3], 10);
+    return `${y}-${m}-${d}`;
+  }
+
+  const dt = new Date(s);
+  if (!isNaN(dt.getTime()) && dt.getFullYear() > 2000 && dt.getFullYear() < 2100) {
+    return formatDateLocal(dt);
+  }
+
+  return null;
+}
+
 function openBulkModal(){
   document.getElementById('bulkInput').value = '';
   const nameEl = document.getElementById('excelFileName');
   if (nameEl) nameEl.textContent = 'No file chosen';
   const fileEl = document.getElementById('excelFileInput');
   if (fileEl) fileEl.value = '';
+  
+  const startDateEl = document.getElementById('bulkStartDate');
+  if (startDateEl) {
+    startDateEl.value = formatDateLocal(new Date());
+  }
+  const keepEl = document.getElementById('bulkKeepExisting');
+  if (keepEl) keepEl.checked = true;
+
   openModal('bulkOverlay');
 }
 
 function downloadSampleExcel() {
-  const sampleCsv = `Day Title,Subjects (Subject:Hours),Subtopics (separated by ;)
-Polity + CSAT Day,Polity:3 | CSAT:2,Fundamental Rights; Art 19-22 Freedom
-Economy Focus,Economy:4 | Revision:1.5,GDP and Inflation; Monetary Policy
-History Day,History:5,Ancient India; Harappan Civilization
-Environment Day,Environment:4,Biodiversity; Climate Change Notes`;
+  const todayStr = formatDateLocal(new Date());
+  const tomObj = new Date(); tomObj.setDate(tomObj.getDate() + 1);
+  const tomStr = formatDateLocal(tomObj);
+  const nextObj = new Date(); nextObj.setDate(nextObj.getDate() + 2);
+  const nextStr = formatDateLocal(nextObj);
+
+  const sampleCsv = `Date (YYYY-MM-DD),Day Title,Subjects (Subject:Hours),Subtopics (separated by ;)
+${todayStr},Polity + CSAT Day,Polity:3 | CSAT:2,Fundamental Rights; Art 19-22 Freedom
+${tomStr},Economy Focus,Economy:4 | Revision:1.5,GDP and Inflation; Monetary Policy
+${nextStr},History Day,History:5,Ancient India; Harappan Civilization`;
 
   const blob = new Blob([sampleCsv], { type: 'text/csv;charset=utf-8;' });
   const link = document.createElement('a');
@@ -2595,26 +2647,73 @@ function processRowsToBulkText(rows) {
   let formattedLines = [];
   let startIdx = 0;
   
-  const firstRowStr = (rows[0] || []).join(' ').toLowerCase();
-  if (firstRowStr.includes('title') || firstRowStr.includes('subject') || firstRowStr.includes('subtopic')) {
+  let dateCol = -1, titleCol = -1, subjCol = -1, subtopicCol = -1;
+  const firstRow = rows[0] || [];
+  const firstRowStr = firstRow.join(' ').toLowerCase();
+
+  if (firstRowStr.includes('title') || firstRowStr.includes('subject') || firstRowStr.includes('subtopic') || firstRowStr.includes('date') || firstRowStr.includes('day')) {
     startIdx = 1;
+    firstRow.forEach((c, idx) => {
+      const h = String(c || '').toLowerCase().trim();
+      if (h.includes('date')) dateCol = idx;
+      else if (h.includes('title') || h.includes('day')) titleCol = idx;
+      else if (h.includes('subject')) subjCol = idx;
+      else if (h.includes('subtopic')) subtopicCol = idx;
+    });
   }
 
   for (let i = startIdx; i < rows.length; i++) {
     const row = rows[i];
     if (!row || !row.length || !row.some(c => String(c || '').trim())) continue;
 
-    const dayTitle = String(row[0] || '').trim();
-    const subjects = String(row[1] || '').trim();
-    const subtopicsRaw = String(row[2] || '').trim();
+    let rowDate = null;
+    let dayTitle = '';
+    let subjects = '';
+    let subtopicsRaw = '';
 
-    if (!dayTitle) continue;
-
-    if (subjects) {
-      formattedLines.push(`${dayTitle} | ${subjects}`);
+    if (titleCol !== -1 || subjCol !== -1) {
+      if (dateCol !== -1) rowDate = parseAnyDateString(row[dateCol]);
+      if (titleCol !== -1) dayTitle = String(row[titleCol] || '').trim();
+      if (subjCol !== -1) subjects = String(row[subjCol] || '').trim();
+      if (subtopicCol !== -1) subtopicsRaw = String(row[subtopicCol] || '').trim();
     } else {
-      formattedLines.push(dayTitle);
+      const c0 = String(row[0] || '').trim();
+      const c1 = String(row[1] || '').trim();
+      const c2 = String(row[2] || '').trim();
+      const c3 = String(row[3] || '').trim();
+
+      const d0 = parseAnyDateString(c0);
+      const d1 = parseAnyDateString(c1);
+
+      if (d0) {
+        rowDate = d0;
+        dayTitle = c1;
+        subjects = c2;
+        subtopicsRaw = c3;
+      } else if (d1) {
+        rowDate = d1;
+        dayTitle = c0;
+        subjects = c2;
+        subtopicsRaw = c3;
+      } else {
+        dayTitle = c0;
+        subjects = c1;
+        subtopicsRaw = c2;
+      }
     }
+
+    if (!dayTitle && !rowDate) continue;
+    if (!dayTitle) dayTitle = `Study Day (${rowDate})`;
+
+    let lineStr = dayTitle;
+    if (rowDate) {
+      lineStr = `${rowDate} | ${dayTitle}`;
+    }
+    if (subjects) {
+      lineStr += ` | ${subjects}`;
+    }
+
+    formattedLines.push(lineStr);
 
     if (subtopicsRaw) {
       const subtopicItems = subtopicsRaw.split(/;|\||\n/).map(s => s.trim()).filter(Boolean);
@@ -2655,16 +2754,125 @@ function parseCsvToBulkText(csvText) {
 }
 
 function saveBulk(){
-  const lines=document.getElementById('bulkInput').value.split('\n');
-  let added=0,cur=null,curBlocks=[];
-  function flush(){if(cur!==null){days.push({id:'day'+Date.now()+added,title:cur,dateOverride:null,targetHrs:9,blocks:curBlocks});added++;cur=null;curBlocks=[];}}
-  lines.forEach(l=>{
-    if(!l.trim())return;
-    if(l.startsWith('  -')||l.startsWith('\t-')){const txt=l.replace(/^\s*-\s*/,'').trim();if(curBlocks.length&&txt)curBlocks[curBlocks.length-1].subtopics.push(txt);}
-    else if(l.includes('|')){flush();const parts=l.split('|').map(p=>p.trim());cur=parts[0];curBlocks=parts.slice(1).map(p=>{const[nm,hrs]=p.split(':');const s=subj.find(x=>x.name.toLowerCase()===nm.trim().toLowerCase());if(!s)return null;return{id:gid(),subjectId:s.id,targetHrs:parseFloat(hrs)||s.defaultHrs||2,topic:'',subtopics:[]};}).filter(Boolean);}
-  });flush();
-  if(added){sd();closeModal('bulkOverlay');refreshAllViews();alert(`${added} day(s) added!`);}
-  else alert('No days added. Check subject names match exactly.');
+  const textarea = document.getElementById('bulkInput');
+  if (!textarea || !textarea.value.trim()) {
+    alert('Please enter or upload study days content.');
+    return;
+  }
+
+  const startDateVal = document.getElementById('bulkStartDate')?.value || formatDateLocal(new Date());
+  const keepExisting = document.getElementById('bulkKeepExisting')?.checked !== false;
+
+  if (!keepExisting && days.length > 0) {
+    if (!confirm('Are you sure you want to replace existing study days? Your past progress will be overwritten if you proceed.')) {
+      return;
+    }
+    days = [];
+  }
+
+  const lines = textarea.value.split('\n');
+  let added = 0;
+  let curTitle = null;
+  let curDate = null;
+  let curBlocks = [];
+  
+  let baseDate = parseDateLocal(startDateVal);
+  if (isNaN(baseDate.getTime())) baseDate = new Date();
+
+  function flushDay() {
+    if (curTitle !== null) {
+      let finalDateIso = null;
+      if (curDate) {
+        const dObj = parseDateLocal(curDate);
+        finalDateIso = !isNaN(dObj.getTime()) ? dObj.toISOString() : null;
+      } else {
+        const dObj = new Date(baseDate);
+        dObj.setDate(dObj.getDate() + added);
+        finalDateIso = dObj.toISOString();
+      }
+
+      days.push({
+        id: 'day' + Date.now() + Math.random().toString(36).substr(2, 4) + added,
+        title: curTitle,
+        dateOverride: finalDateIso,
+        targetHrs: curBlocks.reduce((acc, b) => acc + (b.targetHrs || 0), 0) || 9,
+        blocks: curBlocks
+      });
+
+      added++;
+      curTitle = null;
+      curDate = null;
+      curBlocks = [];
+    }
+  }
+
+  lines.forEach(l => {
+    const rawLine = l.trim();
+    if (!rawLine) return;
+
+    if (l.startsWith('  -') || l.startsWith('\t-')) {
+      const txt = l.replace(/^\s*-\s*/, '').trim();
+      if (curBlocks.length && txt) {
+        curBlocks[curBlocks.length - 1].subtopics.push(txt);
+      }
+    } else if (l.includes('|')) {
+      flushDay();
+      const parts = l.split('|').map(p => p.trim());
+      
+      let foundDate = null;
+      let titlePart = null;
+      let subjParts = [];
+
+      parts.forEach(p => {
+        const parsedD = parseAnyDateString(p.replace(/^date:\s*/i, ''));
+        if (parsedD && !foundDate) {
+          foundDate = parsedD;
+        } else if (p.includes(':') && (titlePart || foundDate)) {
+          subjParts.push(p);
+        } else if (!titlePart) {
+          titlePart = p;
+        } else {
+          subjParts.push(p);
+        }
+      });
+
+      curTitle = titlePart || 'Study Day';
+      curDate = foundDate;
+      curBlocks = subjParts.map(p => {
+        const [nm, hrs] = p.split(':');
+        if (!nm) return null;
+        const s = subj.find(x => x.name.toLowerCase() === nm.trim().toLowerCase());
+        if (!s) return null;
+        return {
+          id: gid(),
+          subjectId: s.id,
+          targetHrs: parseFloat(hrs) || s.defaultHrs || 2,
+          topic: '',
+          subtopics: []
+        };
+      }).filter(Boolean);
+    } else {
+      flushDay();
+      const parsedD = parseAnyDateString(rawLine);
+      if (parsedD) {
+        curDate = parsedD;
+        curTitle = `Study Day (${parsedD})`;
+      } else {
+        curTitle = rawLine;
+      }
+    }
+  });
+
+  flushDay();
+
+  if (added) {
+    sd();
+    closeModal('bulkOverlay');
+    refreshAllViews();
+    alert(`⚡ ${added} day(s) successfully added and synced with study schedule!`);
+  } else {
+    alert('No days added. Please check your text/file format matches the sample template.');
+  }
 }
 
 /* ══════════════════════════════════════════
@@ -4613,9 +4821,20 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   if(nameInput&&conf.examName)nameInput.value=conf.examName;
   if(startDateInput)startDateInput.value=conf.startDate||formatDateLocal(new Date());
   if(dateInput&&conf.targetDate)dateInput.value=conf.targetDate;
-  updateDaysRemaining();
   switchView(conf.activeTab || 'daily');
   syncToServer();
+
+  window.addEventListener('message', function(ev) {
+    if (ev.data && ev.data.type === 'CHANGE_LANG') {
+      const lang = ev.data.lang;
+      try { localStorage.setItem('app_language', lang); } catch(e){}
+      const selectEl = document.querySelector('.goog-te-combo');
+      if (selectEl && selectEl.value !== lang) {
+        selectEl.value = lang;
+        selectEl.dispatchEvent(new Event('change'));
+      }
+    }
+  });
   if(_resumeData){
     const resumeDay=days.find(d=>d.blocks.some(b=>b.id===_resumeData.bid));
     if(resumeDay) toggleTimer(_resumeData.bid,resumeDay.id);

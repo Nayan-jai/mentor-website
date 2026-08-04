@@ -3,6 +3,35 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Google Translate Silent Integration */
+.goog-te-banner-frame,
+iframe.goog-te-banner-frame,
+iframe[class*="goog-te"],
+iframe[id*="goog"],
+iframe[src*="translate.google"],
+.skiptranslate > iframe,
+#goog-gt-tt,
+.goog-te-balloon-frame,
+.goog-tooltip,
+.goog-tooltip:hover {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  border: none !important;
+}
+body, html {
+  top: 0px !important;
+  margin-top: 0px !important;
+  position: static !important;
+}
+.goog-text-highlight {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

@@ -1,8 +1,4 @@
-# WARP.md
-
-This file provides guidance to WARP (warp.dev) when working with code in this repository.
-
-## Project Overview
+# Project Overview
 
 This is a **UPSC Mentorship Platform** built with **Next.js 14** (App Router), **TypeScript**, **Prisma ORM**, **NextAuth.js**, and **TailwindCSS**. The platform connects UPSC exam aspirants (students) with experienced mentors, providing features like session booking, forum discussions, private queries, and administrative controls.
 
@@ -143,4 +139,5 @@ NEXTAUTH_URL=               # Application URL for NextAuth callbacks
 - Uses PostgreSQL in production
 - Prisma handles migrations and type generation
 - Soft deletes implemented for users via `deleted` boolean field
+- Cascading deletes configured for related entitiesdeletes implemented for users via `deleted` boolean field
 - Cascading deletes configured for related entities
