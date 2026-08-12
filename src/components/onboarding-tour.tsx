@@ -99,6 +99,24 @@ const DEFAULT_TOUR_STEPS: TourStep[] = [
     fallbackSelectors: ['form', 'button', 'h2', 'h1', 'main'],
   },
   {
+    id: 'study-tracker',
+    title: 'Study Tracker & Calendar',
+    description: 'Track daily progress, build custom or premade syllabi, set exam countdowns, and log your study hours.',
+    speechText: 'In Study Tracker, track daily progress, syllabus completion, exam countdowns, and log your study hours.',
+    route: '/dashboard/student/study-tracker',
+    primarySelector: 'iframe, main, [class*="tracker"], button[title*="tour"], h1',
+    fallbackSelectors: ['iframe', 'main', 'h1'],
+  },
+  {
+    id: 'study-tracker-tour',
+    title: 'Tracker Guided Tour',
+    description: 'To know more about tracker completely, check out the guided tour by clicking "✨ Take a tour" in the header.',
+    speechText: 'To know more about tracker completely, check out the guided tour by clicking Take a tour in the header.',
+    route: '/dashboard/student/study-tracker',
+    primarySelector: '#supademoBtn, button#supademoBtn',
+    fallbackSelectors: ['#supademoBtn', '#menuBtn', '.hbtn-menu', 'iframe', 'main'],
+  },
+  {
     id: 'demo-summary',
     title: 'Guided Demo Hub & Overview',
     description: 'You are all set! You can relaunch this guided tour anytime from your student dashboard or top navigation bar.',
@@ -124,6 +142,27 @@ export default function OnboardingTour({ forceOpen = false, onClose }: Onboardin
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
   const [navRect, setNavRect] = useState<DOMRect | null>(null);
   const [isPageLoaded, setIsPageLoaded] = useState(false);
+
+  const [popoverRect, setPopoverRect] = useState<DOMRect | null>(null);
+  const popoverRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const updatePopover = () => {
+      if (popoverRef.current) {
+        setPopoverRect(popoverRef.current.getBoundingClientRect());
+      }
+    };
+    updatePopover();
+    const timer = setTimeout(updatePopover, 120);
+    window.addEventListener('resize', updatePopover);
+    window.addEventListener('scroll', updatePopover, true);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', updatePopover);
+      window.removeEventListener('scroll', updatePopover, true);
+    };
+  }, [isOpen, targetRect, currentStepIndex]);
 
   const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [selectedVoiceName, setSelectedVoiceName] = useState<string>('');
@@ -340,6 +379,39 @@ export default function OnboardingTour({ forceOpen = false, onClose }: Onboardin
     };
   }, [pathname, currentStepIndex]);
 
+  const findTargetElement = (sel: string): { el: HTMLElement; rect: DOMRect } | null => {
+    try {
+      const el = document.querySelector(sel) as HTMLElement | null;
+      if (el) {
+        const rect = el.getBoundingClientRect();
+        if (rect.width > 0 && rect.height > 0) return { el, rect };
+      }
+      const iframes = document.querySelectorAll('iframe');
+      for (let i = 0; i < iframes.length; i++) {
+        try {
+          const iframeDoc = iframes[i].contentDocument || iframes[i].contentWindow?.document;
+          if (iframeDoc) {
+            const innerEl = iframeDoc.querySelector(sel) as HTMLElement | null;
+            if (innerEl) {
+              const iframeRect = iframes[i].getBoundingClientRect();
+              const innerRect = innerEl.getBoundingClientRect();
+              const computedRect = new DOMRect(
+                iframeRect.left + innerRect.left,
+                iframeRect.top + innerRect.top,
+                innerRect.width,
+                innerRect.height
+              );
+              if (computedRect.width > 0 && computedRect.height > 0) {
+                return { el: innerEl, rect: computedRect };
+              }
+            }
+          }
+        } catch (e) {}
+      }
+    } catch (e) {}
+    return null;
+  };
+
   // Locate target box & trigger audio ONLY after page is fully loaded
   useEffect(() => {
     if (!isOpen || !currentStep || !isPageLoaded) return;
@@ -398,29 +470,25 @@ export default function OnboardingTour({ forceOpen = false, onClose }: Onboardin
       for (const selectorGroup of selectors) {
         const subSelectors = selectorGroup.split(',').map((s) => s.trim());
         for (const sel of subSelectors) {
-          try {
-            const el = document.querySelector(sel) as HTMLElement | null;
-            if (el) {
-              const initialRect = el.getBoundingClientRect();
-              const inViewport = initialRect.top >= 0 && initialRect.bottom <= (window.innerHeight || document.documentElement.clientHeight);
-              if (!inViewport) {
-                el.scrollIntoView({ behavior: 'auto', block: 'center' });
-              }
-              const updatePosition = () => {
-                updateNavPosition();
-                const rect = el.getBoundingClientRect();
-                if (rect.width > 0 && rect.height > 0) {
-                  setTargetRect(rect);
-                }
-              };
-              updatePosition();
-              requestAnimationFrame(updatePosition);
-              setTimeout(updatePosition, 100);
-              setTimeout(updatePosition, 400);
-              return true;
+          const res = findTargetElement(sel);
+          if (res) {
+            const { el, rect: initialRect } = res;
+            const inViewport = initialRect.top >= 0 && initialRect.bottom <= (window.innerHeight || document.documentElement.clientHeight);
+            if (!inViewport && el.scrollIntoView) {
+              el.scrollIntoView({ behavior: 'auto', block: 'center' });
             }
-          } catch (e) {
-            // Ignore invalid CSS selector strings gracefully
+            const updatePosition = () => {
+              updateNavPosition();
+              const currentRes = findTargetElement(sel);
+              if (currentRes && currentRes.rect.width > 0 && currentRes.rect.height > 0) {
+                setTargetRect(currentRes.rect);
+              }
+            };
+            updatePosition();
+            requestAnimationFrame(updatePosition);
+            setTimeout(updatePosition, 100);
+            setTimeout(updatePosition, 400);
+            return true;
           }
         }
       }
@@ -475,13 +543,10 @@ export default function OnboardingTour({ forceOpen = false, onClose }: Onboardin
       for (const selectorGroup of selectors) {
         const subSelectors = selectorGroup.split(',').map((s) => s.trim());
         for (const sel of subSelectors) {
-          const el = document.querySelector(sel);
-          if (el) {
-            const rect = el.getBoundingClientRect();
-            if (rect.width > 0 && rect.height > 0) {
-              setTargetRect(rect);
-              return;
-            }
+          const res = findTargetElement(sel);
+          if (res && res.rect.width > 0 && res.rect.height > 0) {
+            setTargetRect(res.rect);
+            return;
           }
         }
       }
@@ -539,6 +604,27 @@ export default function OnboardingTour({ forceOpen = false, onClose }: Onboardin
     onClose?.();
   };
 
+  const isTrackerTour = currentStep?.id === 'study-tracker-tour';
+
+  let arrowStartX = 0;
+  let arrowStartY = 0;
+  let arrowEndX = 0;
+  let arrowEndY = 0;
+  let arrowControlX = 0;
+  let arrowControlY = 0;
+
+  if (targetRect && popoverRect) {
+    arrowEndX = targetRect.left + targetRect.width / 2;
+    const targetIsAbove = targetRect.top < popoverRect.top;
+    arrowEndY = targetIsAbove ? targetRect.bottom + 12 : targetRect.top - 12;
+
+    arrowStartX = popoverRect.left + popoverRect.width / 2;
+    arrowStartY = targetIsAbove ? popoverRect.top - 6 : popoverRect.bottom + 6;
+
+    arrowControlX = (arrowStartX + arrowEndX) / 2 + (arrowStartX < arrowEndX ? 30 : -30);
+    arrowControlY = (arrowStartY + arrowEndY) / 2;
+  }
+
   return (
     <>
       {/* Toast Notification when element is selected */}
@@ -579,57 +665,111 @@ export default function OnboardingTour({ forceOpen = false, onClose }: Onboardin
 
       {isOpen && currentStep && isPageLoaded && (
         <div className="fixed inset-0 z-[99999] pointer-events-none font-sans animate-fade-in">
-          {/* Fallback Backdrop if targetRect is not present */}
-          {!targetRect && (
-            <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm pointer-events-auto transition-opacity duration-300" />
-          )}
+            {/* Fallback Backdrop if targetRect is not present */}
+            {!targetRect && (
+              <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm pointer-events-auto transition-opacity duration-300" />
+            )}
 
-          {/* Cutout Spotlight Overlay */}
-          {targetRect && (
-            <div
-              className="fixed z-[100000] border-2 border-cyan-400 rounded-2xl transition-all duration-200 pointer-events-none shadow-[0_0_40px_rgba(56,189,248,0.8)]"
-              style={{
-                top: `${Math.max(10, targetRect.top - 6)}px`,
-                left: `${Math.max(10, targetRect.left - 6)}px`,
-                width: `${targetRect.width + 12}px`,
-                height: `${targetRect.height + 12}px`,
-                boxShadow: '0 0 0 9999px rgba(11, 15, 25, 0.85)',
-              }}
-            />
-          )}
-
-          {/* Secondary Pulsating Highlight Box for Active Navbar Link */}
-          {navRect && (() => {
-            const isSameRect =
-              targetRect &&
-              Math.abs(targetRect.top - navRect.top) < 10 &&
-              Math.abs(targetRect.left - navRect.left) < 10;
-            if (isSameRect) return null;
-            return (
+            {/* Cutout Spotlight Overlay */}
+            {targetRect && (
               <div
-                className="fixed z-[100005] border-2 border-cyan-400 rounded-xl transition-all duration-200 pointer-events-none animate-pulse shadow-[0_0_35px_rgba(56,189,248,0.9)] bg-cyan-400/20"
+                className={`fixed z-[100000] rounded-2xl transition-all duration-200 pointer-events-none ${
+                  isTrackerTour
+                    ? 'border-4 border-amber-400 animate-pulse bg-amber-400/25 shadow-[0_0_60px_rgba(251,191,36,1),0_0_30px_rgba(56,189,248,0.9)] ring-4 ring-amber-400/60'
+                    : 'border-2 border-cyan-400 shadow-[0_0_40px_rgba(56,189,248,0.8)]'
+                }`}
                 style={{
-                  top: `${Math.max(2, navRect.top - 4)}px`,
-                  left: `${Math.max(2, navRect.left - 4)}px`,
-                  width: `${navRect.width + 8}px`,
-                  height: `${navRect.height + 8}px`,
+                  top: `${Math.max(10, targetRect.top - 6)}px`,
+                  left: `${Math.max(10, targetRect.left - 6)}px`,
+                  width: `${targetRect.width + 12}px`,
+                  height: `${targetRect.height + 12}px`,
+                  boxShadow: isTrackerTour
+                    ? '0 0 0 9999px rgba(11, 15, 25, 0.88), 0 0 50px rgba(251, 191, 36, 1)'
+                    : '0 0 0 9999px rgba(11, 15, 25, 0.85)',
                 }}
               >
-                <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full bg-slate-950 border border-cyan-400 text-[10px] font-extrabold text-cyan-300 whitespace-nowrap shadow-2xl flex items-center gap-1.5 z-[100006]">
-                  <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
-                  <span>Active Page Nav Link</span>
-                </span>
+                {/* Floating Callout Pointer Badge for Tracker Tour */}
+                {isTrackerTour && (
+                  <div
+                    className={`absolute -bottom-12 z-[100006] ${
+                      typeof window !== 'undefined' && targetRect.left + targetRect.width / 2 > window.innerWidth / 2
+                        ? 'right-0'
+                        : 'left-0'
+                    } px-3 py-1.5 sm:px-3.5 sm:py-1.5 rounded-full bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 text-slate-950 text-[10px] sm:text-[11px] font-black tracking-wider uppercase shadow-[0_0_30px_rgba(251,191,36,1)] flex items-center space-x-1.5 sm:space-x-2 animate-bounce whitespace-nowrap border border-slate-950 max-w-[calc(100vw-2rem)]`}
+                  >
+                    <span className="w-2.5 h-2.5 rounded-full bg-slate-950 animate-ping shrink-0" />
+                    <span className="truncate">👉 CLICK "✨ TAKE A TOUR" HERE 👈</span>
+                  </div>
+                )}
               </div>
-            );
-          })()}
+            )}
 
-          {/* Tour Card Popover */}
-          <div
-            className={`pointer-events-auto fixed z-[100001] max-w-[calc(100vw-2rem)] sm:max-w-md w-full p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-slate-900/95 border border-cyan-500/30 backdrop-blur-2xl shadow-2xl text-slate-100 space-y-3 sm:space-y-4 transition-all duration-300 left-1/2 -translate-x-1/2 ${targetRect && targetRect.top < window.innerHeight / 2
-                ? 'bottom-4 sm:bottom-8'
-                : 'top-1/2 -translate-y-1/2'
+            {/* Dynamic SVG Pointer Arrow from Tour Card Popover to Target Button */}
+            {targetRect && popoverRect && (
+              <svg className="fixed inset-0 z-[100002] w-full h-full pointer-events-none overflow-visible">
+                <defs>
+                  <linearGradient id="tourArrowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#38bdf8" />
+                    <stop offset="50%" stopColor="#fbbf24" />
+                    <stop offset="100%" stopColor="#f59e0b" />
+                  </linearGradient>
+                  <marker
+                    id="tourArrowHead"
+                    markerWidth="12"
+                    markerHeight="12"
+                    refX="9"
+                    refY="6"
+                    orient="auto"
+                  >
+                    <path d="M 0 2 L 10 6 L 0 10 Z" fill="#fbbf24" />
+                  </marker>
+                </defs>
+                <path
+                  d={`M ${arrowStartX} ${arrowStartY} Q ${arrowControlX} ${arrowControlY} ${arrowEndX} ${arrowEndY}`}
+                  fill="none"
+                  stroke="url(#tourArrowGrad)"
+                  strokeWidth={isTrackerTour ? '4' : '3'}
+                  strokeDasharray={isTrackerTour ? '6 3' : '8 4'}
+                  markerEnd="url(#tourArrowHead)"
+                  className="animate-pulse drop-shadow-[0_0_12px_rgba(251,191,36,0.9)]"
+                />
+              </svg>
+            )}
+
+            {/* Secondary Pulsating Highlight Box for Active Navbar Link */}
+            {navRect && (() => {
+              const isSameRect =
+                targetRect &&
+                Math.abs(targetRect.top - navRect.top) < 10 &&
+                Math.abs(targetRect.left - navRect.left) < 10;
+              if (isSameRect) return null;
+              return (
+                <div
+                  className="fixed z-[100005] border-2 border-cyan-400 rounded-xl transition-all duration-200 pointer-events-none animate-pulse shadow-[0_0_35px_rgba(56,189,248,0.9)] bg-cyan-400/20"
+                  style={{
+                    top: `${Math.max(2, navRect.top - 4)}px`,
+                    left: `${Math.max(2, navRect.left - 4)}px`,
+                    width: `${navRect.width + 8}px`,
+                    height: `${navRect.height + 8}px`,
+                  }}
+                >
+                  <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full bg-slate-950 border border-cyan-400 text-[10px] font-extrabold text-cyan-300 whitespace-nowrap shadow-2xl flex items-center gap-1.5 z-[100006]">
+                    <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+                    <span>Active Page Nav Link</span>
+                  </span>
+                </div>
+              );
+            })()}
+
+            {/* Tour Card Popover */}
+            <div
+              ref={popoverRef}
+              className={`pointer-events-auto fixed z-[100001] max-w-[calc(100vw-2rem)] sm:max-w-md w-full p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-slate-900/95 border border-cyan-500/30 backdrop-blur-2xl shadow-2xl text-slate-100 space-y-3 sm:space-y-4 transition-all duration-300 left-1/2 -translate-x-1/2 ${
+                targetRect && targetRect.top < window.innerHeight / 2
+                  ? 'bottom-4 sm:bottom-8'
+                  : 'top-1/2 -translate-y-1/2'
               }`}
-          >
+            >
             {/* Header */}
             <div className="flex items-center justify-between pb-2.5 sm:pb-3 border-b border-slate-800">
               <div className="flex items-center space-x-2 min-w-0 pr-2">

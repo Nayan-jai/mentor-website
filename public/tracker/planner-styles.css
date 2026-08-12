@@ -2359,6 +2359,9 @@ body[data-tracker-mode="easy"] #dayDots {
 }
 
 @media (max-width: 768px) {
+  #supademoBtn {
+    display: none !important;
+  }
   .header-inner {
     padding: 0 20px;
   }
