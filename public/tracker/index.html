@@ -32,6 +32,7 @@
     }
   </script>
   <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInitTracker" async></script>
+  <script src="https://script.supademo.com/supademo.js"></script>
 </head>
 
 <body>
@@ -55,6 +56,10 @@
         <button class="tab" data-view="revision" id="tab-revision" style="display:none">🔄 Revision</button>
       </div>
       <div class="hdr-btns">
+        <button class="hbtn" id="supademoBtn" onclick="Supademo.open('cmspscnvl19tuqm33wi9uzb07')" title="Take a tour"
+          style="font-size:12px;padding:0 10px;display:inline-flex;align-items:center;gap:4px;font-weight:600">
+          ✨ Take a tour
+        </button>
         <button class="hbtn" id="tutorialBtn" onclick="openTutorial()" title="Show Tutorial"
           style="font-size:16px;padding:0 8px">💡</button>
         <button class="hbtn-menu" id="menuBtn" onclick="toggleHeaderMenu()">☰</button>
@@ -65,6 +70,7 @@
     <div class="header-menu" id="headerMenu">
       <button class="menu-item" id="menuTheme" onclick="toggleTheme();closeHeaderMenu();">🌙 Dark Mode</button>
       <button class="menu-item" onclick="toggleTrackerMode();closeHeaderMenu();">⚡ Switch Mode</button>
+      <button class="menu-item" onclick="Supademo.open('cmspscnvl19tuqm33wi9uzb07');closeHeaderMenu();">✨ Take a tour</button>
       <button class="menu-item" onclick="openTutorial();closeHeaderMenu();">💡 Guided Tutorial</button>
       <button class="menu-item" onclick="exportData();closeHeaderMenu();">📤 Export Plan Backup</button>
       <button class="menu-item" onclick="importData();closeHeaderMenu();">📥 Import Plan Backup</button>

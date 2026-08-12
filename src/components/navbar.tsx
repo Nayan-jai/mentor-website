@@ -23,11 +23,13 @@ import {
   Clock,
   ShieldCheck,
   MessageSquarePlus,
+  Sparkles,
 } from "lucide-react";
 
 import BrandLogo from "@/components/brand-logo";
 import LanguageSwitcher from "@/components/language-switcher";
 import ThemeToggle from "@/components/theme-toggle";
+import OnboardingTour from "@/components/onboarding-tour";
 
 export default function Navbar() {
   const { data: session } = useSession();

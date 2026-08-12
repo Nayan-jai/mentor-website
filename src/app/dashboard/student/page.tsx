@@ -68,11 +68,18 @@ export default function StudentDashboard() {
               mouseStrength={0}
               mouseRadius={0.6}
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-slate-900/40 to-transparent flex flex-col justify-center p-8 text-white pointer-events-none">
+            <div className="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-slate-900/40 to-transparent flex flex-col justify-center p-8 text-white">
               <div className="flex items-center space-x-3 mb-3">
                 <span className="px-3 py-1 text-xs font-semibold tracking-wide uppercase text-blue-300 bg-blue-900/60 backdrop-blur-md rounded-full border border-blue-500/30">
                   {session.user.role}
                 </span>
+                <button
+                  onClick={() => window.dispatchEvent(new Event('start_onboarding_tour'))}
+                  className="px-3.5 py-1 text-xs font-bold text-slate-950 bg-gradient-to-r from-cyan-400 to-sky-300 hover:from-cyan-300 hover:to-sky-200 rounded-full shadow-lg shadow-cyan-500/20 transition flex items-center space-x-1.5 pointer-events-auto"
+                  title="Launch Platform Guided Tour"
+                >
+                  <span>✨ Launch Guided Tour</span>
+                </button>
               </div>
               <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-white">
                 Welcome back, {session.user.name || "Student"}
@@ -90,6 +97,16 @@ export default function StudentDashboard() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div
+                className="bg-cyan-50 dark:bg-cyan-950/40 border border-cyan-100 dark:border-cyan-900/50 p-6 rounded-xl cursor-pointer hover:shadow-lg transition"
+                onClick={() => window.dispatchEvent(new Event('start_onboarding_tour'))}
+                tabIndex={0}
+                role="button"
+                aria-label="Launch Guided Tour"
+              >
+                <h3 className="text-lg font-medium text-cyan-900 dark:text-cyan-300 mb-2">✨ Guided Platform Tour</h3>
+                <p className="text-cyan-700 dark:text-cyan-400/80">Interactive guided walkthrough of key features & tools</p>
+              </div>
               <div
                 className="bg-amber-50 dark:bg-amber-950/40 border border-amber-100 dark:border-amber-900/50 p-6 rounded-xl cursor-pointer hover:shadow-lg transition"
                 onClick={() => router.push('/dashboard/student/study-tracker')}
