@@ -6,7 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
-  <title>Study Planner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,400;0,600;0,700;1,700&family=Orbitron:wght@400;600;700;800;900&family=Rajdhani:wght@500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="planner-styles.css">
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script type="text/javascript">
@@ -20,7 +22,7 @@
 
         var savedLang = localStorage.getItem('app_language');
         if (savedLang === 'hi') {
-          setTimeout(function() {
+          setTimeout(function () {
             var selectEl = document.querySelector('.goog-te-combo');
             if (selectEl && selectEl.value !== 'hi') {
               selectEl.value = 'hi';
@@ -42,7 +44,9 @@
   <div class="header">
     <div class="header-inner">
       <div style="display:flex;align-items:center;gap:12px">
-        <button onclick="if(window.parent&&window.parent!==window){window.parent.postMessage({type:'NAVIGATE_BACK'},'*');}else{history.back();}" class="back-nav-btn" title="Back to Dashboard">
+        <button
+          onclick="if(window.parent&&window.parent!==window){window.parent.postMessage({type:'NAVIGATE_BACK'},'*');}else{history.back();}"
+          class="back-nav-btn" title="Back to Dashboard">
           <span>←</span> <span>Back</span>
         </button>
         <div style="height:16px;width:1px;background:var(--border)"></div>
@@ -68,7 +72,8 @@
     <div class="header-menu" id="headerMenu">
       <button class="menu-item" id="menuTheme" onclick="toggleTheme();closeHeaderMenu();">🌙 Dark Mode</button>
       <button class="menu-item" onclick="toggleTrackerMode();closeHeaderMenu();">⚡ Switch Mode</button>
-      <button class="menu-item" onclick="Supademo.open('cmspscnvl19tuqm33wi9uzb07');closeHeaderMenu();">✨ Take a tour</button>
+      <button class="menu-item" onclick="Supademo.open('cmspscnvl19tuqm33wi9uzb07');closeHeaderMenu();">✨ Take a
+        tour</button>
       <button class="menu-item" onclick="openTutorial();closeHeaderMenu();">💡 Guided Tutorial</button>
       <button class="menu-item" onclick="exportData();closeHeaderMenu();">📤 Export Plan Backup</button>
       <button class="menu-item" onclick="importData();closeHeaderMenu();">📥 Import Plan Backup</button>
@@ -88,6 +93,22 @@
         <button class="nav-btn" id="prevBtn">←</button>
         <div class="nav-label" id="navLabel"></div>
         <button class="nav-btn" id="nextBtn">→</button>
+        <div style="margin-left:auto;display:flex;align-items:center;gap:6px">
+          <select id="quickThemeSelect" onchange="setAppTheme(this.value)"
+            style="padding:4px 10px;border-radius:8px;background:var(--card);color:var(--ink);border:1px solid var(--border);font-size:12px;outline:none;font-weight:700;cursor:pointer;box-shadow:var(--sh)">
+            <option value="neonquest">⚔️ Neon Quest (Gamified Dark)</option>
+            <option value="stopwatch">🎯 Stopwatch Mastery</option>
+            <option value="cyberpunk">✨ Simple Modern</option>
+            <option value="luminous">✨ Luminous Glass (Modern Pro)</option>
+            <option value="slate">🌑 Minimalist Slate (Matte Dark)</option>
+            <option value="obsidian">🌌 Obsidian Dark</option>
+            <option value="sapphire">💎 Midnight Sapphire</option>
+            <option value="emerald">🌿 Emerald Forest</option>
+            <option value="amber">🌅 Warm Sunset</option>
+            <option value="purple">🔮 Rose Velvet</option>
+            <option value="light">☀️ Clean Studio</option>
+          </select>
+        </div>
       </div>
       <div class="day-dots" id="dayDots"></div>
       <div id="dayContent"></div>
@@ -128,8 +149,10 @@
               style="padding:6px 10px;background:var(--bg2);color:var(--ink);border:1px solid var(--border);border-radius:6px;outline:none;font-size:13px;width:180px" />
           </div>
           <div style="display:flex;flex-direction:column;gap:4px">
-            <label style="font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase">Study Date Range</label>
-            <button onclick="openDateRangePicker()" id="dateRangeBtn" style="padding:6px 12px;background:var(--bg2);color:var(--ink);border:1px solid var(--border);border-radius:6px;outline:none;font-size:13px;height:32px;display:flex;align-items:center;gap:6px;cursor:pointer;font-weight:600">
+            <label style="font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase">Study Date
+              Range</label>
+            <button onclick="openDateRangePicker()" id="dateRangeBtn"
+              style="padding:6px 12px;background:var(--bg2);color:var(--ink);border:1px solid var(--border);border-radius:6px;outline:none;font-size:13px;height:32px;display:flex;align-items:center;gap:6px;cursor:pointer;font-weight:600">
               📅 Select dates…
             </button>
           </div>
@@ -139,8 +162,6 @@
             <div id="daysRemainingText" style="font-size:14px;font-weight:700;color:var(--ink);padding:6px 0">-</div>
           </div>
           <div style="display:flex;gap:8px;margin-left:auto;align-self:flex-end;flex-wrap:wrap">
-            <button id="toggleRevisionBtn" onclick="toggleRevisionTracker()" class="hbtn"
-              style="background:var(--green);color:#fff;border-color:var(--green)">Activate Revision Tracker</button>
             <button onclick="generatePlanTillTargetDate()" class="hbtn"
               style="background:var(--blue);color:#fff;border-color:var(--blue)">Adjust Plan Days</button>
             <button id="repeatPatternBtn" onclick="repeatCurrentPattern()" class="hbtn"
@@ -150,7 +171,7 @@
         </div>
       </div>
       <div class="mgmt-grid">
-        <div class="mpanel">
+        <div class="mpanel mpanel-subjects">
           <div class="mpanel-hd">Subjects</div>
           <div id="subjSuggestionAlert"
             style="display:none;padding:10px 12px;background:#eef2ff;border:1px dashed #6366f1;color:#4f46e5;border-radius:8px;font-size:12px;margin:8px 12px;line-height:1.4;">
@@ -180,36 +201,212 @@
         </div>
       </div>
 
+      <!-- Revision Strategy Tracker Section (Above Tracker View Mode) -->
+      <div
+        style="margin-top:24px;padding:18px 20px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--sh);">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+              <span style="font-size:16px">🔄</span>
+              <span style="font-size:14px;font-weight:800;color:var(--ink)">Revision Strategy Tracker</span>
+            </div>
+            <div style="font-size:12px;color:var(--ink3)">Enable interval revision schedules to track 1st, 2nd, and 3rd
+              revision rounds across all your subjects.</div>
+          </div>
+          <div>
+            <button id="toggleRevisionBtn" onclick="toggleRevisionTracker()" class="hbtn"
+              style="height:34px;padding:0 16px;font-size:12px;font-weight:800;background:var(--green);color:#fff;border-color:var(--green)">Activate
+              Revision Tracker</button>
+          </div>
+        </div>
+      </div>
+
       <!-- Tracker View Mode Section -->
-      <div style="margin-top:24px;padding:18px 20px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--sh);">
+      <div
+        style="margin-top:14px;padding:18px 20px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--sh);">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
           <div>
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
               <span style="font-size:16px">🎯</span>
               <span style="font-size:14px;font-weight:800;color:var(--ink)">Tracker View Mode</span>
             </div>
-            <div style="font-size:12px;color:var(--ink3)">Switch your daily interface between <strong>Advanced Mode</strong> (Full Timetable Planner) and <strong>Easy Mode</strong> (YPT Minimal Stopwatch List).</div>
+            <div style="font-size:12px;color:var(--ink3)">Switch your daily interface between <strong>Advanced
+                Mode</strong> (Full Timetable Planner) and <strong>Easy Mode</strong> (YPT Minimal Stopwatch List).
+            </div>
           </div>
           <div style="display:flex;gap:8px" id="manageModeBtnGroup">
-            <button onclick="setTrackerMode('advanced')" class="hbtn" id="btnModeAdvanced" style="height:34px;padding:0 16px;font-size:12px;font-weight:800">⚙️ Advanced Mode</button>
-            <button onclick="setTrackerMode('easy')" class="hbtn" id="btnModeEasy" style="height:34px;padding:0 16px;font-size:12px;font-weight:800">✨ Easy Mode</button>
+            <button onclick="setTrackerMode('advanced')" class="hbtn" id="btnModeAdvanced"
+              style="height:34px;padding:0 16px;font-size:12px;font-weight:800">⚙️ Advanced Mode</button>
+            <button onclick="setTrackerMode('easy')" class="hbtn" id="btnModeEasy"
+              style="height:34px;padding:0 16px;font-size:12px;font-weight:800">✨ Easy Mode</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Visual Theme Palette Selector Section -->
+      <div
+        style="margin-top:14px;padding:20px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--sh);">
+        <div style="margin-bottom:14px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <span style="font-size:18px">🎨</span>
+            <span style="font-size:14px;font-weight:800;color:var(--ink)">Application Theme &amp; Color Palette</span>
+          </div>
+          <div style="font-size:12px;color:var(--ink3)">Customize the complete visual look of your study tracker
+            interface with rich curated themes.</div>
+        </div>
+
+        <div class="theme-picker-grid">
+          <div class="theme-card-opt" id="theme-card-neonquest" onclick="setAppTheme('neonquest')">
+            <div class="theme-preview-box neonquest-preview" style="background:#070c18;border-color:#00b4d8">
+              <div class="tp-dot" style="background:#00b4d8;box-shadow:0 0 6px #00b4d8"></div>
+              <div class="tp-dot" style="background:#f97316;box-shadow:0 0 6px #f97316"></div>
+              <div class="tp-dot" style="background:#8b5cf6;box-shadow:0 0 6px #8b5cf6"></div>
+            </div>
+            <div class="theme-card-info">
+              <div class="theme-card-name">Neon Quest ⚔️</div>
+              <div class="theme-card-sub">Cyberpunk questing &amp; cyan glow</div>
+            </div>
+          </div>
+          <div class="theme-card-opt" id="theme-card-stopwatch" onclick="setAppTheme('stopwatch')">
+            <div class="theme-preview-box stopwatch-preview" style="background:#0e0e11;border-color:#272730">
+              <div class="tp-dot" style="background:#ffffff"></div>
+              <div class="tp-dot" style="background:#fbbf24"></div>
+              <div class="tp-dot" style="background:#38bdf8"></div>
+            </div>
+            <div class="theme-card-info">
+              <div class="theme-card-name">Stopwatch Mastery 🎯</div>
+              <div class="theme-card-sub">YPT matte dark &amp; pill start buttons</div>
+            </div>
+          </div>
+          <div class="theme-card-opt" id="theme-card-cyberpunk" onclick="setAppTheme('cyberpunk')">
+            <div class="theme-preview-box cyberpunk-preview" style="background:#0c101a;border-color:#38bdf8">
+              <div class="tp-dot" style="background:#38bdf8;box-shadow:0 0 6px #38bdf8"></div>
+              <div class="tp-dot" style="background:#f97316;box-shadow:0 0 6px #f97316"></div>
+              <div class="tp-dot" style="background:#34d399;box-shadow:0 0 6px #34d399"></div>
+            </div>
+            <div class="theme-card-info">
+              <div class="theme-card-name">Simple Modern ✨</div>
+              <div class="theme-card-sub">Multi-stat cards, ribbon carousel &amp; accordion controls</div>
+            </div>
+          </div>
+
+          <div class="theme-card-opt" id="theme-card-luminous" onclick="setAppTheme('luminous')">
+            <div class="theme-preview-box luminous-preview" style="background:#0b1220;border-color:#38bdf8">
+              <div class="tp-dot" style="background:#38bdf8"></div>
+              <div class="tp-dot" style="background:#fb923c"></div>
+              <div class="tp-dot" style="background:#4ade80"></div>
+            </div>
+            <div class="theme-card-info">
+              <div class="theme-card-name">Luminous Glass ✨</div>
+              <div class="theme-card-sub">Pro glassmorphism &amp; accent borders</div>
+            </div>
+          </div>
+
+          <div class="theme-card-opt" id="theme-card-slate" onclick="setAppTheme('slate')">
+            <div class="theme-preview-box slate-preview" style="background:#121316;border-color:#2c2f3a">
+              <div class="tp-dot" style="background:#0ea5e9"></div>
+              <div class="tp-dot" style="background:#10b981"></div>
+              <div class="tp-dot" style="background:#a855f7"></div>
+            </div>
+            <div class="theme-card-info">
+              <div class="theme-card-name">Minimalist Slate 🌑</div>
+              <div class="theme-card-sub">Matte dark &amp; high contrast</div>
+            </div>
+          </div>
+
+          <div class="theme-card-opt" id="theme-card-obsidian" onclick="setAppTheme('obsidian')">
+            <div class="theme-preview-box obsidian-preview">
+              <div class="tp-dot" style="background:#38bdf8"></div>
+              <div class="tp-dot" style="background:#4ade80"></div>
+              <div class="tp-dot" style="background:#c084fc"></div>
+            </div>
+            <div class="theme-card-info">
+              <div class="theme-card-name">Obsidian Dark 🌌</div>
+              <div class="theme-card-sub">Slate &amp; luminous sky blue</div>
+            </div>
+          </div>
+
+          <div class="theme-card-opt" id="theme-card-sapphire" onclick="setAppTheme('sapphire')">
+            <div class="theme-preview-box sapphire-preview">
+              <div class="tp-dot" style="background:#00f0ff"></div>
+              <div class="tp-dot" style="background:#00e676"></div>
+              <div class="tp-dot" style="background:#d500f9"></div>
+            </div>
+            <div class="theme-card-info">
+              <div class="theme-card-name">Midnight Sapphire 💎</div>
+              <div class="theme-card-sub">Cyberpunk deep navy &amp; cyan</div>
+            </div>
+          </div>
+
+          <div class="theme-card-opt" id="theme-card-emerald" onclick="setAppTheme('emerald')">
+            <div class="theme-preview-box emerald-preview">
+              <div class="tp-dot" style="background:#10b981"></div>
+              <div class="tp-dot" style="background:#34d399"></div>
+              <div class="tp-dot" style="background:#2dd4bf"></div>
+            </div>
+            <div class="theme-card-info">
+              <div class="theme-card-name">Emerald Forest 🌿</div>
+              <div class="theme-card-sub">Mint dark &amp; glowing emerald</div>
+            </div>
+          </div>
+
+          <div class="theme-card-opt" id="theme-card-amber" onclick="setAppTheme('amber')">
+            <div class="theme-preview-box amber-preview">
+              <div class="tp-dot" style="background:#f59e0b"></div>
+              <div class="tp-dot" style="background:#f97316"></div>
+              <div class="tp-dot" style="background:#fbbf24"></div>
+            </div>
+            <div class="theme-card-info">
+              <div class="theme-card-name">Warm Sunset 🌅</div>
+              <div class="theme-card-sub">Charcoal &amp; golden amber</div>
+            </div>
+          </div>
+
+          <div class="theme-card-opt" id="theme-card-purple" onclick="setAppTheme('purple')">
+            <div class="theme-preview-box purple-preview">
+              <div class="tp-dot" style="background:#c084fc"></div>
+              <div class="tp-dot" style="background:#ec4899"></div>
+              <div class="tp-dot" style="background:#f472b6"></div>
+            </div>
+            <div class="theme-card-info">
+              <div class="theme-card-name">Rose Velvet 🔮</div>
+              <div class="theme-card-sub">Midnight violet &amp; neon pink</div>
+            </div>
+          </div>
+
+          <div class="theme-card-opt" id="theme-card-light" onclick="setAppTheme('light')">
+            <div class="theme-preview-box light-preview">
+              <div class="tp-dot" style="background:#2563eb"></div>
+              <div class="tp-dot" style="background:#10b981"></div>
+              <div class="tp-dot" style="background:#8b5cf6"></div>
+            </div>
+            <div class="theme-card-info">
+              <div class="theme-card-name">Clean Studio ☀️</div>
+              <div class="theme-card-sub">Crisp bright studio light</div>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- Backup & Restore Plan Data (Below Tracker View Mode, Above Danger Zone) -->
-      <div style="margin-top:20px;padding:18px 20px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--sh);">
+      <div
+        style="margin-top:20px;padding:18px 20px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--sh);">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
           <div>
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
               <span style="font-size:16px">💾</span>
               <span style="font-size:14px;font-weight:800;color:var(--ink)">Backup &amp; Restore Plan Data</span>
             </div>
-            <div style="font-size:12px;color:var(--ink3)">Export your full study timetable, logged focus hours, and custom subtopics to a JSON file, or restore a previously saved backup.</div>
+            <div style="font-size:12px;color:var(--ink3)">Export your full study timetable, logged focus hours, and
+              custom subtopics to a JSON file, or restore a previously saved backup.</div>
           </div>
           <div style="display:flex;gap:8px">
-            <button onclick="exportData()" class="hbtn" style="height:34px;padding:0 16px;font-size:12px;font-weight:800;background:var(--bg2);color:var(--ink);border:1px solid var(--border)">📤 Export Backup JSON</button>
-            <button onclick="importData()" class="hbtn" style="height:34px;padding:0 16px;font-size:12px;font-weight:800;background:var(--bg2);color:var(--ink);border:1px solid var(--border)">📥 Import Backup JSON</button>
+            <button onclick="exportData()" class="hbtn"
+              style="height:34px;padding:0 16px;font-size:12px;font-weight:800;background:var(--bg2);color:var(--ink);border:1px solid var(--border)">📤
+              Export Backup JSON</button>
+            <button onclick="importData()" class="hbtn"
+              style="height:34px;padding:0 16px;font-size:12px;font-weight:800;background:var(--bg2);color:var(--ink);border:1px solid var(--border)">📥
+              Import Backup JSON</button>
           </div>
         </div>
       </div>
@@ -377,35 +574,47 @@
       </div>
       <div class="modal-body">
         <!-- Date Sync & Data Safety Notice Callout -->
-        <div style="background:var(--card);border:1px solid var(--border);border-left:4px solid var(--blue);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12px;line-height:1.5;color:var(--ink)">
+        <div
+          style="background:var(--card);border:1px solid var(--border);border-left:4px solid var(--blue);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12px;line-height:1.5;color:var(--ink)">
           <div style="font-weight:700;color:var(--blue);margin-bottom:2px">🛡️ Date Sync & Data Safety Notice</div>
-          <div style="margin-bottom:2px">• <strong>Existing Data Preserved:</strong> Adding new days will sync past and future dates without removing your previous study history or completed days.</div>
-          <div>• <strong>Past & Future Dates:</strong> You can include specific dates in your Excel/CSV sheet or text input (e.g., <code>2026-08-01</code> or <code>2026-08-10</code>), and both past and future dates will sync into your timeline.</div>
+          <div style="margin-bottom:2px">• <strong>Existing Data Preserved:</strong> Adding new days will sync past and
+            future dates without removing your previous study history or completed days.</div>
+          <div>• <strong>Past & Future Dates:</strong> You can include specific dates in your Excel/CSV sheet or text
+            input (e.g., <code>2026-08-01</code> or <code>2026-08-10</code>), and both past and future dates will sync
+            into your timeline.</div>
         </div>
 
         <!-- Date Sync & Preservation Controls -->
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:var(--bg2);padding:10px 12px;border:1px solid var(--border);border-radius:8px;margin-bottom:14px;font-size:12px">
+        <div
+          style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:var(--bg2);padding:10px 12px;border:1px solid var(--border);border-radius:8px;margin-bottom:14px;font-size:12px">
           <div style="display:flex;align-items:center;gap:8px">
             <label for="bulkStartDate" style="font-weight:600;color:var(--ink)">📅 Start Date Sync:</label>
-            <input type="date" id="bulkStartDate" style="background:var(--card);color:var(--ink);border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:12px" />
+            <input type="date" id="bulkStartDate"
+              style="background:var(--card);color:var(--ink);border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:12px" />
           </div>
           <div style="display:flex;align-items:center;gap:6px">
             <input type="checkbox" id="bulkKeepExisting" checked style="accent-color:var(--blue);cursor:pointer" />
-            <label for="bulkKeepExisting" style="font-weight:600;color:var(--ink);cursor:pointer">Preserve past study data & days</label>
+            <label for="bulkKeepExisting" style="font-weight:600;color:var(--ink);cursor:pointer">Preserve past study
+              data & days</label>
           </div>
         </div>
 
         <!-- Excel / CSV Import Section -->
-        <div style="background:var(--bg2);padding:14px;border:1px solid var(--border);border-radius:10px;margin-bottom:14px">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px">
+        <div
+          style="background:var(--bg2);padding:14px;border:1px solid var(--border);border-radius:10px;margin-bottom:14px">
+          <div
+            style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px">
             <span style="font-size:13px;font-weight:700;color:var(--ink)">📊 Import from Excel / CSV Sheet</span>
-            <button onclick="downloadSampleExcel()" class="hbtn" style="font-size:12px;padding:4px 10px;background:var(--card);border:1px solid var(--border);color:var(--blue);display:inline-flex;align-items:center;gap:4px">
+            <button onclick="downloadSampleExcel()" class="hbtn"
+              style="font-size:12px;padding:4px 10px;background:var(--card);border:1px solid var(--border);color:var(--blue);display:inline-flex;align-items:center;gap:4px">
               📥 Sample Format (.csv)
             </button>
           </div>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-            <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv, .txt" style="display:none" onchange="handleExcelFileUpload(event)" />
-            <button onclick="document.getElementById('excelFileInput').click()" class="hbtn" style="background:var(--green);color:#fff;border-color:var(--green);font-size:12px;padding:6px 14px;display:inline-flex;align-items:center;gap:6px">
+            <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv, .txt" style="display:none"
+              onchange="handleExcelFileUpload(event)" />
+            <button onclick="document.getElementById('excelFileInput').click()" class="hbtn"
+              style="background:var(--green);color:#fff;border-color:var(--green);font-size:12px;padding:6px 14px;display:inline-flex;align-items:center;gap:6px">
               📁 Upload Excel / CSV File
             </button>
             <span id="excelFileName" style="font-size:12px;color:var(--ink3)">No file chosen</span>
@@ -413,8 +622,10 @@
         </div>
 
         <!-- Sample format preview table snippet -->
-        <div style="margin-bottom:14px;padding:10px 12px;background:var(--card);border:1px dashed var(--border);border-radius:8px;font-size:11px;color:var(--ink3)">
-          <div style="font-weight:700;color:var(--ink);margin-bottom:6px">💡 Sample Excel / CSV Format (Supports optional Date column):</div>
+        <div
+          style="margin-bottom:14px;padding:10px 12px;background:var(--card);border:1px dashed var(--border);border-radius:8px;font-size:11px;color:var(--ink3)">
+          <div style="font-weight:700;color:var(--ink);margin-bottom:6px">💡 Sample Excel / CSV Format (Supports
+            optional Date column):</div>
           <div style="overflow-x:auto">
             <table style="width:100%;border-collapse:collapse;font-size:11px">
               <thead>
@@ -444,7 +655,8 @@
         </div>
 
         <p style="font-size:12px;color:var(--ink3);margin-bottom:8px;line-height:1.5">
-          Or paste / edit text directly below (One day per line: <code>Date | Day Title | Subject:hrs | Subject:hrs</code> or <code>Day Title | Subject:hrs</code>):
+          Or paste / edit text directly below (One day per line:
+          <code>Date | Day Title | Subject:hrs | Subject:hrs</code> or <code>Day Title | Subject:hrs</code>):
         </p>
         <div class="mfg">
           <textarea id="bulkInput" rows="7"
@@ -453,7 +665,8 @@
       </div>
       <div class="modal-footer">
         <button class="hbtn" onclick="closeModal('bulkOverlay')">Cancel</button>
-        <button class="hbtn" style="background:var(--blue);color:#fff;border-color:var(--blue)" onclick="saveBulk()">Add & Sync Days</button>
+        <button class="hbtn" style="background:var(--blue);color:#fff;border-color:var(--blue)" onclick="saveBulk()">Add
+          & Sync Days</button>
       </div>
     </div>
   </div>
@@ -475,6 +688,39 @@
     </div>
   </div>
 
+  <!-- PLAN EXPIRED / ROLLOVER PROMPT OVERLAY -->
+  <div class="overlay" id="planExpiredOverlay" onclick="if(event.target===this)closeModal('planExpiredOverlay')">
+    <div class="modal" style="max-width: 420px; padding: 20px; text-align: center;">
+      <div class="modal-hd" style="border-bottom: none; padding-bottom: 0;">
+        <div style="font-size: 36px; margin: 0 auto 8px;">🎉</div>
+        <div class="modal-title" style="font-size: 18px; font-weight: 800; width: 100%; text-align: center;">Plan Period
+          Completed!</div>
+      </div>
+      <div style="margin: 12px 0 20px; font-size: 13px; color: var(--ink2); line-height: 1.5;">
+        Your study plan ended on <strong id="planExpiredEndDate">Aug 31</strong>.<br />
+        All your past study history and completed topics have been <strong>safely preserved</strong>.<br />
+        Choose how you would like to proceed for your new period:
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <button onclick="acceptCreateWeekPlan()" class="hbtn"
+          style="background: var(--blue); color: #fff; border-color: var(--blue); font-weight: 700; padding: 12px; font-size: 13px; border-radius: 8px; justify-content: center; gap: 8px;">
+          ✨ Generate 7-Day Plan (1 Sept – 7 Sept)
+        </button>
+
+        <button onclick="openAdjustDatesFromExpired()" class="hbtn"
+          style="background: var(--bg2); color: var(--ink); border: 1px solid var(--border); font-weight: 600; padding: 10px; font-size: 13px; border-radius: 8px; justify-content: center; gap: 8px;">
+          📅 Adjust Plan Days for Upcoming Month
+        </button>
+
+        <button onclick="closeModal('planExpiredOverlay')" class="hbtn"
+          style="background: transparent; color: var(--ink3); border: none; font-weight: 500; padding: 6px; font-size: 12px;">
+          Keep earlier data & dismiss
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- DATE RANGE PICKER OVERLAY -->
   <div class="overlay" id="dateRangeOverlay" onclick="if(event.target===this)closeModal('dateRangeOverlay')">
     <div class="modal" style="max-width: 340px; padding: 16px;">
@@ -482,24 +728,32 @@
         <div class="modal-title">📅 Select Date Range</div>
         <button class="modal-close" onclick="closeModal('dateRangeOverlay')">✕</button>
       </div>
-      
+
       <!-- Manual Inputs -->
       <div style="display:flex;gap:8px;margin:12px 0 6px;">
         <div style="flex:1;display:flex;flex-direction:column;gap:3px">
-          <span style="font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:0.04em">From</span>
-          <input type="date" id="modalStartDate" onchange="changeModalStartDate(this.value)" style="padding:6px;background:var(--bg2);color:var(--ink);border:1px solid var(--border);border-radius:6px;outline:none;font-size:11px" />
+          <span
+            style="font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:0.04em">From</span>
+          <input type="date" id="modalStartDate" onchange="changeModalStartDate(this.value)"
+            style="padding:6px;background:var(--bg2);color:var(--ink);border:1px solid var(--border);border-radius:6px;outline:none;font-size:11px" />
         </div>
         <div style="flex:1;display:flex;flex-direction:column;gap:3px">
-          <span style="font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:0.04em">To</span>
-          <input type="date" id="modalEndDate" onchange="changeModalEndDate(this.value)" style="padding:6px;background:var(--bg2);color:var(--ink);border:1px solid var(--border);border-radius:6px;outline:none;font-size:11px" />
+          <span
+            style="font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:0.04em">To</span>
+          <input type="date" id="modalEndDate" onchange="changeModalEndDate(this.value)"
+            style="padding:6px;background:var(--bg2);color:var(--ink);border:1px solid var(--border);border-radius:6px;outline:none;font-size:11px" />
         </div>
       </div>
-      
+
       <!-- Calendar Header -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin:12px 0 8px;">
-        <button onclick="prevCalendarMonth()" style="background:none;border:none;color:var(--ink2);cursor:pointer;font-weight:bold;font-size:14px;padding:4px 8px;">◀</button>
-        <span id="calMonthYear" onclick="toggleMonthYearSelector()" style="font-weight:700;font-size:13px;color:var(--ink);cursor:pointer;text-decoration:underline;" title="Jump to Month/Year">Feb 2024</span>
-        <button onclick="nextCalendarMonth()" style="background:none;border:none;color:var(--ink2);cursor:pointer;font-weight:bold;font-size:14px;padding:4px 8px;">▶</button>
+        <button onclick="prevCalendarMonth()"
+          style="background:none;border:none;color:var(--ink2);cursor:pointer;font-weight:bold;font-size:14px;padding:4px 8px;">◀</button>
+        <span id="calMonthYear" onclick="toggleMonthYearSelector()"
+          style="font-weight:700;font-size:13px;color:var(--ink);cursor:pointer;text-decoration:underline;"
+          title="Jump to Month/Year">Feb 2024</span>
+        <button onclick="nextCalendarMonth()"
+          style="background:none;border:none;color:var(--ink2);cursor:pointer;font-weight:bold;font-size:14px;padding:4px 8px;">▶</button>
       </div>
 
       <!-- Month/Year Selector View -->
@@ -507,13 +761,17 @@
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px;" id="monthsGrid"></div>
         <div style="display:flex;align-items:center;gap:8px;border-top:1px solid var(--border);padding-top:10px;">
           <span style="font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase;">Year:</span>
-          <input type="number" id="selectorYearInput" style="padding:6px;width:70px;background:var(--bg2);color:var(--ink);border:1px solid var(--border);border-radius:6px;outline:none;font-size:12px" min="2000" max="2100" />
-          <button class="hbtn" onclick="applyMonthYearSelector()" style="background:var(--blue);color:#fff;border-color:var(--blue);font-size:11px;padding:5px 12px;margin-left:auto;height:28px;">Apply</button>
+          <input type="number" id="selectorYearInput"
+            style="padding:6px;width:70px;background:var(--bg2);color:var(--ink);border:1px solid var(--border);border-radius:6px;outline:none;font-size:12px"
+            min="2000" max="2100" />
+          <button class="hbtn" onclick="applyMonthYearSelector()"
+            style="background:var(--blue);color:#fff;border-color:var(--blue);font-size:11px;padding:5px 12px;margin-left:auto;height:28px;">Apply</button>
         </div>
       </div>
 
       <!-- Calendar Table -->
-      <table style="width:100%;border-collapse:collapse;text-align:center;font-size:12px;margin-bottom:12px;" id="calendarTable">
+      <table style="width:100%;border-collapse:collapse;text-align:center;font-size:12px;margin-bottom:12px;"
+        id="calendarTable">
         <thead>
           <tr style="color:var(--ink3);font-weight:700;">
             <th style="padding:4px 0;width:14.28%;">Su</th>
@@ -532,7 +790,9 @@
 
       <!-- Footer action -->
       <div style="display:flex;justify-content:flex-end;margin-top:12px;">
-        <button id="selectRangeBtn" onclick="applySelectedDateRange()" class="hbtn" style="background:var(--blue);color:#fff;border-color:var(--blue);font-weight:800;width:100%;padding:10px;height:auto;font-size:13px;border-radius:8px;" disabled>
+        <button id="selectRangeBtn" onclick="applySelectedDateRange()" class="hbtn"
+          style="background:var(--blue);color:#fff;border-color:var(--blue);font-weight:800;width:100%;padding:10px;height:auto;font-size:13px;border-radius:8px;"
+          disabled>
           Select range
         </button>
       </div>
@@ -556,10 +816,14 @@
       <div class="modal-body" style="padding-top:12px">
         <!-- Action Buttons -->
         <div style="display:flex;gap:10px;margin-bottom:16px">
-          <button class="hbtn flex-1" style="background:var(--bg2);color:var(--ink);border-color:var(--border);font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px;height:36px;border-radius:10px;cursor:pointer" onclick="triggerMemberNudge()">
+          <button class="hbtn flex-1"
+            style="background:var(--bg2);color:var(--ink);border-color:var(--border);font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px;height:36px;border-radius:10px;cursor:pointer"
+            onclick="triggerMemberNudge()">
             <span>😒</span> Nudge
           </button>
-          <button class="hbtn flex-1" style="background:#c084fc;color:#fff;border-color:#c084fc;font-weight:800;display:flex;align-items:center;justify-content:center;gap:6px;height:36px;border-radius:10px;cursor:pointer" onclick="openSelectedMemberStats()">
+          <button class="hbtn flex-1"
+            style="background:#c084fc;color:#fff;border-color:#c084fc;font-weight:800;display:flex;align-items:center;justify-content:center;gap:6px;height:36px;border-radius:10px;cursor:pointer"
+            onclick="openSelectedMemberStats()">
             <span>📊</span> Statistics
           </button>
         </div>
@@ -582,9 +846,11 @@
         <!-- Calendar Heatmap -->
         <div class="stats-calendar-card">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-            <button class="hbtn-icon" onclick="changeStatsMonth(-1)" style="background:none;border:none;color:var(--ink);cursor:pointer;font-weight:700">◄</button>
+            <button class="hbtn-icon" onclick="changeStatsMonth(-1)"
+              style="background:none;border:none;color:var(--ink);cursor:pointer;font-weight:700">◄</button>
             <span id="msMonthLabel" style="font-size:14px;font-weight:800;color:var(--ink)">Jul 2026</span>
-            <button class="hbtn-icon" onclick="changeStatsMonth(1)" style="background:none;border:none;color:var(--ink);cursor:pointer;font-weight:700">►</button>
+            <button class="hbtn-icon" onclick="changeStatsMonth(1)"
+              style="background:none;border:none;color:var(--ink);cursor:pointer;font-weight:700">►</button>
           </div>
           <div class="stats-heatmap-grid" id="msHeatmapGrid"></div>
         </div>
@@ -595,7 +861,8 @@
           <button class="stats-tab" id="stTabWeek" onclick="switchStatsPeriod('week')">Week</button>
           <button class="stats-tab" id="stTabMonth" onclick="switchStatsPeriod('month')">Month</button>
         </div>
-        <div id="msSelectedDateHeader" style="text-align:center;font-size:12px;font-weight:700;color:var(--ink2);margin-bottom:12px"></div>
+        <div id="msSelectedDateHeader"
+          style="text-align:center;font-size:12px;font-weight:700;color:var(--ink2);margin-bottom:12px"></div>
 
         <!-- Day Stats Box -->
         <div class="stats-day-box" id="msDayBox"></div>
@@ -616,31 +883,41 @@
       </div>
       <div class="modal-body">
         <!-- Admin Edit Group Name Section -->
-        <div id="gmAdminNameSection" style="margin-bottom:16px;padding:14px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;display:none">
-          <label style="font-size:11px;font-weight:800;color:var(--ink3);text-transform:uppercase;letter-spacing:0.04em;display:block;margin-bottom:6px">⚙️ Edit Group Name (Admin Only)</label>
+        <div id="gmAdminNameSection"
+          style="margin-bottom:16px;padding:14px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;display:none">
+          <label
+            style="font-size:11px;font-weight:800;color:var(--ink3);text-transform:uppercase;letter-spacing:0.04em;display:block;margin-bottom:6px">⚙️
+            Edit Group Name (Admin Only)</label>
           <div style="display:flex;gap:8px">
-            <input type="text" id="gmGroupNameInp" class="group-split-inp" style="flex:1" placeholder="New Group Name..." />
-            <button onclick="saveGroupNameFromModal()" class="hbtn" style="background:var(--blue);color:#fff;border-color:var(--blue);font-weight:700;padding:0 14px">Save</button>
+            <input type="text" id="gmGroupNameInp" class="group-split-inp" style="flex:1"
+              placeholder="New Group Name..." />
+            <button onclick="saveGroupNameFromModal()" class="hbtn"
+              style="background:var(--blue);color:#fff;border-color:var(--blue);font-weight:700;padding:0 14px">Save</button>
           </div>
         </div>
 
         <!-- Invite Code Bar -->
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:16px">
+        <div
+          style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:16px">
           <div>
             <span style="font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase">Invite Code:</span>
-            <code id="gmInviteCodeLabel" style="font-size:14px;font-weight:800;color:var(--blue);font-family:monospace;margin-left:6px"></code>
+            <code id="gmInviteCodeLabel"
+              style="font-size:14px;font-weight:800;color:var(--blue);font-family:monospace;margin-left:6px"></code>
           </div>
-          <button id="gmCopyCodeBtn" class="hbtn" style="height:28px;font-size:11px;font-weight:700;color:var(--blue)">📋 Copy</button>
+          <button id="gmCopyCodeBtn" class="hbtn"
+            style="height:28px;font-size:11px;font-weight:700;color:var(--blue)">📋 Copy</button>
         </div>
 
         <!-- Members Header -->
-        <div style="font-size:12px;font-weight:800;color:var(--ink3);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between">
+        <div
+          style="font-size:12px;font-weight:800;color:var(--ink3);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between">
           <span>👥 Group Members</span>
           <span id="gmMembersCountLabel" style="color:var(--ink2)"></span>
         </div>
 
         <!-- Members List Container -->
-        <div id="gmMembersList" style="display:flex;flex-direction:column;gap:10px;max-height:300px;overflow-y:auto;padding-right:4px"></div>
+        <div id="gmMembersList"
+          style="display:flex;flex-direction:column;gap:10px;max-height:300px;overflow-y:auto;padding-right:4px"></div>
       </div>
       <div class="modal-footer">
         <button class="hbtn" onclick="closeModal('groupManageOverlay')" style="width:100%">Close</button>
