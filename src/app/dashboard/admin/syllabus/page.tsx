@@ -75,7 +75,7 @@ export default function AdminSyllabusPage() {
   const [editSubjects, setEditSubjects] = useState<Subject[]>([]);
   const [editDays, setEditDays] = useState<Day[]>([]);
   const [newSubtopicTexts, setNewSubtopicTexts] = useState<Record<string, string>>({});
-  const [collapsedSubjects, setCollapsedSubjects] = useState<Record<string, boolean>>({});
+  const [expandedSubjects, setExpandedSubjects] = useState<Record<string, boolean>>({});
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
   useEffect(() => {
@@ -102,6 +102,7 @@ export default function AdminSyllabusPage() {
     setEditName(syllabi[key].examName);
     setEditSubjects(JSON.parse(JSON.stringify(syllabi[key].subj || [])));
     setEditDays(JSON.parse(JSON.stringify(syllabi[key].days || [])));
+    setExpandedSubjects({});
     setIsNew(false);
     setError(null);
     setSuccess(null);
@@ -131,6 +132,7 @@ export default function AdminSyllabusPage() {
         ]
       }
     ]);
+    setExpandedSubjects({});
     setIsNew(true);
     setError(null);
     setSuccess(null);
@@ -517,6 +519,14 @@ export default function AdminSyllabusPage() {
     setEditDays(editDays.filter((_, i) => i !== dayIdx));
   };
 
+  const handleDeleteAllDays = () => {
+    if (editDays.length === 0) return;
+    if (!confirm(`Are you sure you want to delete all ${editDays.length} study day(s) and their scheduled topic blocks?`)) {
+      return;
+    }
+    setEditDays([]);
+  };
+
   // Block actions
   const handleAddBlock = (dayIdx: number) => {
     if (editSubjects.length === 0) {
@@ -577,52 +587,20 @@ export default function AdminSyllabusPage() {
     const syncedDays = JSON.parse(JSON.stringify(editDays));
     editSubjects.forEach(s => {
       const sTopics = s.topics || [];
-      const sTopicNames = sTopics.map(t => t.name.trim()).filter(Boolean);
+      if (sTopics.length === 0) return;
 
-      // 1. Remove blocks for this subject whose topic is no longer present in sTopics
-      syncedDays.forEach((day: Day) => {
-        day.blocks = day.blocks.filter(b => {
-          if (b.subjectId !== s.id) return true;
-          return sTopicNames.includes(b.topic.trim());
-        });
-      });
-
-      // 2. Update existing blocks' subtopics, and find which topics are missing
-      const existingTopicsInBlocks = new Set<string>();
+      // Update existing blocks' subtopics if a matching topic is defined in sTopics
       syncedDays.forEach((day: Day) => {
         day.blocks.forEach(b => {
           if (b.subjectId === s.id) {
-            existingTopicsInBlocks.add(b.topic.trim());
-            const matchedTopic = sTopics.find(t => t.name.trim() === b.topic.trim());
-            if (matchedTopic) {
-              b.subtopics = matchedTopic.subtopics.map(st => st.trim()).filter(Boolean);
+            const matchedTopic = sTopics.find(t => t.name.trim().toLowerCase() === b.topic.trim().toLowerCase());
+            if (matchedTopic && matchedTopic.subtopics.length > 0) {
+              const cleanSubtopics = matchedTopic.subtopics.map(st => st.trim()).filter(Boolean);
+              if (cleanSubtopics.length > 0) {
+                b.subtopics = cleanSubtopics;
+              }
             }
           }
-        });
-      });
-
-      // 3. For any missing topics, append a new block to the days list
-      const missingTopics = sTopics.filter(t => t.name.trim() && !existingTopicsInBlocks.has(t.name.trim()));
-      missingTopics.forEach((t, mIdx) => {
-        let day = syncedDays[mIdx];
-        if (!day) {
-          const nextId = "d_" + (Date.now() + mIdx);
-          day = {
-            id: nextId,
-            title: `Day ${syncedDays.length + 1}`,
-            dateOverride: null,
-            targetHrs: 8,
-            blocks: []
-          };
-          syncedDays.push(day);
-        }
-        const blockId = "b_" + (Date.now() + mIdx) + Math.random().toString(36).slice(2, 5);
-        day.blocks.push({
-          id: blockId,
-          subjectId: s.id,
-          targetHrs: s.defaultHrs || 3,
-          topic: t.name.trim(),
-          subtopics: t.subtopics.map(st => st.trim()).filter(Boolean)
         });
       });
     });
@@ -924,17 +902,20 @@ export default function AdminSyllabusPage() {
                                 <label className="block text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                                   Topics &amp; Subtopics Structure
                                 </label>
+                                <span className="text-[10px] text-gray-400 dark:text-slate-500">
+                                  ({(subj.topics || []).length} {(subj.topics || []).length === 1 ? "topic" : "topics"})
+                                </span>
                                 <button
                                   type="button"
                                   onClick={() => {
-                                    setCollapsedSubjects({
-                                      ...collapsedSubjects,
-                                      [subj.id]: !collapsedSubjects[subj.id]
-                                    });
+                                    setExpandedSubjects(prev => ({
+                                      ...prev,
+                                      [subj.id]: !prev[subj.id]
+                                    }));
                                   }}
-                                  className="text-[10px] text-blue-600 dark:text-blue-400 font-semibold hover:underline"
+                                  className="text-[10px] text-blue-600 dark:text-blue-400 font-semibold hover:underline cursor-pointer"
                                 >
-                                  {collapsedSubjects[subj.id] ? "🔽 Expand" : "🔼 Collapse"}
+                                  {expandedSubjects[subj.id] ? "🔼 Collapse" : "🔽 Expand"}
                                 </button>
                               </div>
                               <div className="flex items-center gap-3">
@@ -968,7 +949,7 @@ export default function AdminSyllabusPage() {
                               </div>
                             </div>
 
-                            {!collapsedSubjects[subj.id] && (
+                            {expandedSubjects[subj.id] && (
                               <>
                                 <div className="space-y-3">
                                   {(subj.topics || []).map((t, tIdx) => (
@@ -1075,6 +1056,16 @@ export default function AdminSyllabusPage() {
                         >
                           <Download className="h-3.5 w-3.5 mr-1 text-blue-600 dark:text-blue-400" /> Export Schedule CSV
                         </button>
+                        {editDays.length > 0 && (
+                          <button
+                            type="button"
+                            onClick={handleDeleteAllDays}
+                            className="inline-flex items-center px-3 py-1.5 bg-red-50 dark:bg-red-950/60 hover:bg-red-100 dark:hover:bg-red-900/60 text-red-700 dark:text-red-300 text-xs font-semibold rounded border border-red-200 dark:border-red-800/80 transition-colors"
+                            title="Delete all study days at once"
+                          >
+                            <Trash2 className="h-3.5 w-3.5 mr-1 text-red-600 dark:text-red-400" /> Delete All Days
+                          </button>
+                        )}
                         <button
                           type="button"
                           onClick={handleAddDay}
@@ -1085,7 +1076,13 @@ export default function AdminSyllabusPage() {
                       </div>
                     </div>
 
-                    {editDays.map((day, dayIdx) => (
+                    {editDays.length === 0 ? (
+                      <div className="p-8 text-center bg-white dark:bg-slate-900 rounded-lg border border-dashed border-gray-300 dark:border-slate-800 text-gray-500 dark:text-slate-400">
+                        <p className="text-sm font-medium">No study days scheduled yet.</p>
+                        <p className="text-xs text-gray-400 dark:text-slate-500 mt-1">Click "Add Study Day", "Import CSV/Excel", or use "Generate Schedule Blocks" from subjects.</p>
+                      </div>
+                    ) : (
+                      editDays.map((day, dayIdx) => (
                       <div key={day.id} className="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden">
                         {/* Day Header */}
                         <div className="px-5 py-4 bg-gray-50 dark:bg-slate-800/60 border-b border-gray-200 dark:border-slate-800 flex items-center justify-between flex-wrap gap-3">
@@ -1231,7 +1228,7 @@ export default function AdminSyllabusPage() {
                           )}
                         </div>
                       </div>
-                    ))}
+                    )))}
                   </div>
 
                   {/* Form Actions Footer */}

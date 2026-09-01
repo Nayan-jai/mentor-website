@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { EmailInput } from "@/components/ui/email-input";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -104,10 +105,9 @@ export default function RegisterPage() {
 
                 <div>
                   <Label htmlFor="email" className="text-gray-700 dark:text-slate-200 font-semibold text-xs">Email Address</Label>
-                  <Input
+                  <EmailInput
                     id="email"
                     name="email"
-                    type="email"
                     required
                     className="mt-1 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:border-blue-500 dark:focus:border-blue-400"
                     placeholder="name@example.com"

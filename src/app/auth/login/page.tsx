@@ -2,13 +2,13 @@
 
 export const dynamic = "force-dynamic";
 
-import Link from "next/link";
-import { signIn, useSession } from "next-auth/react";
-import { Suspense } from "react";
-import { useState, useEffect } from "react";
+import { EmailInput } from "@/components/ui/email-input";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { signIn, useSession } from "next-auth/react";
+import Link from "next/link";
 
 export default function LoginPageWrapper() {
   return (
@@ -24,6 +24,13 @@ function LoginPage() {
   const { data: session, status } = useSession();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [emailVal, setEmailVal] = useState("");
+  const [passwordVal, setPasswordVal] = useState("");
+
+  useEffect(() => {
+    const saved = localStorage.getItem("remember_login_email");
+    if (saved) setEmailVal(saved);
+  }, []);
 
   useEffect(() => {
     if (status === "authenticated" && session?.user?.role) {
@@ -38,14 +45,23 @@ function LoginPage() {
     }
   }, [status, session, router]);
 
+  const fillDemo = (email: string, pass: string) => {
+    setEmailVal(email);
+    setPasswordVal(pass);
+    setError(null);
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
-    const formData = new FormData(e.currentTarget);
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
+    const email = emailVal.trim();
+    const password = passwordVal;
+
+    if (email) {
+      localStorage.setItem("remember_login_email", email);
+    }
 
     try {
       const result = await signIn("credentials", {
@@ -147,11 +163,12 @@ function LoginPage() {
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <Label htmlFor="email" className="text-gray-700 dark:text-slate-200 font-semibold text-sm">Email Address</Label>
-                  <Input
+                  <EmailInput
                     id="email"
                     name="email"
-                    type="email"
                     required
+                    value={emailVal}
+                    onChange={(e) => setEmailVal(e.target.value)}
                     className="mt-1 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:border-blue-500 dark:focus:border-blue-400"
                     placeholder="name@example.com"
                   />
@@ -172,6 +189,8 @@ function LoginPage() {
                     name="password"
                     type="password"
                     required
+                    value={passwordVal}
+                    onChange={(e) => setPasswordVal(e.target.value)}
                     className="mt-1 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:border-blue-500 dark:focus:border-blue-400"
                     placeholder="••••••••"
                   />
@@ -195,6 +214,36 @@ function LoginPage() {
                   )}
                 </button>
               </form>
+
+              {/* Quick Fill Demo Accounts */}
+              <div className="mt-5 border-t border-slate-200 dark:border-slate-800/80 pt-4">
+                <p className="text-[11px] font-semibold text-gray-500 dark:text-slate-400 mb-2 text-center uppercase tracking-wider">
+                  ⚡ 1-Click Quick Fill Accounts:
+                </p>
+                <div className="flex flex-wrap gap-2 justify-center">
+                  <button
+                    type="button"
+                    onClick={() => fillDemo("student@example.com", "student123")}
+                    className="px-2.5 py-1 text-xs font-semibold bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 text-blue-700 dark:text-blue-300 rounded-lg border border-blue-200 dark:border-blue-800/60 transition-colors cursor-pointer"
+                  >
+                    🎓 Student
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => fillDemo("mentor@example.com", "mentor123")}
+                    className="px-2.5 py-1 text-xs font-semibold bg-purple-50 dark:bg-purple-950/60 hover:bg-purple-100 dark:hover:bg-purple-900/60 text-purple-700 dark:text-purple-300 rounded-lg border border-purple-200 dark:border-purple-800/60 transition-colors cursor-pointer"
+                  >
+                    👨‍🏫 Mentor
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => fillDemo("admin@example.com", "admin123")}
+                    className="px-2.5 py-1 text-xs font-semibold bg-amber-50 dark:bg-amber-950/60 hover:bg-amber-100 dark:hover:bg-amber-900/60 text-amber-700 dark:text-amber-300 rounded-lg border border-amber-200 dark:border-amber-800/60 transition-colors cursor-pointer"
+                  >
+                    👑 Admin
+                  </button>
+                </div>
+              </div>
 
               <p className="mt-8 text-center text-sm text-gray-600 dark:text-slate-400">
                 Don&apos;t have an account?{" "}
