@@ -70,11 +70,8 @@
 
     <!-- Header Dropdown Menu -->
     <div class="header-menu" id="headerMenu">
-      <button class="menu-item" id="menuTheme" onclick="toggleTheme();closeHeaderMenu();">🌙 Dark Mode</button>
       <button class="menu-item" onclick="toggleTrackerMode();closeHeaderMenu();">⚡ Switch Mode</button>
-      <button class="menu-item" onclick="Supademo.open('cmspscnvl19tuqm33wi9uzb07');closeHeaderMenu();">✨ Take a
-        tour</button>
-      <button class="menu-item" onclick="openTutorial();closeHeaderMenu();">💡 Guided Tutorial</button>
+      <button class="menu-item" onclick="Supademo.open('cmspscnvl19tuqm33wi9uzb07');closeHeaderMenu();">✨ Take a tour</button>
       <button class="menu-item" onclick="exportData();closeHeaderMenu();">📤 Export Plan Backup</button>
       <button class="menu-item" onclick="importData();closeHeaderMenu();">📥 Import Plan Backup</button>
     </div>
@@ -921,28 +918,6 @@
       </div>
       <div class="modal-footer">
         <button class="hbtn" onclick="closeModal('groupManageOverlay')" style="width:100%">Close</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- TUTORIAL MODAL -->
-  <div class="overlay" id="tutorialOverlay">
-    <div class="modal" style="max-width:520px">
-      <div class="modal-hd">
-        <div class="modal-title" id="tutorialStepTitle">Welcome to Study Planner 📚</div>
-        <button class="modal-close" onclick="closeTutorial()">✕</button>
-      </div>
-      <div class="modal-body" id="tutorialStepBody" style="min-height:220px"></div>
-      <div class="modal-footer" style="justify-content:space-between">
-        <div style="display:flex;gap:8px;align-items:center">
-          <div id="tutorialDots" style="display:flex;gap:6px"></div>
-        </div>
-        <div style="display:flex;gap:8px">
-          <button class="hbtn" onclick="closeTutorial()" style="color:var(--ink3)">Skip</button>
-          <button class="hbtn" id="tutorialPrevBtn" onclick="tutorialPrev()" style="display:none">← Back</button>
-          <button class="hbtn" id="tutorialNextBtn" onclick="tutorialNext()"
-            style="background:var(--blue);color:#fff;border-color:var(--blue)">Next →</button>
-        </div>
       </div>
     </div>
   </div>

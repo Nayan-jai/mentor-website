@@ -1693,8 +1693,7 @@ function renderEasyModeView() {
     <div style="max-width:860px;margin:0 auto;padding:12px 6px">
       
       <!-- Top Action & Theme Row -->
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-        <div style="font-size:12px;font-weight:700;color:#64748b;letter-spacing:0.06em">🎯 STOPWATCH MASTERY (YPT TRACKER)</div>
+      <div style="display:flex;justify-content:flex-end;align-items:center;margin-bottom:14px">
         <div style="display:flex;align-items:center;gap:6px">
           <select id="quickThemeSelectEasy" onchange="setAppTheme(this.value)"
             style="padding:4px 10px;border-radius:8px;background:#17181c;color:#f8fafc;border:1px solid #23242a;font-size:12px;outline:none;font-weight:700;cursor:pointer">
@@ -1745,9 +1744,9 @@ function renderEasyModeView() {
       </div>
 
       <!-- 2. DAY SELECTOR CAROUSEL (5-Day Window) -->
-      <div style="background:#17181c;border:1px solid #23242a;border-radius:16px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 20px rgba(0,0,0,0.25);margin-bottom:18px">
+      <div style="background:#17181c;border:1px solid #23242a;border-radius:16px;padding:10px 10px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 20px rgba(0,0,0,0.25);margin-bottom:18px;max-width:100%;overflow:hidden">
         <button onclick="jumpTo(${Math.max(0, curDay - 1)})" ${curDay <= 0 ? 'disabled' : ''}
-                style="background:transparent;border:none;color:#8e909a;cursor:pointer;font-size:16px;padding:6px 10px;outline:none"
+                style="background:transparent;border:none;color:#8e909a;cursor:pointer;font-size:14px;padding:6px 6px;outline:none;flex-shrink:0"
                 title="Previous Day">
           ◀
         </button>
@@ -2163,8 +2162,7 @@ function renderCyberpunkView() {
     <div style="max-width:900px;margin:0 auto;padding:12px 6px">
       
       <!-- Top Action & Theme Row -->
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-        <div style="font-size:12px;font-weight:700;color:#64748b;letter-spacing:0.06em">✨ SIMPLE MODERN TRACKER</div>
+      <div style="display:flex;justify-content:flex-end;align-items:center;margin-bottom:14px">
         <div style="display:flex;align-items:center;gap:6px">
           <select id="quickThemeSelectCyber" onchange="setAppTheme(this.value)"
             style="padding:4px 10px;border-radius:8px;background:#121927;color:#f8fafc;border:1px solid #1e293b;font-size:12px;outline:none;font-weight:700;cursor:pointer">
@@ -2548,12 +2546,12 @@ function renderNeonQuestDayContent(day) {
     const topicsRows = (b.subtopics || []).map((st, j) => {
       const isDone = !!p.subtopics[j];
       return `
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:8px;background:#0b1324;border:1px solid ${isDone ? 'rgba(34,197,94,0.3)' : '#16233b'};margin-bottom:6px">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:8px;background:${isDone ? 'rgba(34,197,94,0.15)' : '#0b1324'};border:1px solid ${isDone ? 'rgba(34,197,94,0.4)' : '#16233b'};margin-bottom:6px">
           <div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1">
             <div onclick="toggleST('${b.id}', ${j}, '${day.id}')" style="width:16px;height:16px;border-radius:50%;border:1.5px solid ${isDone ? '#22c55e' : '#334155'};background:${isDone ? '#22c55e' : 'transparent'};display:flex;align-items:center;justify-content:center;font-size:10px;color:#000;font-weight:900;cursor:pointer;flex-shrink:0">
               ${isDone ? '✓' : ''}
             </div>
-            <span style="font-size:12px;color:${isDone ? '#64748b' : '#e2e8f0'};text-decoration:${isDone ? 'line-through' : 'none'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(st)}</span>
+            <span style="font-size:12px;color:${isDone ? '#4ade80' : '#e2e8f0'};text-decoration:${isDone ? 'line-through' : 'none'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(st)}</span>
           </div>
           <button onclick="quickAddNeonMinutes('${b.id}', '${day.id}', 25)" style="padding:2px 8px;border-radius:6px;background:#121c32;border:1px solid #1e2d4a;color:#38bdf8;font-size:10px;font-weight:700;cursor:pointer;margin-left:6px;flex-shrink:0" title="Quick log +25m">+25m</button>
         </div>
@@ -2647,8 +2645,8 @@ function renderNeonQuestDayContent(day) {
 
       <!-- Subtopics & Subject Selector Tabs -->
       <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid #1e2d4a;padding-top:14px;flex-wrap:wrap;gap:10px">
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">${subtopicsChipsHtml || '<span style="font-size:11px;color:#64748b">No subtopics</span>'}</div>
-        <div style="display:flex;align-items:center;gap:6px">${subjectTabsHtml}</div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;max-width:100%">${subtopicsChipsHtml || '<span style="font-size:11px;color:#64748b">No subtopics</span>'}</div>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;max-width:100%;overflow-x:auto">${subjectTabsHtml}</div>
       </div>
     </div>
 
@@ -3038,36 +3036,39 @@ function toggleST(bid, j, dayId) {
         chk.classList.toggle('on', isDone);
         chk.textContent = isDone ? '✓' : '';
       }
-    }
 
-    const pct = bPct(bid, b.subtopics);
-    const circ = 2 * Math.PI * 15;
-    const offset = circ - (pct / 100) * circ;
+      const pct = bPct(bid, b.subtopics);
+      const circ = 2 * Math.PI * 15;
+      const offset = circ - (pct / 100) * circ;
 
-    const card = document.getElementById('sb-' + bid);
-    if (card) {
-      const subTitle = card.querySelector('.block-subtitle');
-      if (subTitle) {
-        const sec = (p.timeSpent || 0) + (timers[bid]?.running ? Math.floor((Date.now() - timers[bid].start) / 1000) : 0);
-        subTitle.textContent = `${pct}% · ${Math.round(sec / 360) / 10}/${b.targetHrs}h · ${esc(b.topic || 'No topic set')}`;
+      const card = document.getElementById('sb-' + bid);
+      if (card) {
+        const subTitle = card.querySelector('.block-subtitle');
+        if (subTitle) {
+          const sec = (p.timeSpent || 0) + (timers[bid]?.running ? Math.floor((Date.now() - timers[bid].start) / 1000) : 0);
+          subTitle.textContent = `${pct}% · ${Math.round(sec / 360) / 10}/${b.targetHrs}h · ${esc(b.topic || 'No topic set')}`;
+        }
+        const mrFg = card.querySelector('.mr-fg');
+        if (mrFg) mrFg.setAttribute('stroke-dashoffset', offset);
+        const mrLbl = card.querySelector('.mr-label');
+        if (mrLbl) mrLbl.textContent = `${pct}%`;
       }
-      const mrFg = card.querySelector('.mr-fg');
-      if (mrFg) mrFg.setAttribute('stroke-dashoffset', offset);
-      const mrLbl = card.querySelector('.mr-label');
-      if (mrLbl) mrLbl.textContent = `${pct}%`;
-    }
 
-    renderHoursBar();
-    renderStats();
-    renderDots();
+      renderHoursBar();
+      renderStats();
+      renderDots();
 
-    if (currentScrollY > 0) {
-      window.scrollTo({ top: currentScrollY, behavior: 'instant' });
+      if (currentScrollY > 0) {
+        window.scrollTo({ top: currentScrollY, behavior: 'instant' });
+      }
+      return;
     }
-    return;
   }
 
   refreshAllViews();
+  if (currentScrollY > 0) {
+    window.scrollTo({ top: currentScrollY, behavior: 'instant' });
+  }
 }
 function editST(dayId, bid, j, v) { const d = days.find(x => x.id === dayId), b = d?.blocks.find(x => x.id === bid); if (b) { b.subtopics[j] = v; sd(); } refreshAllViews(); }
 function delST(dayId, bid, j) {
@@ -3135,6 +3136,51 @@ function toggleTimer(bid, dayId) {
     timers[bid].interval = setInterval(() => {
       const ex = Math.floor((Date.now() - timers[bid].start) / 1000);
       const tot = (gp(bid).timeSpent || 0) + ex;
+
+      // Auto-switch subject when running timer reaches or exceeds allocated target time
+      const targetSec = (b && b.targetHrs > 0) ? Math.round(b.targetHrs * 3600) : 0;
+      if (targetSec > 0 && tot >= targetSec) {
+        clearInterval(timers[bid].interval);
+        gp(bid).timeSpent = targetSec;
+        gp(bid).lastEnd = new Date().toISOString();
+        timers[bid] = { running: false };
+        sp();
+        localStorage.removeItem('_runningTimer');
+        try { pushGroupTimerState(null); } catch { }
+
+        // Find next subject block in current day whose target time has not been completed
+        const curDayObj = days.find(x => x.id === dayId);
+        let nextBlock = null;
+        if (curDayObj && curDayObj.blocks) {
+          const curIndex = curDayObj.blocks.findIndex(x => x.id === bid);
+          for (let i = 1; i <= curDayObj.blocks.length; i++) {
+            const candidate = curDayObj.blocks[(curIndex + i) % curDayObj.blocks.length];
+            const candidateTargetSec = (candidate.targetHrs || 0) * 3600;
+            const candidateSpent = gp(candidate.id).timeSpent || 0;
+            if (candidateTargetSec > 0 && candidateSpent < candidateTargetSec) {
+              nextBlock = candidate;
+              break;
+            }
+          }
+        }
+
+        refreshBlock(dayId, bid);
+        renderStats();
+        renderHoursBar();
+
+        if (nextBlock) {
+          try {
+            const audio = new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3");
+            audio.play().catch(() => {});
+          } catch (e) {}
+          // Switch to next subject and start its timer
+          toggleTimer(nextBlock.id, dayId);
+        } else {
+          refreshAllViews();
+        }
+        return;
+      }
+
       const th = Math.floor(tot / 3600), tm = Math.floor((tot % 3600) / 60), ts = tot % 60;
       const el = document.getElementById('td-' + bid);
       if (el) {
@@ -4764,13 +4810,10 @@ const TUTORIAL_STEPS = [
 let tutorialStep = 0;
 
 function openTutorial() {
-  tutorialStep = 0;
-  renderTutorialStep();
-  openModal('tutorialOverlay');
+  return;
 }
 
 function closeTutorial() {
-  closeModal('tutorialOverlay');
   conf.tutorialDone = true;
   sc();
 }
@@ -4818,9 +4861,7 @@ function jumpTutorialStep(i) {
 }
 
 function maybeShowTutorial() {
-  if (!conf.tutorialDone) {
-    openTutorial();
-  }
+  conf.tutorialDone = true;
 }
 
 

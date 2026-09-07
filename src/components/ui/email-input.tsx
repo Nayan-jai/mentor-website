@@ -90,25 +90,36 @@ export function EmailInput({
     setIsFocused(false);
   };
 
+  // Reset highlight index when email input changes
+  useEffect(() => {
+    setHighlightedIdx(-1);
+  }, [emailVal]);
+
   // Determine typo suggestion & autocomplete matches
   let typoSuggestion: string | null = null;
   let matches: string[] = [];
 
-  if (emailVal.includes("@")) {
-    const parts = emailVal.split("@");
-    const username = parts[0];
-    const domain = (parts[1] || "").toLowerCase();
+  const trimmedVal = emailVal.trim();
+  if (trimmedVal.length > 0) {
+    const atIdx = trimmedVal.indexOf("@");
+    if (atIdx >= 0) {
+      const username = trimmedVal.slice(0, atIdx);
+      const domain = trimmedVal.slice(atIdx + 1).toLowerCase();
 
-    if (username.length > 0) {
-      // 1. Exact Typo Match
-      if (domain && DOMAIN_TYPOS[domain]) {
-        typoSuggestion = `${username}@${DOMAIN_TYPOS[domain]}`;
+      if (username.length > 0) {
+        // 1. Exact Typo Match
+        if (domain && DOMAIN_TYPOS[domain]) {
+          typoSuggestion = `${username}@${DOMAIN_TYPOS[domain]}`;
+        }
+
+        // 2. Matching suggestions as user types domain
+        matches = COMMON_DOMAINS
+          .filter(d => d.startsWith(domain) && d !== domain)
+          .map(d => `${username}@${d}`);
       }
-
-      // 2. Matching suggestions as user types domain
-      matches = COMMON_DOMAINS
-        .filter(d => d.startsWith(domain) && d !== domain)
-        .map(d => `${username}@${d}`);
+    } else {
+      // User entered text without '@', suggest common domains
+      matches = COMMON_DOMAINS.map(d => `${trimmedVal}@${d}`);
     }
   }
 
@@ -193,6 +204,10 @@ export function EmailInput({
         <div className="absolute z-50 left-0 right-0 mt-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl overflow-hidden py-1 divide-y divide-slate-100 dark:divide-slate-800">
           {typoSuggestion && (
             <div
+              onMouseDown={(e) => {
+                e.preventDefault();
+                applyEmail(typoSuggestion!);
+              }}
               onClick={() => applyEmail(typoSuggestion!)}
               className={`px-3 py-2 text-xs cursor-pointer flex items-center justify-between transition-colors ${
                 highlightedIdx === 0
@@ -211,10 +226,17 @@ export function EmailInput({
           {matches.map((match, idx) => {
             const currentIdx = typoSuggestion ? idx + 1 : idx;
             const isHighlighted = highlightedIdx === currentIdx;
+            const atIndex = match.indexOf("@");
+            const userPart = atIndex >= 0 ? match.slice(0, atIndex) : match;
+            const domainPart = atIndex >= 0 ? match.slice(atIndex) : "";
 
             return (
               <div
                 key={match}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  applyEmail(match);
+                }}
                 onClick={() => applyEmail(match)}
                 className={`px-3 py-2 text-xs cursor-pointer flex items-center justify-between transition-colors ${
                   isHighlighted
@@ -222,13 +244,17 @@ export function EmailInput({
                     : "text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/80"
                 }`}
               >
-                <span>{match}</span>
-                <span className="text-[10px] text-slate-400 dark:text-slate-500">Press Tab ↵</span>
+                <span>
+                  {userPart}
+                  <span className="font-semibold text-blue-600 dark:text-blue-400">{domainPart}</span>
+                </span>
+                <span className="text-[10px] text-slate-400 dark:text-slate-500">Select ↵</span>
               </div>
             );
           })}
         </div>
       )}
+
     </div>
   );
 }
