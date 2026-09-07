@@ -171,25 +171,37 @@ export default function MentorDashboard() {
 
   if (status === "loading" || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="flex justify-center items-center">
-          <div aria-label="Orange and tan hamster running in a metal wheel" role="img" className="wheel-and-hamster">
-            <div className="wheel"></div>
-            <div className="hamster">
-              <div className="hamster__body">
-                <div className="hamster__head">
-                  <div className="hamster__ear"></div>
-                  <div className="hamster__eye"></div>
-                  <div className="hamster__nose"></div>
-                </div>
-                <div className="hamster__limb hamster__limb--fr"></div>
-                <div className="hamster__limb hamster__limb--fl"></div>
-                <div className="hamster__limb hamster__limb--br"></div>
-                <div className="hamster__limb hamster__limb--bl"></div>
-                <div className="hamster__tail"></div>
-              </div>
+      <div className="min-h-screen bg-gray-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300 pt-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Header skeleton */}
+          <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <div className="h-8 w-56 bg-gray-200 dark:bg-slate-700 rounded animate-pulse mb-2" />
+              <div className="h-4 w-40 bg-gray-100 dark:bg-slate-800 rounded animate-pulse" />
             </div>
-            <div className="spoke"></div>
+          </div>
+          {/* Two-column skeleton */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-1 space-y-3">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="p-4 rounded-xl border bg-white dark:bg-slate-900 dark:border-slate-800 animate-pulse flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-slate-700 flex-shrink-0" />
+                  <div className="flex-1">
+                    <div className="h-4 w-28 bg-gray-200 dark:bg-slate-700 rounded mb-1" />
+                    <div className="h-3 w-36 bg-gray-100 dark:bg-slate-800 rounded" />
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="lg:col-span-2 space-y-4">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="p-6 rounded-xl border bg-white dark:bg-slate-900 dark:border-slate-800 animate-pulse">
+                  <div className="h-5 w-1/2 bg-gray-200 dark:bg-slate-700 rounded mb-4" />
+                  <div className="h-3 w-full bg-gray-100 dark:bg-slate-800 rounded mb-2" />
+                  <div className="h-3 w-3/4 bg-gray-100 dark:bg-slate-800 rounded" />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>

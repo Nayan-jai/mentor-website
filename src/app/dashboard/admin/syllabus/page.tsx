@@ -724,10 +724,33 @@ export default function AdminSyllabusPage() {
           </div>
         )}
 
+
         {loading ? (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-500">Loading syllabus templates...</p>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-pulse">
+            <div className="lg:col-span-1 bg-white dark:bg-slate-900 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-slate-800 h-fit">
+              <div className="h-5 w-32 bg-gray-200 dark:bg-slate-700 rounded mb-4" />
+              <div className="space-y-3">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="p-4 rounded-md border border-gray-200 dark:border-slate-700">
+                    <div className="h-4 w-3/4 bg-gray-200 dark:bg-slate-700 rounded mb-2" />
+                    <div className="h-3 w-1/2 bg-gray-100 dark:bg-slate-800 rounded" />
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="lg:col-span-2 space-y-6">
+              <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-slate-800">
+                <div className="h-5 w-48 bg-gray-200 dark:bg-slate-700 rounded mb-4" />
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="h-9 bg-gray-100 dark:bg-slate-800 rounded" />
+                  <div className="h-9 bg-gray-100 dark:bg-slate-800 rounded" />
+                </div>
+              </div>
+              <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-slate-800">
+                <div className="h-5 w-40 bg-gray-200 dark:bg-slate-700 rounded mb-4" />
+                <div className="h-16 bg-gray-100 dark:bg-slate-800 rounded" />
+              </div>
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

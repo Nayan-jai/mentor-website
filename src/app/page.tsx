@@ -68,28 +68,7 @@ export default function HomePage() {
 
   if (status === "loading" || session) {
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
-        <div className="flex justify-center items-center">
-          <div aria-label="Loading..." role="img" className="wheel-and-hamster">
-            <div className="wheel"></div>
-            <div className="hamster">
-              <div className="hamster__body">
-                <div className="hamster__head">
-                  <div className="hamster__ear"></div>
-                  <div className="hamster__eye"></div>
-                  <div className="hamster__nose"></div>
-                </div>
-                <div className="hamster__limb hamster__limb--fr"></div>
-                <div className="hamster__limb hamster__limb--fl"></div>
-                <div className="hamster__limb hamster__limb--br"></div>
-                <div className="hamster__limb hamster__limb--bl"></div>
-                <div className="hamster__tail"></div>
-              </div>
-            </div>
-            <div className="spoke"></div>
-          </div>
-        </div>
-      </div>
+      <div className="min-h-screen bg-gray-950" />
     );
   }
 
@@ -139,7 +118,7 @@ export default function HomePage() {
               <div className="mt-16 p-6 max-w-xl mx-auto rounded-2xl border border-blue-500/20 bg-gray-900/60 backdrop-blur-md shadow-2xl text-left flex flex-col sm:flex-row items-center gap-6 transform hover:scale-[1.02] transition-all duration-300">
                 <div className="relative flex-shrink-0">
                   <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-blue-500 to-teal-500 opacity-30 blur"></div>
-                  <img src="/app-icon.png" alt="App Icon" className="relative w-16 h-16 rounded-2xl shadow-lg border border-gray-800" />
+                  <img src="/app-icon.png" alt="App Icon" className="relative w-16 h-16 rounded-2xl shadow-lg border border-gray-800" width="64" height="64" />
                 </div>
                 <div className="flex-1 text-center sm:text-left">
                   <h4 className="text-lg font-bold text-white mb-1">Get the Android App</h4>
@@ -265,8 +244,17 @@ export default function HomePage() {
           <section className="upcoming-sessions mt-20">
             <div className="container mx-auto px-4">
               <h2 className="text-2xl font-bold mb-6 text-center">Upcoming Sessions</h2>
+              <div className="min-h-[200px]">
               {loadingSessions ? (
-                <div className="text-center text-gray-300">Loading sessions...</div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className="p-4 sm:p-6 rounded-xl border-l-4 border-blue-400 bg-white/10 animate-pulse">
+                      <div className="h-5 w-2/3 bg-white/20 rounded mb-3" />
+                      <div className="h-3 w-full bg-white/10 rounded mb-2" />
+                      <div className="h-3 w-4/5 bg-white/10 rounded" />
+                    </div>
+                  ))}
+                </div>
               ) : sessions.length === 0 ? (
                 <div className="text-center text-gray-300">No upcoming sessions</div>
               ) : (
@@ -291,6 +279,7 @@ export default function HomePage() {
                   ))}
                 </div>
               )}
+              </div>
               <div className="text-center mt-6">
                 <Link href="/sessions" className="text-blue-300 hover:text-blue-200 hover:underline font-medium">
                   See all sessions
@@ -305,8 +294,17 @@ export default function HomePage() {
           <section className="recent-forum-discussions mt-20">
             <div className="container mx-auto px-4">
               <h2 className="text-2xl font-bold mb-6 text-center">Recent Forum Discussions</h2>
+              <div className="min-h-[200px]">
               {loadingDiscussions ? (
-                <div className="text-center text-gray-300">Loading discussions...</div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className="bg-white/10 rounded-lg p-6 animate-pulse">
+                      <div className="h-5 w-2/3 bg-white/20 rounded mb-3" />
+                      <div className="h-3 w-full bg-white/10 rounded mb-2" />
+                      <div className="h-3 w-4/5 bg-white/10 rounded" />
+                    </div>
+                  ))}
+                </div>
               ) : discussions.length === 0 ? (
                 <div className="text-center text-gray-300">No discussions found</div>
               ) : (
@@ -323,6 +321,7 @@ export default function HomePage() {
                   ))}
                 </div>
               )}
+              </div>
               <div className="text-center mt-6">
                 <Link href="/forum" className="text-blue-300 hover:text-blue-200 hover:underline font-medium">
                   Visit the forum

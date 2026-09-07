@@ -103,13 +103,33 @@ export default function AdminSessionsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 pt-24">
+      <div className="min-h-screen bg-gray-50 dark:bg-slate-950 pt-20 sm:pt-24 pb-8 transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-center h-64">
-            <div className="flex items-center space-x-2">
-              <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
-              <span className="text-gray-600">Loading sessions...</span>
-            </div>
+          <div className="mb-8">
+            <div className="h-8 w-64 bg-gray-200 dark:bg-slate-700 rounded animate-pulse mb-2" />
+            <div className="h-4 w-80 bg-gray-100 dark:bg-slate-800 rounded animate-pulse" />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="p-4 rounded-lg border bg-white dark:bg-slate-900 dark:border-slate-800 animate-pulse">
+                <div className="flex items-center">
+                  <div className="w-9 h-9 rounded-lg bg-gray-200 dark:bg-slate-700 flex-shrink-0" />
+                  <div className="ml-3 flex-1">
+                    <div className="h-3 w-24 bg-gray-200 dark:bg-slate-700 rounded mb-2" />
+                    <div className="h-6 w-10 bg-gray-300 dark:bg-slate-600 rounded" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="space-y-4">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="p-6 rounded-lg border bg-white dark:bg-slate-900 dark:border-slate-800 animate-pulse">
+                <div className="h-5 w-1/3 bg-gray-200 dark:bg-slate-700 rounded mb-3" />
+                <div className="h-3 w-full bg-gray-100 dark:bg-slate-800 rounded mb-2" />
+                <div className="h-3 w-2/3 bg-gray-100 dark:bg-slate-800 rounded" />
+              </div>
+            ))}
           </div>
         </div>
       </div>
