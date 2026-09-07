@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Sparkles, Check } from "lucide-react";
 
@@ -90,37 +90,33 @@ export function EmailInput({
     setIsFocused(false);
   };
 
-  // Reset highlight index when email input changes
-  useEffect(() => {
-    setHighlightedIdx(-1);
-  }, [emailVal]);
+  // Derive typo suggestion & autocomplete matches — memoized to avoid recomputing on unrelated renders
+  const { typoSuggestion, matches } = useMemo(() => {
+    const trimmedVal = emailVal.trim();
+    if (trimmedVal.length === 0) return { typoSuggestion: null, matches: [] as string[] };
 
-  // Determine typo suggestion & autocomplete matches
-  let typoSuggestion: string | null = null;
-  let matches: string[] = [];
-
-  const trimmedVal = emailVal.trim();
-  if (trimmedVal.length > 0) {
     const atIdx = trimmedVal.indexOf("@");
     if (atIdx >= 0) {
       const username = trimmedVal.slice(0, atIdx);
       const domain = trimmedVal.slice(atIdx + 1).toLowerCase();
+      if (username.length === 0) return { typoSuggestion: null, matches: [] as string[] };
 
-      if (username.length > 0) {
-        // 1. Exact Typo Match
-        if (domain && DOMAIN_TYPOS[domain]) {
-          typoSuggestion = `${username}@${DOMAIN_TYPOS[domain]}`;
-        }
-
-        // 2. Matching suggestions as user types domain
-        matches = COMMON_DOMAINS
-          .filter(d => d.startsWith(domain) && d !== domain)
-          .map(d => `${username}@${d}`);
-      }
-    } else {
-      // User entered text without '@', suggest common domains
-      matches = COMMON_DOMAINS.map(d => `${trimmedVal}@${d}`);
+      const typo = domain && DOMAIN_TYPOS[domain] ? `${username}@${DOMAIN_TYPOS[domain]}` : null;
+      const ms = COMMON_DOMAINS
+        .filter(d => d.startsWith(domain) && d !== domain)
+        .map(d => `${username}@${d}`);
+      return { typoSuggestion: typo, matches: ms };
     }
+    // No '@' yet — suggest all common domains
+    return { typoSuggestion: null, matches: COMMON_DOMAINS.map(d => `${trimmedVal}@${d}`) };
+  }, [emailVal]);
+
+  // Reset highlight when the suggestion list changes (value changed)
+  const prevEmailRef = useRef(emailVal);
+  if (prevEmailRef.current !== emailVal) {
+    prevEmailRef.current = emailVal;
+    // Inline reset avoids an extra render cycle that useEffect would cause
+    if (highlightedIdx !== -1) setHighlightedIdx(-1);
   }
 
   // Handle key navigation inside dropdown

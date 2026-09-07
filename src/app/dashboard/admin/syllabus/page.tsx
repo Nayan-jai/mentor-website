@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useTransition } from "react";
 import Link from "next/link";
 import { ArrowLeft, Plus, Trash2, Edit2, Check, AlertCircle, Calendar, BookOpen, Layers, PlusCircle, X, FileSpreadsheet, Download } from "lucide-react";
 
@@ -77,6 +77,7 @@ export default function AdminSyllabusPage() {
   const [newSubtopicTexts, setNewSubtopicTexts] = useState<Record<string, string>>({});
   const [expandedSubjects, setExpandedSubjects] = useState<Record<string, boolean>>({});
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+  const [, startTransition] = useTransition();
 
   useEffect(() => {
     fetchSyllabi();
@@ -180,9 +181,11 @@ export default function AdminSyllabusPage() {
   };
 
   const handleUpdateSubject = (idx: number, fields: Partial<Subject>) => {
-    const list = [...editSubjects];
-    list[idx] = { ...list[idx], ...fields };
-    setEditSubjects(list);
+    startTransition(() => {
+      const list = [...editSubjects];
+      list[idx] = { ...list[idx], ...fields };
+      setEditSubjects(list);
+    });
   };
 
   const handleDeleteSubject = (idx: number) => {
@@ -209,11 +212,13 @@ export default function AdminSyllabusPage() {
   };
 
   const handleUpdateSyllabusTopic = (idx: number, tIdx: number, val: string) => {
-    const list = [...editSubjects];
-    const topics = [...(list[idx].topics || [])];
-    topics[tIdx] = { ...topics[tIdx], name: val };
-    list[idx] = { ...list[idx], topics };
-    setEditSubjects(list);
+    startTransition(() => {
+      const list = [...editSubjects];
+      const topics = [...(list[idx].topics || [])];
+      topics[tIdx] = { ...topics[tIdx], name: val };
+      list[idx] = { ...list[idx], topics };
+      setEditSubjects(list);
+    });
   };
 
   const handleDeleteSyllabusTopic = (idx: number, tIdx: number) => {
@@ -234,13 +239,15 @@ export default function AdminSyllabusPage() {
   };
 
   const handleUpdateSyllabusSubtopic = (idx: number, tIdx: number, stIdx: number, val: string) => {
-    const list = [...editSubjects];
-    const topics = [...(list[idx].topics || [])];
-    const subtopics = [...topics[tIdx].subtopics];
-    subtopics[stIdx] = val;
-    topics[tIdx] = { ...topics[tIdx], subtopics };
-    list[idx] = { ...list[idx], topics };
-    setEditSubjects(list);
+    startTransition(() => {
+      const list = [...editSubjects];
+      const topics = [...(list[idx].topics || [])];
+      const subtopics = [...topics[tIdx].subtopics];
+      subtopics[stIdx] = val;
+      topics[tIdx] = { ...topics[tIdx], subtopics };
+      list[idx] = { ...list[idx], topics };
+      setEditSubjects(list);
+    });
   };
 
   const handleDeleteSyllabusSubtopic = (idx: number, tIdx: number, stIdx: number) => {
@@ -507,9 +514,11 @@ export default function AdminSyllabusPage() {
   };
 
   const handleUpdateDay = (dayIdx: number, fields: Partial<Day>) => {
-    const list = [...editDays];
-    list[dayIdx] = { ...list[dayIdx], ...fields };
-    setEditDays(list);
+    startTransition(() => {
+      const list = [...editDays];
+      list[dayIdx] = { ...list[dayIdx], ...fields };
+      setEditDays(list);
+    });
   };
 
   const handleDeleteDay = (dayIdx: number) => {
@@ -548,9 +557,11 @@ export default function AdminSyllabusPage() {
   };
 
   const handleUpdateBlock = (dayIdx: number, blockIdx: number, fields: Partial<Block>) => {
-    const list = [...editDays];
-    list[dayIdx].blocks[blockIdx] = { ...list[dayIdx].blocks[blockIdx], ...fields };
-    setEditDays(list);
+    startTransition(() => {
+      const list = [...editDays];
+      list[dayIdx].blocks[blockIdx] = { ...list[dayIdx].blocks[blockIdx], ...fields };
+      setEditDays(list);
+    });
   };
 
   const handleDeleteBlock = (dayIdx: number, blockIdx: number) => {
@@ -787,7 +798,7 @@ export default function AdminSyllabusPage() {
                         <input
                           type="text"
                           value={editKey}
-                          onChange={(e) => setEditKey(e.target.value)}
+                          onChange={(e) => { const v = e.target.value; startTransition(() => setEditKey(v)); }}
                           placeholder="e.g. upsc, mppsc"
                           className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 rounded shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm font-mono"
                           disabled={!isNew}
@@ -800,7 +811,7 @@ export default function AdminSyllabusPage() {
                         <input
                           type="text"
                           value={editName}
-                          onChange={(e) => setEditName(e.target.value)}
+                          onChange={(e) => { const v = e.target.value; startTransition(() => setEditName(v)); }}
                           placeholder="e.g. UPSC Civil Services"
                           className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 rounded shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm"
                         />
@@ -1204,7 +1215,7 @@ export default function AdminSyllabusPage() {
                                     <input
                                       type="text"
                                       value={newSubtopicTexts[block.id] || ""}
-                                      onChange={(e) => setNewSubtopicTexts({ ...newSubtopicTexts, [block.id]: e.target.value })}
+                                      onChange={(e) => { const v = e.target.value; startTransition(() => setNewSubtopicTexts(prev => ({ ...prev, [block.id]: v }))); }}
                                       placeholder="Add subtopic..."
                                       className="flex-1 px-3 py-1 border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100 rounded text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
                                       onKeyDown={(e) => {
