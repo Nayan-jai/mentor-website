@@ -5711,10 +5711,10 @@ function renderOwnedGroupsUI(ownedGroups = []) {
     return `
             <div class="created-group-row">
               <!-- Left: Emblem & Name -->
-              <div style="display:flex;align-items:center;gap:14px;min-width:200px">
+              <div class="created-group-left">
                 <div class="group-emblem-box">🔥</div>
-                <div>
-                  <div style="font-size:15px;font-weight:800;color:var(--ink);display:flex;align-items:center;gap:6px">
+                <div style="min-width:0">
+                  <div style="font-size:15px;font-weight:800;color:var(--ink);display:flex;align-items:center;gap:6px;flex-wrap:wrap">
                     <span>${esc(og.name)}</span>
                     <span style="font-size:10px;background:rgba(200,149,32,0.15);color:var(--gold);border:1px solid var(--gold);padding:1px 6px;border-radius:6px;font-weight:800">👑 Admin</span>
                   </div>
@@ -5726,7 +5726,7 @@ function renderOwnedGroupsUI(ownedGroups = []) {
               </div>
 
               <!-- Middle: Study Hour Goal Tracker -->
-              <div style="flex:1;min-width:180px;max-width:260px">
+              <div class="created-group-middle">
                 <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:700;color:var(--ink2);margin-bottom:4px">
                   <span>Study Hour Goal Tracker</span>
                   <span style="color:var(--ink3);font-family:monospace">${currentHrs} hr / ${targetHrs} hr</span>
@@ -5737,7 +5737,7 @@ function renderOwnedGroupsUI(ownedGroups = []) {
               </div>
 
               <!-- Right Middle: Live Status -->
-              <div style="display:flex;align-items:center;gap:10px;min-width:130px">
+              <div class="created-group-status">
                 <div>
                   <div style="font-size:10px;font-weight:700;color:var(--ink3);text-transform:uppercase">Live Status</div>
                   <div style="font-size:13px;font-weight:800;color:var(--green);display:flex;align-items:center;gap:6px;margin-top:2px">
@@ -5748,7 +5748,7 @@ function renderOwnedGroupsUI(ownedGroups = []) {
               </div>
 
               <!-- Right: Buttons -->
-              <div style="display:flex;align-items:center;gap:8px">
+              <div class="created-group-actions">
                 <button class="created-group-btn-enter" onclick="quickJoinOwnedGroup('${og.code}')">Enter Group</button>
                 <button class="created-group-btn-enter" style="background:var(--bg2);color:var(--ink);border-color:var(--border)" onclick="openGroupManagementModal('${og.id}')">⚙️ Settings</button>
                 <button class="created-group-btn-delete" onclick="handleDeleteGroup('${og.id}')">Delete</button>
@@ -6217,12 +6217,12 @@ function openGroupManagementModal(groupId) {
         const hrsStr = `${Math.floor(totalSec / 3600)}h ${Math.floor((totalSec % 3600) / 60)}m`;
 
         return `
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;gap:10px">
+          <div class="gm-member-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;gap:10px">
             <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0">
               <div style="width:34px;height:34px;border-radius:50%;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:var(--ink);flex-shrink:0">
                 ${m.image ? `<img src="${esc(m.image)}" style="width:100%;height:100%;border-radius:50%;object-fit:cover" />` : (m.name ? m.name.charAt(0).toUpperCase() : '👤')}
               </div>
-              <div style="min-width:0">
+              <div style="min-width:0;flex:1">
                 <div style="font-size:13px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
                   <span>${esc(m.name)}</span>
                   ${m.isSelf ? '<span style="font-size:10px;color:var(--ink3)">(You)</span>' : ''}
@@ -6235,7 +6235,7 @@ function openGroupManagementModal(groupId) {
             </div>
 
             ${isOwner && !m.isSelf ? `
-              <button onclick="handleRemoveGroupMember('${g.id}', '${m.userId}', '${esc(m.name)}')" class="hbtn" style="background:rgba(217,79,61,0.12);color:#d94f3d;border:1px solid #d94f3d;font-weight:700;height:28px;font-size:11px;padding:0 10px;border-radius:6px">
+              <button onclick="handleRemoveGroupMember('${g.id}', '${m.userId}', '${esc(m.name)}')" class="hbtn" style="background:rgba(217,79,61,0.12);color:#d94f3d;border:1px solid #d94f3d;font-weight:700;height:28px;font-size:11px;padding:0 10px;border-radius:6px;flex-shrink:0">
                 Remove
               </button>
             ` : ''}
