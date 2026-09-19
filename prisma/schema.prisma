@@ -261,20 +261,23 @@ model StudyGroup {
 }
 
 model StudyGroupMember {
-  id         String     @id @default(cuid())
-  groupId    String
-  group      StudyGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  userId     String
-  user       User       @relation("GroupMember", fields: [userId], references: [id], onDelete: Cascade)
-  timerBid   String?    // active block id, null = idle
-  timerStart DateTime?  // absolute start timestamp
-  timerBase  Int?       // accumulated seconds at start
-  subject    String?    // subject name
-  topic      String?    // topic name
-  updatedAt  DateTime   @updatedAt
+  id           String     @id @default(cuid())
+  groupId      String
+  group        StudyGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User       @relation("GroupMember", fields: [userId], references: [id], onDelete: Cascade)
+  timerBid     String?    // active block id, null = idle
+  timerStart   DateTime?  // absolute start timestamp
+  timerBase    Int?       // accumulated seconds at start
+  subject      String?    // subject name
+  topic        String?    // topic name
+  pendingNudge String?    // sender name of latest nudge, null = no pending nudge
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 
   @@unique([groupId, userId])
 }
+
 
 model DeveloperQuery {
   id            String   @id @default(cuid())

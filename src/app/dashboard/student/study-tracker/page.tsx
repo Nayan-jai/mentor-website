@@ -22,14 +22,27 @@ export default function StudyTrackerPage() {
       savedTheme = localStorage.getItem("app-user-theme") || localStorage.getItem("theme");
     } catch (e) {}
 
-    const activeTheme = savedTheme || resolvedTheme || theme;
-    const isDark = activeTheme === "dark" || document.documentElement.classList.contains("dark");
+    const themeKey = savedTheme || "luminous";
+    const isLight = themeKey === "light";
+    const isDark = !isLight;
     
     if (doc.body) {
       doc.body.classList.toggle("dark", isDark);
+      doc.body.classList.toggle("light", isLight);
+      if (savedTheme) {
+        doc.body.setAttribute("data-theme", savedTheme);
+      } else if (!doc.body.hasAttribute("data-theme")) {
+        doc.body.setAttribute("data-theme", "luminous");
+      }
     }
     if (doc.documentElement) {
       doc.documentElement.classList.toggle("dark", isDark);
+      doc.documentElement.classList.toggle("light", isLight);
+      if (savedTheme) {
+        doc.documentElement.setAttribute("data-theme", savedTheme);
+      } else if (!doc.documentElement.hasAttribute("data-theme")) {
+        doc.documentElement.setAttribute("data-theme", "luminous");
+      }
     }
   };
 

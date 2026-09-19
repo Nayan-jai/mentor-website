@@ -14,6 +14,27 @@ function generateGroupCode() {
   return code;
 }
 
+function getMemberAllocatedSec(m: any): number {
+  const MAX_CAP_SEC = 16 * 3600;
+  if (!m || !m.user?.studyTracker) return MAX_CAP_SEC;
+  const tracker = m.user.studyTracker;
+  if (m.timerBid && tracker.days) {
+    for (const d of tracker.days) {
+      const b = (d.blocks || []).find((bk: any) => bk.id === m.timerBid);
+      if (b && b.targetHrs > 0) {
+        return Math.min(Math.round(b.targetHrs * 3600), MAX_CAP_SEC);
+      }
+    }
+  }
+  if (m.subject && tracker.subj) {
+    const s = tracker.subj.find((sj: any) => sj.name === m.subject);
+    if (s && s.defaultHrs > 0) {
+      return Math.min(Math.round(s.defaultHrs * 3600), MAX_CAP_SEC);
+    }
+  }
+  return MAX_CAP_SEC;
+}
+
 export async function GET(request: NextRequest) {
   const session = await getSession(request);
   if (!session?.user?.id) {
@@ -28,6 +49,7 @@ export async function GET(request: NextRequest) {
         group: {
           include: {
             members: {
+              orderBy: { createdAt: "asc" },
               include: {
                 user: {
                   select: {
@@ -49,6 +71,7 @@ export async function GET(request: NextRequest) {
       where: { ownerId: session.user.id },
       include: {
         members: {
+          orderBy: { createdAt: "asc" },
           include: {
             user: {
               select: {
@@ -64,25 +87,84 @@ export async function GET(request: NextRequest) {
       },
     });
 
+    const expiredIds: string[] = [];
+    const nudgeToClearIds: string[] = [];
+
+    const mapMember = (m: any) => {
+      let finalTimerBid = m.timerBid;
+      let finalTimerStart = m.timerStart ? m.timerStart.toISOString() : null;
+      let finalTimerBase = m.timerBase;
+
+      if (m.timerBid && m.timerStart) {
+        const startMs = new Date(m.timerStart).getTime();
+        const elapsedSec = Math.max(0, Math.floor((Date.now() - startMs) / 1000));
+        const totalSec = (m.timerBase || 0) + elapsedSec;
+        const allocatedSec = getMemberAllocatedSec(m);
+
+        if (totalSec >= allocatedSec) {
+          expiredIds.push(m.id);
+          finalTimerBid = null;
+          finalTimerStart = null;
+          finalTimerBase = allocatedSec;
+        }
+      }
+
+      // Deliver pending nudge only to self, then mark for clearing
+      let pendingNudge: string | null = null;
+      if (m.userId === session.user.id && m.pendingNudge) {
+        pendingNudge = m.pendingNudge;
+        nudgeToClearIds.push(m.id);
+      }
+
+      return {
+        userId: m.userId,
+        isSelf: m.userId === session.user.id,
+        name: m.user.name || m.user.email.split("@")[0],
+        image: m.user.image,
+        timerBid: finalTimerBid,
+        timerStart: finalTimerStart,
+        timerBase: finalTimerBase,
+        subject: m.subject,
+        topic: m.topic,
+        updatedAt: m.updatedAt.toISOString(),
+        studyTracker: m.user.studyTracker,
+        pendingNudge,
+      };
+    };
+
     const ownedGroups = ownedGroupsRaw.map((og) => ({
       id: og.id,
       name: og.name,
       code: og.code,
       ownerId: og.ownerId,
-      members: og.members.map((m) => ({
-        userId: m.userId,
-        isSelf: m.userId === session.user.id,
-        name: m.user.name || m.user.email.split("@")[0],
-        image: m.user.image,
-        timerBid: m.timerBid,
-        timerStart: m.timerStart ? m.timerStart.toISOString() : null,
-        timerBase: m.timerBase,
-        subject: m.subject,
-        topic: m.topic,
-        updatedAt: m.updatedAt.toISOString(),
-        studyTracker: m.user.studyTracker,
-      })),
+      members: og.members.map(mapMember),
     }));
+
+    const clearPromises: Promise<any>[] = [];
+    if (expiredIds.length > 0) {
+      clearPromises.push(
+        prisma.studyGroupMember.updateMany({
+          where: { id: { in: expiredIds } },
+          data: {
+            timerBid: null,
+            timerStart: null,
+          },
+        }).catch(() => {})
+      );
+    }
+    if (nudgeToClearIds.length > 0) {
+      clearPromises.push(
+        prisma.studyGroupMember.updateMany({
+          where: { id: { in: nudgeToClearIds } },
+          data: {
+            pendingNudge: null,
+          },
+        }).catch(() => {})
+      );
+    }
+    if (clearPromises.length > 0) {
+      await Promise.all(clearPromises);
+    }
 
     if (!membership) {
       return NextResponse.json({ joined: false, ownedGroups });
@@ -97,19 +179,7 @@ export async function GET(request: NextRequest) {
         code: group.code,
         name: group.name,
         ownerId: group.ownerId,
-        members: group.members.map((m) => ({
-          userId: m.userId,
-          isSelf: m.userId === session.user.id,
-          name: m.user.name || m.user.email.split("@")[0],
-          image: m.user.image,
-          timerBid: m.timerBid,
-          timerStart: m.timerStart ? m.timerStart.toISOString() : null,
-          timerBase: m.timerBase,
-          subject: m.subject,
-          topic: m.topic,
-          updatedAt: m.updatedAt.toISOString(),
-          studyTracker: m.user.studyTracker,
-        })),
+        members: group.members.map(mapMember),
       },
     });
   } catch (err) {
@@ -297,9 +367,38 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: "Timer updated" });
     }
 
+    // 8. NUDGE a member (sets pendingNudge on the target member)
+    if (action === "nudge") {
+      const { targetUserId, groupId } = body;
+      if (!targetUserId || !groupId) {
+        return NextResponse.json({ message: "targetUserId and groupId required" }, { status: 400 });
+      }
+
+      // Verify sender is in the same group
+      const senderMembership = await prisma.studyGroupMember.findFirst({
+        where: { userId: session.user.id, groupId },
+      });
+      if (!senderMembership) {
+        return NextResponse.json({ message: "You are not in this group" }, { status: 403 });
+      }
+
+      const sender = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { name: true },
+      });
+
+      await prisma.studyGroupMember.updateMany({
+        where: { userId: targetUserId, groupId },
+        data: { pendingNudge: sender?.name || "Someone" },
+      });
+
+      return NextResponse.json({ message: "Nudge sent" });
+    }
+
     return NextResponse.json({ message: "Invalid action" }, { status: 400 });
   } catch (err) {
     console.error("Failed to perform study group action:", err);
     return NextResponse.json({ message: "Internal server error" }, { status: 500 });
   }
 }
+

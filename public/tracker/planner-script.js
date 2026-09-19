@@ -28,6 +28,8 @@ const COLOR_NAMES = {
 };
 const ICONS = ['⚖️', '📈', '🗺️', '🔁', '📝', '🧮', '💡', '📖', '🏛️', '🎯', '📊', '✏️', '🏆', '🔬', '💰', '🌍', '⚡', '🎓', '📋', '🗞️'];
 const SK = 'ias6_data', SP = 'ias6_prog', SC = 'ias6_conf';
+const MAX_DAY_HOURS = 16;
+const MAX_DAY_SECONDS = MAX_DAY_HOURS * 3600; // 16 hours in seconds (57,600s)
 
 // Page detection: set dynamically by each HTML file
 let isManagePage = false;
@@ -69,7 +71,7 @@ let PREMADE_SYLLABI = {};
 /* ══════════════════════════════════════════
    STATE
 ══════════════════════════════════════════ */
-let subj = [], days = [], prog = {}, conf = { startDate: null, dark: false, targetDate: null, revisionActive: false, activeTab: 'daily' };
+let subj = [], days = [], prog = {}, conf = { startDate: null, dark: true, targetDate: null, revisionActive: false, activeTab: 'daily', theme: 'luminous' };
 let curDay = 0;
 let timers = {};
 let editSubjId = null, editDayId = null, bpDayId = null, bpSelSubjId = null;
@@ -332,6 +334,8 @@ function defReset() {
   if (!conf) conf = {};
   conf.syllabusType = 'custom';
   conf.examName = 'My Study Plan';
+  if (!conf.theme) conf.theme = 'luminous';
+  conf.dark = true;
 }
 
 let syncTimeout = null;
@@ -960,6 +964,16 @@ function dLogHrs(i) {
     if (timers[b.id]?.running) sec += Math.floor((Date.now() - timers[b.id].start) / 1000);
     return s + sec;
   }, 0) / 3600 || 0;
+}
+function getDayLoggedSec(dayId, excludeBlockId = null) {
+  const d = days.find(x => x.id === dayId);
+  if (!d || !d.blocks) return 0;
+  return d.blocks.reduce((s, b) => {
+    if (b.id === excludeBlockId) return s;
+    let sec = gp(b.id).timeSpent || 0;
+    if (timers[b.id]?.running) sec += Math.floor((Date.now() - timers[b.id].start) / 1000);
+    return s + sec;
+  }, 0);
 }
 function dPlannedHrs(i) { return days[i]?.blocks.reduce((s, b) => s + (b.targetHrs || 0), 0) || 0; }
 
@@ -1795,20 +1809,42 @@ function setCyberActiveSubject(bid) {
 }
 
 function quickAddCyberMins(bid, dayId, mins) {
+  const otherBlocksSec = getDayLoggedSec(dayId, bid);
+  const curSpent = gp(bid).timeSpent || 0;
+  const curDaySec = otherBlocksSec + curSpent;
+  if (curDaySec >= MAX_DAY_SECONDS) {
+    alert('Daily study limit reached: Maximum 16 hours allowed per day.');
+    return;
+  }
+  const allowedAdd = Math.min(mins * 60, MAX_DAY_SECONDS - curDaySec);
   const p = gp(bid);
-  p.timeSpent = (p.timeSpent || 0) + (mins * 60);
+  p.timeSpent = curSpent + allowedAdd;
   sp();
   renderCyberpunkView();
+  if (curDaySec + mins * 60 > MAX_DAY_SECONDS) {
+    alert('Added time was capped at 16 hours daily limit.');
+  }
 }
 
 function addManualMinutes(bid, dayId) {
   const inp = document.getElementById('cyberManual-' + bid);
   const mins = parseInt(inp?.value || '0', 10);
   if (mins > 0) {
+    const otherBlocksSec = getDayLoggedSec(dayId, bid);
+    const curSpent = gp(bid).timeSpent || 0;
+    const curDaySec = otherBlocksSec + curSpent;
+    if (curDaySec >= MAX_DAY_SECONDS) {
+      alert('Daily study limit reached: Maximum 16 hours allowed per day.');
+      return;
+    }
+    const allowedAdd = Math.min(mins * 60, MAX_DAY_SECONDS - curDaySec);
     const p = gp(bid);
-    p.timeSpent = (p.timeSpent || 0) + (mins * 60);
+    p.timeSpent = curSpent + allowedAdd;
     sp();
     renderCyberpunkView();
+    if (curDaySec + mins * 60 > MAX_DAY_SECONDS) {
+      alert('Added time was capped at 16 hours daily limit.');
+    }
   }
 }
 
@@ -2482,10 +2518,21 @@ function renderDots() {
 
 function quickAddNeonMinutes(bid, dayId, mins) {
   if (!bid) return;
+  const otherBlocksSec = getDayLoggedSec(dayId, bid);
+  const curSpent = gp(bid).timeSpent || 0;
+  const curDaySec = otherBlocksSec + curSpent;
+  if (curDaySec >= MAX_DAY_SECONDS) {
+    alert('Daily study limit reached: Maximum 16 hours allowed per day.');
+    return;
+  }
+  const allowedAdd = Math.min(mins * 60, MAX_DAY_SECONDS - curDaySec);
   const p = gp(bid);
-  p.timeSpent = (p.timeSpent || 0) + mins * 60;
+  p.timeSpent = curSpent + allowedAdd;
   sp();
   renderAll();
+  if (curDaySec + mins * 60 > MAX_DAY_SECONDS) {
+    alert('Added time was capped at 16 hours daily limit.');
+  }
 }
 
 function toggleTrackerSound() {
@@ -3103,7 +3150,9 @@ function toggleTimer(bid, dayId) {
   if (timers[bid]?.running) {
     const el = Math.floor((Date.now() - timers[bid].start) / 1000);
     clearInterval(timers[bid].interval);
-    gp(bid).timeSpent = (gp(bid).timeSpent || 0) + el;
+    const otherBlocksSec = getDayLoggedSec(dayId, bid);
+    const maxAllowed = Math.max(0, MAX_DAY_SECONDS - otherBlocksSec);
+    gp(bid).timeSpent = Math.min((gp(bid).timeSpent || 0) + el, maxAllowed);
     gp(bid).lastEnd = new Date().toISOString();
     timers[bid] = { running: false }; sp();
     localStorage.removeItem('_runningTimer'); // clear on manual pause
@@ -3113,15 +3162,24 @@ function toggleTimer(bid, dayId) {
     else if (conf.trackerMode === 'easy' || conf.theme === 'stopwatch') { renderEasyModeView(); }
     else if (conf.theme === 'neonquest') { renderDayContent(); }
   } else {
+    // Check if total day study time already reached 16 hours
+    const currentDaySec = getDayLoggedSec(dayId);
+    if (currentDaySec >= MAX_DAY_SECONDS) {
+      alert('Daily study limit reached: Maximum 16 hours allowed per day. Timer cannot be started.');
+      return;
+    }
+
     // stop any other running timer first
     Object.keys(timers).forEach(id => {
       if (id !== bid && timers[id]?.running) {
         const el = Math.floor((Date.now() - timers[id].start) / 1000);
         clearInterval(timers[id].interval);
-        gp(id).timeSpent = (gp(id).timeSpent || 0) + el;
+        const otherDay = days.find(d => d.blocks.some(b => b.id === id));
+        const otherBlocksSec = getDayLoggedSec(otherDay?.id, id);
+        const maxAllowed = Math.max(0, MAX_DAY_SECONDS - otherBlocksSec);
+        gp(id).timeSpent = Math.min((gp(id).timeSpent || 0) + el, maxAllowed);
         gp(id).lastEnd = new Date().toISOString();
         timers[id] = { running: false };
-        const otherDay = days.find(d => d.blocks.some(b => b.id === id));
         if (otherDay) { refreshBlock(otherDay.id, id); }
       }
     });
@@ -3136,6 +3194,27 @@ function toggleTimer(bid, dayId) {
     timers[bid].interval = setInterval(() => {
       const ex = Math.floor((Date.now() - timers[bid].start) / 1000);
       const tot = (gp(bid).timeSpent || 0) + ex;
+
+      // 16-Hour Daily Cap Check: stop counting if overall day time reaches 16 hours
+      const otherBlocksSec = getDayLoggedSec(dayId, bid);
+      const dayTotalSec = otherBlocksSec + tot;
+      if (dayTotalSec >= MAX_DAY_SECONDS) {
+        clearInterval(timers[bid].interval);
+        gp(bid).timeSpent = Math.max(0, MAX_DAY_SECONDS - otherBlocksSec);
+        gp(bid).lastEnd = new Date().toISOString();
+        timers[bid] = { running: false };
+        sp();
+        localStorage.removeItem('_runningTimer');
+        try { pushGroupTimerState(null); } catch { }
+        refreshBlock(dayId, bid);
+        renderStats();
+        renderHoursBar();
+        if (conf.theme === 'cyberpunk') { renderCyberpunkView(); }
+        else if (conf.trackerMode === 'easy' || conf.theme === 'stopwatch') { renderEasyModeView(); }
+        else if (conf.theme === 'neonquest') { renderDayContent(); }
+        alert('Daily study limit reached: You have completed 16 hours of study today. The timer has been stopped.');
+        return;
+      }
 
       // Auto-switch subject when running timer reaches or exceeds allocated target time
       const targetSec = (b && b.targetHrs > 0) ? Math.round(b.targetHrs * 3600) : 0;
@@ -3215,9 +3294,11 @@ function stopAllTimers() {
     if (timers[bid]?.running) {
       clearInterval(timers[bid].interval);
       const el = Math.floor((Date.now() - timers[bid].start) / 1000);
-      gp(bid).timeSpent = (gp(bid).timeSpent || 0) + el;
-      timers[bid] = { running: false };
       const day = days.find(d => d.blocks.some(b => b.id === bid));
+      const otherBlocksSec = getDayLoggedSec(day?.id, bid);
+      const maxAllowed = Math.max(0, MAX_DAY_SECONDS - otherBlocksSec);
+      gp(bid).timeSpent = Math.min((gp(bid).timeSpent || 0) + el, maxAllowed);
+      timers[bid] = { running: false };
       if (day) { refreshBlock(day.id, bid); }
     }
   });
@@ -3227,7 +3308,23 @@ function stopAllTimers() {
 }
 function addManTime(bid, dayId) {
   const inp = document.getElementById('mi-' + bid); const m = parseInt(inp?.value) || 0; if (m <= 0) return;
-  gp(bid).timeSpent = (gp(bid).timeSpent || 0) + m * 60; inp.value = ''; sp(); refreshBlock(dayId, bid); renderStats(); renderHoursBar();
+  const otherBlocksSec = getDayLoggedSec(dayId, bid);
+  const curSpent = gp(bid).timeSpent || 0;
+  const curDaySec = otherBlocksSec + curSpent;
+  if (curDaySec >= MAX_DAY_SECONDS) {
+    alert('Daily study limit reached: Maximum 16 hours allowed per day.');
+    return;
+  }
+  const allowedAdd = Math.min(m * 60, MAX_DAY_SECONDS - curDaySec);
+  gp(bid).timeSpent = curSpent + allowedAdd;
+  inp.value = '';
+  sp();
+  refreshBlock(dayId, bid);
+  renderStats();
+  renderHoursBar();
+  if (curDaySec + m * 60 > MAX_DAY_SECONDS) {
+    alert('Added time was capped at 16 hours daily limit.');
+  }
 }
 
 /* ══════════════════════════════════════════
@@ -3802,7 +3899,7 @@ function renderManage() {
       <span class="srow-meta">${s.defaultHrs}h</span>
     </div>`).join('') || '<div style="padding:14px;font-size:13px;color:var(--ink3)">No subjects.</div>';
   renderDayListM(); populateDFilter();
-  setAppTheme(conf.theme || 'obsidian');
+  setAppTheme(conf.theme || localStorage.getItem('app-user-theme') || 'luminous');
 }
 function renderDayListM() {
   const search = (document.getElementById('dSearch')?.value || '').toLowerCase();
@@ -4460,6 +4557,266 @@ function saveBulk() {
 }
 
 /* ══════════════════════════════════════════
+   INCULCATE SUBJECT(S) INTO DATE RANGE
+══════════════════════════════════════════ */
+function openInculcateSubjectModal() {
+  const container = document.getElementById('incSubjectListEl');
+  if (!container) return;
+
+  if (!subj || subj.length === 0) {
+    container.innerHTML = '<div style="font-size:12px;color:var(--ink3);padding:8px">No subjects found in syllabus. Please add subjects first.</div>';
+  } else {
+    container.innerHTML = subj.map((s, idx) => {
+      const solidColor = getSolidColor(s.color || 'var(--blue)');
+      return `
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;background:var(--bg);border:1px solid var(--border);border-radius:6px;">
+          <div style="display:flex;align-items:center;gap:8px;overflow:hidden;flex:1;min-width:0;">
+            <input type="checkbox" class="inc-subj-checkbox" id="inc_chk_${s.id}" data-subject-id="${s.id}" checked style="accent-color:var(--purple,#7c5cbf);cursor:pointer;flex-shrink:0" onchange="updateIncPreview()" />
+            <div style="width:20px;height:20px;border-radius:4px;background:${solidColor}20;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0">${s.icon}</div>
+            <label for="inc_chk_${s.id}" style="font-size:12px;font-weight:700;color:var(--ink);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${esc(s.name)}">${esc(s.name)}</label>
+          </div>
+          <div style="display:flex;align-items:center;gap:4px;flex-shrink:0">
+            <input type="number" id="inc_hrs_${s.id}" value="${s.defaultHrs || 2}" min="0.5" max="12" step="0.5" style="width:52px;padding:3px 6px;border-radius:4px;border:1px solid var(--border);background:var(--card);color:var(--ink);font-size:11px;font-weight:700;text-align:center;outline:none" title="Target hours per day" />
+            <span style="font-size:11px;color:var(--ink3)">h/day</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Set default start and end dates
+  const startDateEl = document.getElementById('incStartDate');
+  const endDateEl = document.getElementById('incEndDate');
+
+  const today = new Date();
+  if (startDateEl) {
+    startDateEl.value = formatDateLocal(today);
+  }
+
+  if (endDateEl) {
+    if (days.length > 0) {
+      const lastDay = getDd(days.length - 1);
+      endDateEl.value = formatDateLocal(lastDay > today ? lastDay : new Date(today.getTime() + 13 * 86400000));
+    } else {
+      endDateEl.value = formatDateLocal(new Date(today.getTime() + 13 * 86400000));
+    }
+  }
+
+  updateIncPreview();
+  openModal('inculcateSubjectOverlay');
+}
+
+function selectAllIncSubjects(bool) {
+  document.querySelectorAll('.inc-subj-checkbox').forEach(chk => {
+    chk.checked = bool;
+  });
+  updateIncPreview();
+}
+
+function setIncPresetRange(preset) {
+  const startEl = document.getElementById('incStartDate');
+  const endEl = document.getElementById('incEndDate');
+  if (!startEl || !endEl) return;
+
+  const today = new Date();
+
+  if (preset === 'today_7') {
+    startEl.value = formatDateLocal(today);
+    const end = new Date(today);
+    end.setDate(end.getDate() + 6);
+    endEl.value = formatDateLocal(end);
+  } else if (preset === 'today_14') {
+    startEl.value = formatDateLocal(today);
+    const end = new Date(today);
+    end.setDate(end.getDate() + 13);
+    endEl.value = formatDateLocal(end);
+  } else if (preset === 'today_30') {
+    startEl.value = formatDateLocal(today);
+    const end = new Date(today);
+    end.setDate(end.getDate() + 29);
+    endEl.value = formatDateLocal(end);
+  } else if (preset === 'all_future') {
+    startEl.value = formatDateLocal(today);
+    if (days.length > 0) {
+      const lastDay = getDd(days.length - 1);
+      endEl.value = formatDateLocal(lastDay >= today ? lastDay : today);
+    } else {
+      const end = new Date(today); end.setDate(end.getDate() + 13);
+      endEl.value = formatDateLocal(end);
+    }
+  } else if (preset === 'full_plan') {
+    if (days.length > 0) {
+      startEl.value = formatDateLocal(getDd(0));
+      endEl.value = formatDateLocal(getDd(days.length - 1));
+    } else {
+      startEl.value = formatDateLocal(today);
+      const end = new Date(today); end.setDate(end.getDate() + 13);
+      endEl.value = formatDateLocal(end);
+    }
+  }
+
+  updateIncPreview();
+}
+
+function updateIncPreview() {
+  const previewEl = document.getElementById('incDateRangePreview');
+  if (!previewEl) return;
+
+  const selectedCount = document.querySelectorAll('.inc-subj-checkbox:checked').length;
+  const startStr = document.getElementById('incStartDate')?.value;
+  const endStr = document.getElementById('incEndDate')?.value;
+
+  if (!startStr || !endStr) {
+    previewEl.textContent = 'Please choose start and end dates.';
+    previewEl.style.color = 'var(--ink3)';
+    return;
+  }
+
+  const startD = parseDateLocal(startStr);
+  const endD = parseDateLocal(endStr);
+
+  if (startD > endD) {
+    previewEl.textContent = '⚠️ Start date must be before or equal to end date.';
+    previewEl.style.color = 'var(--red,#d94f3d)';
+    return;
+  }
+
+  const dayDiff = Math.round((endD.getTime() - startD.getTime()) / 86400000) + 1;
+  previewEl.innerHTML = `⚡ Inculcating <strong>${selectedCount}</strong> subject(s) across <strong>${dayDiff}</strong> day(s) (${fd(startD)} → ${fd(endD)}).`;
+  previewEl.style.color = selectedCount > 0 ? 'var(--blue)' : 'var(--ink3)';
+}
+
+function applyInculcateSubjects() {
+  const selectedCheckboxes = document.querySelectorAll('.inc-subj-checkbox:checked');
+  if (!selectedCheckboxes.length) {
+    alert('Please select at least one subject from the list to inculcate into your timetable.');
+    return;
+  }
+
+  const startStr = document.getElementById('incStartDate')?.value;
+  const endStr = document.getElementById('incEndDate')?.value;
+  if (!startStr || !endStr) {
+    alert('Please select a valid date range.');
+    return;
+  }
+
+  const startD = parseDateLocal(startStr);
+  const endD = parseDateLocal(endStr);
+  if (startD > endD) {
+    alert('Start date cannot be after End date.');
+    return;
+  }
+
+  const skipIfPresent = document.getElementById('incSkipIfPresent')?.checked ?? true;
+  const autoAdjustTarget = document.getElementById('incAutoAdjustTarget')?.checked ?? true;
+
+  // Gather chosen subjects
+  const selectedSubjects = [];
+  selectedCheckboxes.forEach(chk => {
+    const sId = chk.dataset.subjectId;
+    const s = sj(sId);
+    if (s) {
+      const hrsInp = document.getElementById('inc_hrs_' + sId);
+      const hrs = parseFloat(hrsInp?.value) || s.defaultHrs || 2;
+      selectedSubjects.push({ subject: s, targetHrs: hrs });
+    }
+  });
+
+  if (!selectedSubjects.length) {
+    alert('No valid subjects selected.');
+    return;
+  }
+
+  // Ensure dates are locked on all existing days before modification
+  lockExistingDaysDates();
+
+  let daysModifiedCount = 0;
+  let blocksAddedCount = 0;
+
+  const curIter = new Date(startD);
+  curIter.setHours(0, 0, 0, 0);
+  const targetEnd = new Date(endD);
+  targetEnd.setHours(0, 0, 0, 0);
+
+  while (curIter <= targetEnd) {
+    const iterDateStr = formatDateLocal(curIter);
+
+    // Find day matching this date
+    let dayObj = days.find(d => {
+      if (d.dateOverride) return d.dateOverride.split('T')[0] === iterDateStr;
+      return false;
+    });
+
+    if (!dayObj) {
+      // Find by calculated day index or create new day
+      const dayIdx = days.findIndex((_, i) => formatDateLocal(getDd(i)) === iterDateStr);
+      if (dayIdx >= 0) {
+        dayObj = days[dayIdx];
+        if (!dayObj.dateOverride) dayObj.dateOverride = iterDateStr;
+      } else {
+        // Create new day in timetable
+        dayObj = {
+          id: gid(),
+          title: `Day ${days.length + 1}`,
+          dateOverride: iterDateStr,
+          targetHrs: 0,
+          blocks: []
+        };
+        days.push(dayObj);
+      }
+    }
+
+    if (!dayObj.blocks) dayObj.blocks = [];
+    let dayChanged = false;
+
+    selectedSubjects.forEach(item => {
+      const s = item.subject;
+      const alreadyHasSubj = dayObj.blocks.some(b => b.subjectId === s.id);
+
+      if (skipIfPresent && alreadyHasSubj) {
+        return; // skip duplicate
+      }
+
+      const newBlock = {
+        id: gid(),
+        subjectId: s.id,
+        targetHrs: item.targetHrs,
+        topic: `${s.name} Session`,
+        subtopics: []
+      };
+
+      dayObj.blocks.push(newBlock);
+      blocksAddedCount++;
+      dayChanged = true;
+    });
+
+    if (dayChanged) {
+      daysModifiedCount++;
+      if (autoAdjustTarget) {
+        const sumHrs = dayObj.blocks.reduce((sum, b) => sum + (b.targetHrs || 0), 0);
+        dayObj.targetHrs = Math.min(MAX_DAY_HOURS, sumHrs);
+      }
+    }
+
+    curIter.setDate(curIter.getDate() + 1);
+  }
+
+  // Sort days chronologically by date
+  days.sort((a, b) => {
+    const da = a.dateOverride ? parseDateLocal(a.dateOverride).getTime() : 0;
+    const db = b.dateOverride ? parseDateLocal(b.dateOverride).getTime() : 0;
+    return da - db;
+  });
+
+  sd();
+  sp();
+  refreshAllViews();
+  closeModal('inculcateSubjectOverlay');
+
+  alert(`🎉 Success! Added ${blocksAddedCount} subject session(s) across ${daysModifiedCount} day(s) in your timetable.`);
+}
+
+/* ══════════════════════════════════════════
    TABS & NAV
 ══════════════════════════════════════════ */
 function switchView(v) {
@@ -4606,7 +4963,7 @@ function setAppTheme(themeKey) {
     if (savedTheme && ['neonquest', 'stopwatch', 'cyberpunk', 'luminous', 'slate', 'obsidian', 'sapphire', 'emerald', 'amber', 'purple', 'light'].includes(savedTheme)) {
       themeKey = savedTheme;
     } else {
-      themeKey = conf.theme || (conf.dark ? 'stopwatch' : 'light');
+      themeKey = conf.theme || 'luminous';
     }
   }
 
@@ -4626,6 +4983,14 @@ function setAppTheme(themeKey) {
   const quickSelect = document.getElementById('quickThemeSelect');
   if (quickSelect && quickSelect.value !== themeKey) {
     quickSelect.value = themeKey;
+  }
+  const quickSelectEasy = document.getElementById('quickThemeSelectEasy');
+  if (quickSelectEasy && quickSelectEasy.value !== themeKey) {
+    quickSelectEasy.value = themeKey;
+  }
+  const quickSelectCyber = document.getElementById('quickThemeSelectCyber');
+  if (quickSelectCyber && quickSelectCyber.value !== themeKey) {
+    quickSelectCyber.value = themeKey;
   }
 
   // Sync Theme Picker Cards in Manage View
@@ -4662,14 +5027,15 @@ function setAppTheme(themeKey) {
 }
 
 function toggleTheme() {
-  const currentTheme = conf.theme || (conf.dark ? 'obsidian' : 'light');
-  const newTheme = currentTheme === 'light' ? 'obsidian' : 'light';
+  const currentTheme = conf.theme || localStorage.getItem('app-user-theme') || 'luminous';
+  const newTheme = currentTheme === 'light' ? 'luminous' : 'light';
   setAppTheme(newTheme);
   closeHeaderMenu();
 }
 
 function applyTheme() {
-  const currentTheme = conf.theme || localStorage.getItem('app-user-theme') || (conf.dark ? 'obsidian' : 'obsidian');
+  const savedTheme = localStorage.getItem('app-user-theme');
+  const currentTheme = savedTheme || conf.theme || 'luminous';
   setAppTheme(currentTheme);
 }
 
@@ -4982,37 +5348,9 @@ function closeHeaderMenu() {
   if (menu) menu.classList.remove('active');
 }
 
-function applyTheme() {
-  const isDark = document.body.classList.contains('dark') || document.documentElement.classList.contains('dark') || conf.dark;
-  conf.dark = isDark;
-  document.body.classList.toggle('dark', isDark);
-  document.documentElement.classList.toggle('dark', isDark);
-
-  const themeBtn = document.getElementById('themeBtn');
-  const menuTheme = document.getElementById('menuTheme');
-  const icon = isDark ? '☀️' : '🌙';
-  const label = isDark ? 'Light Mode' : 'Dark Mode';
-
-  if (themeBtn) themeBtn.textContent = icon;
-  if (menuTheme) menuTheme.textContent = icon + ' ' + label;
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  const themeBtn = document.getElementById('themeBtn');
-  if (themeBtn) themeBtn.addEventListener('click', toggleTheme);
-
-  // Close menu when clicking outside
-  document.addEventListener('click', (e) => {
-    const headerMenu = document.getElementById('headerMenu');
-    const menuBtn = document.getElementById('menuBtn');
-    if (headerMenu && menuBtn && !headerMenu.contains(e.target) && !menuBtn.contains(e.target)) {
-      closeHeaderMenu();
-    }
-  });
-});
-
 function renderAll() { renderStats(); renderDaily(); }
 function refreshAllViews() { renderAll(); renderSyllabus(); renderManage(); }
+
 
 /* ══════════════════════════════════════════
    INIT
@@ -5024,7 +5362,10 @@ function flushRunningTimersToStorage() {
       clearInterval(timers[bid].interval);
       const el = Math.floor((Date.now() - timers[bid].start) / 1000);
       if (el > 0) {
-        gp(bid).timeSpent = (gp(bid).timeSpent || 0) + el;
+        const day = days.find(d => d.blocks.some(b => b.id === bid));
+        const otherBlocksSec = getDayLoggedSec(day?.id, bid);
+        const maxAllowed = Math.max(0, MAX_DAY_SECONDS - otherBlocksSec);
+        gp(bid).timeSpent = Math.min((gp(bid).timeSpent || 0) + el, maxAllowed);
       }
       timers[bid] = { running: false };
     }
@@ -5084,7 +5425,9 @@ window.addEventListener('beforeunload', (e) => {
     e.returnValue = '';
     // Save state in case user confirms leaving
     const inFlight = Math.floor((Date.now() - timers[runningBid].start) / 1000);
-    const totalSpent = (gp(runningBid).timeSpent || 0) + inFlight;
+    const rDay = days.find(d => d.blocks.some(b => b.id === runningBid));
+    const otherSec = getDayLoggedSec(rDay?.id, runningBid);
+    const totalSpent = Math.min((gp(runningBid).timeSpent || 0) + inFlight, Math.max(0, MAX_DAY_SECONDS - otherSec));
     sessionStorage.setItem('_resumeTimer', JSON.stringify({ bid: runningBid, timeSpent: totalSpent }));
   } else {
     sessionStorage.removeItem('_resumeTimer');
@@ -5099,7 +5442,9 @@ window.addEventListener('pagehide', () => {
     const runningBid = Object.keys(timers).find(bid => timers[bid]?.running);
     if (runningBid) {
       const inFlight = Math.floor((Date.now() - timers[runningBid].start) / 1000);
-      const totalSpent = (gp(runningBid).timeSpent || 0) + inFlight;
+      const rDay = days.find(d => d.blocks.some(b => b.id === runningBid));
+      const otherSec = getDayLoggedSec(rDay?.id, runningBid);
+      const totalSpent = Math.min((gp(runningBid).timeSpent || 0) + inFlight, Math.max(0, MAX_DAY_SECONDS - otherSec));
       sessionStorage.setItem('_resumeTimer', JSON.stringify({ bid: runningBid, timeSpent: totalSpent }));
     } else {
       sessionStorage.removeItem('_resumeTimer');
@@ -5123,8 +5468,14 @@ async function pollGroupTimers() {
     if (res.ok) {
       const data = await res.json();
       if (data.joined && data.group) {
+        // Check for incoming nudge on self before overwriting activeGroup
+        const selfMember = data.group.members.find(m => m.isSelf);
+        if (selfMember && selfMember.pendingNudge) {
+          showNudgeToast(selfMember.pendingNudge);
+        }
         window.activeGroup = data.group;
         updateMemberGridDOM();
+        updateGroupHeaderStats();
       }
     }
   } catch (e) { }
@@ -5185,63 +5536,67 @@ async function renderGroup() {
 
 function renderGroupLandingUI(container) {
   container.innerHTML = `
-    <div class="group-landing-grid">
-      <!-- Create Group Box -->
-      <div class="group-split-card">
-        <div class="group-split-graphic">
-          <svg width="110" height="110" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M60 100C60 100 50 115 35 115M60 100C60 100 70 115 85 115M60 100V65" stroke="#78350f" stroke-width="6" stroke-linecap="round"/>
-            <path d="M60 65C60 45 35 40 30 25M60 65C60 45 85 40 90 25M60 65C60 40 60 20 60 15" stroke="#0284c7" stroke-width="4" stroke-linecap="round"/>
-            <circle cx="60" cy="45" r="35" fill="#065f46" fill-opacity="0.6"/>
-            <circle cx="42" cy="50" r="25" fill="#047857" fill-opacity="0.7"/>
-            <circle cx="78" cy="50" r="25" fill="#10b981" fill-opacity="0.7"/>
-            <circle cx="60" cy="30" r="25" fill="#34d399" fill-opacity="0.8"/>
-            <g transform="translate(30,20)"><circle cx="10" cy="10" r="9" fill="#fbbf24"/><text x="10" y="13" font-size="5.5" font-weight="900" text-anchor="middle" fill="#78350f">UPSC</text></g>
-            <g transform="translate(68,20)"><circle cx="10" cy="10" r="9" fill="#60a5fa"/><text x="10" y="13" font-size="5.5" font-weight="900" text-anchor="middle" fill="#1e3a8a">NEET</text></g>
-            <g transform="translate(20,48)"><circle cx="10" cy="10" r="9" fill="#f472b6"/><text x="10" y="13" font-size="5.5" font-weight="900" text-anchor="middle" fill="#831843">JEE</text></g>
-            <g transform="translate(80,48)"><circle cx="10" cy="10" r="9" fill="#a7f3d0"/><text x="10" y="13" font-size="5.5" font-weight="900" text-anchor="middle" fill="#064e3b">CA</text></g>
-          </svg>
-        </div>
-        <div class="group-split-content">
-          <div class="group-split-title">
-            <span>🛠️</span>
-            <span>Create a Study Group</span>
-          </div>
-          <div class="group-split-desc">
-            Create a new study group, get an invite code, and invite your friends. You can see each other's live timers.
-          </div>
-          <input type="text" id="newGroupName" class="group-split-inp" placeholder="e.g. UPSC Prelims Mission 2026" />
-          <button class="group-split-btn-create" onclick="handleCreateGroup()">Create Group</button>
-        </div>
+    <div class="grp-landing-wrap">
+      <!-- Hero headline -->
+      <div class="grp-hero-hd">
+        <div class="grp-hero-pill">👥 Study Together</div>
+        <h2 class="grp-hero-title">Focus better with your crew</h2>
+        <p class="grp-hero-sub">Create or join a study group to see live timers, track progress, and stay accountable together.</p>
       </div>
 
-      <!-- Join Group Box -->
-      <div class="group-split-card">
-        <div class="group-split-graphic">
-          <svg width="110" height="110" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M45 25L55 20L65 25L75 22L80 30L88 35L92 48L85 55L75 60L78 72L70 82L60 95L55 85L48 70L40 60L35 48L40 35Z" fill="#ea580c" fill-opacity="0.2" stroke="#f97316" stroke-width="2" stroke-linejoin="round"/>
-            <circle cx="60" cy="48" r="10" fill="#ffffff" stroke="#1e40af" stroke-width="1.5"/>
-            <circle cx="60" cy="48" r="2.5" fill="#1e40af"/>
-            <circle cx="45" cy="38" r="4" fill="#0ea5e9"/>
-            <circle cx="75" cy="40" r="4" fill="#0ea5e9"/>
-            <circle cx="60" cy="75" r="4" fill="#10b981"/>
-            <path d="M45 38L60 48M75 40L60 48M60 75L60 48" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="3 3"/>
-            <g transform="translate(72, 68)">
-              <rect width="18" height="18" rx="4" fill="#0ea5e9"/>
-              <path d="M9 4V7M9 11V14M4 9H7M11 9H14" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
-            </g>
-          </svg>
+      <div class="grp-cards-row">
+        <!-- Create Group Card -->
+        <div class="grp-action-card create-card">
+          <div class="grp-action-icon">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+              <circle cx="24" cy="24" r="22" fill="rgba(16,185,129,0.12)" stroke="#10b981" stroke-width="1.5"/>
+              <circle cx="18" cy="20" r="6" fill="#10b981" fill-opacity="0.9"/>
+              <circle cx="30" cy="20" r="6" fill="#34d399" fill-opacity="0.9"/>
+              <path d="M8 36c0-5.523 4.477-10 10-10h12c5.523 0 10 4.477 10 10" stroke="#10b981" stroke-width="2" stroke-linecap="round"/>
+              <circle cx="36" cy="12" r="5" fill="#fbbf24"/>
+              <path d="M36 10v4M34 12h4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="grp-action-badge create-badge">🛠️ Create</div>
+          <div class="grp-action-title">Start a Study Group</div>
+          <div class="grp-action-desc">Create a group, get an invite code, and see your friends' live study timers in real time.</div>
+          <div class="grp-features-list">
+            <div class="grp-feature-item"><span class="grp-feat-dot green"></span>Real-time live timers</div>
+            <div class="grp-feature-item"><span class="grp-feat-dot green"></span>6-char shareable invite code</div>
+            <div class="grp-feature-item"><span class="grp-feat-dot green"></span>Group-wide study stats</div>
+          </div>
+          <input type="text" id="newGroupName" class="grp-inp" placeholder="Group name, e.g. UPSC Prelims 2026" />
+          <button class="grp-btn green-btn" onclick="handleCreateGroup()">
+            <span>Create Group</span>
+            <span class="grp-btn-arrow">→</span>
+          </button>
         </div>
-        <div class="group-split-content">
-          <div class="group-split-title">
-            <span>👥</span>
-            <span>Join a Study Group</span>
+
+        <div class="grp-divider-col"><div class="grp-divider-line"></div><span class="grp-or-badge">OR</span><div class="grp-divider-line"></div></div>
+
+        <!-- Join Group Card -->
+        <div class="grp-action-card join-card">
+          <div class="grp-action-icon">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+              <circle cx="24" cy="24" r="22" fill="rgba(56,189,248,0.12)" stroke="#38bdf8" stroke-width="1.5"/>
+              <circle cx="20" cy="18" r="7" fill="#38bdf8" fill-opacity="0.9"/>
+              <path d="M6 40c0-7.732 6.268-14 14-14" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
+              <path d="M30 28l6 6-6 6M36 34H24" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
           </div>
-          <div class="group-split-desc">
-            Enter a 6-character study group invite code shared by your friend to join their group and study together.
+          <div class="grp-action-badge join-badge">👥 Join</div>
+          <div class="grp-action-title">Join an Existing Group</div>
+          <div class="grp-action-desc">Enter the 6-character invite code shared by your study partner to join their group instantly.</div>
+          <div class="grp-features-list">
+            <div class="grp-feature-item"><span class="grp-feat-dot blue"></span>Instant access with code</div>
+            <div class="grp-feature-item"><span class="grp-feat-dot blue"></span>See all members' timers</div>
+            <div class="grp-feature-item"><span class="grp-feat-dot blue"></span>Daily accountability tracking</div>
           </div>
-          <input type="text" id="groupInviteCode" class="group-split-inp" placeholder="E.G. AB12CD" style="text-transform:uppercase" maxLength="6" />
-          <button class="group-split-btn-join" onclick="handleJoinGroup()">Join Group</button>
+          <input type="text" id="groupInviteCode" class="grp-inp" placeholder="Enter code, e.g. AB12CD" style="text-transform:uppercase" maxLength="6" />
+          <button class="grp-btn blue-btn" onclick="handleJoinGroup()">
+            <span>Join Group</span>
+            <span class="grp-btn-arrow">→</span>
+          </button>
         </div>
       </div>
     </div>
@@ -5258,6 +5613,30 @@ function parseMemberTrackerData(m) {
     }
   }
   return { subj: [], days: [], prog: {}, conf: {} };
+}
+
+function getMemberAllocatedSec(m) {
+  const MAX_CAP_SEC = 16 * 3600;
+  if (!m) return MAX_CAP_SEC;
+  const data = (m.isSelf && typeof days !== 'undefined' && days.length > 0)
+    ? { days, subj, prog }
+    : parseMemberTrackerData(m);
+
+  if (m.timerBid && data.days) {
+    for (const d of data.days) {
+      const b = (d.blocks || []).find(bk => bk.id === m.timerBid);
+      if (b && b.targetHrs > 0) {
+        return Math.min(Math.round(b.targetHrs * 3600), MAX_CAP_SEC);
+      }
+    }
+  }
+  if (m.subject && data.subj) {
+    const s = data.subj.find(sj => sj.name === m.subject);
+    if (s && s.defaultHrs > 0) {
+      return Math.min(Math.round(s.defaultHrs * 3600), MAX_CAP_SEC);
+    }
+  }
+  return MAX_CAP_SEC;
 }
 
 function getMemberDayTotalSec(m, targetDateObj = new Date()) {
@@ -5286,7 +5665,8 @@ function getMemberDayTotalSec(m, targetDateObj = new Date()) {
     if (m.timerBid && m.timerStart) {
       const start = new Date(m.timerStart).getTime();
       const elapsed = Math.max(0, Math.floor((Date.now() - start) / 1000));
-      const liveSec = (m.timerBase || 0) + elapsed;
+      const allocatedSec = getMemberAllocatedSec(m);
+      const liveSec = Math.min((m.timerBase || 0) + elapsed, allocatedSec);
       totalSec = Math.max(totalSec, liveSec);
     }
   } catch (e) {
@@ -5436,75 +5816,202 @@ function updateMemberGridDOM() {
   const grid = document.getElementById("memberGridEl");
   if (!grid) return;
 
-  const existingCards = grid.querySelectorAll(".member-card");
+  const existingCards = grid.querySelectorAll(".grp-member-card");
   if (existingCards.length !== g.members.length) {
     grid.innerHTML = renderMemberGridHtml();
     return;
   }
 
-  g.members.forEach(m => {
-    const card = grid.querySelector(`.member-card[data-user-id="${m.userId}"]`);
-    if (!card) {
+  // Verify all member cards are present
+  for (const m of g.members) {
+    if (!grid.querySelector(`.grp-member-card[data-user-id="${m.userId}"]`)) {
       grid.innerHTML = renderMemberGridHtml();
       return;
     }
+  }
 
-    const isStudying = !!m.timerBid;
+  g.members.forEach(m => {
+    const card = grid.querySelector(`.grp-member-card[data-user-id="${m.userId}"]`);
+    if (!card) return;
+
+    const allocatedSec = getMemberAllocatedSec(m);
+    let isStudying = !!m.timerBid;
     let timerText = '00:00:00';
-    let subjectText = isStudying ? (m.subject || 'Study Block') : 'Idle';
-    let topicText = isStudying ? (m.topic || 'General study') : 'Tap to view member details';
+    let total = m.timerBase || 0;
+    let progressPct = 0;
 
     if (isStudying && m.timerStart) {
       const start = new Date(m.timerStart).getTime();
       const elapsed = Math.max(0, Math.floor((Date.now() - start) / 1000));
-      const total = (m.timerBase || 0) + elapsed;
+      total = (m.timerBase || 0) + elapsed;
+      if (total >= allocatedSec) {
+        total = allocatedSec;
+        isStudying = false;
+      }
       const th = Math.floor(total / 3600), tm = Math.floor((total % 3600) / 60), ts = total % 60;
       timerText = `${String(th).padStart(2, '0')}:${String(tm).padStart(2, '0')}:${String(ts).padStart(2, '0')}`;
     }
+    if (allocatedSec > 0) progressPct = Math.min(100, Math.round((total / allocatedSec) * 100));
 
-    card.className = isStudying ? 'member-card studying' : 'member-card';
+    // Smooth class toggling without triggering re-animation
+    card.classList.toggle('studying', isStudying);
 
+    // Update timer display
     const timerDisplay = card.querySelector('.member-timer-display');
-    if (timerDisplay) {
-      if (timerDisplay.textContent !== timerText) timerDisplay.textContent = timerText;
-      timerDisplay.style.color = isStudying ? '#c084fc' : 'var(--ink3)';
+    if (timerDisplay && timerDisplay.textContent !== timerText) {
+      timerDisplay.textContent = timerText;
+    }
+    const timerWrap = card.querySelector('.grp-mc-timer');
+    if (timerWrap) {
+      timerWrap.classList.toggle('active', isStudying);
     }
 
-    const statusLbl = card.querySelector('.member-status-lbl');
-    if (statusLbl) {
-      statusLbl.className = isStudying ? 'member-status-lbl studying' : 'member-status-lbl idle';
-      statusLbl.innerHTML = isStudying ? `<span class="pulse-dot"></span>Studying` : 'Idle';
+    // Update status badge
+    const statusEl = card.querySelector('.grp-mc-status');
+    if (statusEl) {
+      statusEl.classList.toggle('studying', isStudying);
+      statusEl.classList.toggle('idle', !isStudying);
+      const expectedHtml = isStudying ? '<span class="pulse-dot"></span> Studying' : '⏸ Idle';
+      if (statusEl.innerHTML !== expectedHtml) {
+        statusEl.innerHTML = expectedHtml;
+      }
     }
 
-    const subjEl = card.querySelector('.member-subj-text');
-    if (subjEl && subjEl.textContent !== subjectText) {
-      subjEl.textContent = subjectText;
+    // Update subject & topic
+    const subjectEl = card.querySelector('.grp-mc-subject');
+    const subjectText = isStudying ? (m.subject || 'Study Block') : (total > 0 && m.subject ? m.subject : '');
+    if (subjectEl) {
+      if (subjectText) {
+        if (subjectEl.textContent !== subjectText) subjectEl.textContent = subjectText;
+        if (subjectEl.style.display !== '') subjectEl.style.display = '';
+      } else {
+        if (subjectEl.style.display !== 'none') subjectEl.style.display = 'none';
+      }
+    }
+    const topicEl = card.querySelector('.grp-mc-topic');
+    const topicText = isStudying ? (m.topic || '') : '';
+    if (topicEl) {
+      if (topicText) {
+        if (topicEl.textContent !== topicText) topicEl.textContent = topicText;
+        if (topicEl.style.display !== '') topicEl.style.display = '';
+      } else {
+        if (topicEl.style.display !== 'none') topicEl.style.display = 'none';
+      }
     }
 
-    const topicEl = card.querySelector('.member-topic-text');
-    if (topicEl && topicEl.textContent !== topicText) {
-      topicEl.textContent = topicText;
-      topicEl.title = topicText;
+    // Update Day total
+    const dayTotal = getMemberDayTotalSec(m, new Date());
+    const dayHrs = (dayTotal / 3600).toFixed(1);
+    const timerDayEl = card.querySelector('.grp-mc-timer-day');
+    if (timerDayEl) {
+      const dayStr = `Today: ${dayHrs}h`;
+      if (timerDayEl.textContent !== dayStr) {
+        timerDayEl.textContent = dayStr;
+      }
     }
 
+    // Update session button
     const btn = card.querySelector('.member-session-btn');
     if (btn) {
-      btn.style.background = isStudying ? '#d94f3d' : '#c084fc';
-      btn.style.borderColor = isStudying ? '#d94f3d' : '#c084fc';
-      btn.innerHTML = `<span>${isStudying ? '⏸️' : '▶️'}</span><span>${isStudying ? 'Pause Session' : 'Start Session'}</span>`;
+      btn.classList.toggle('stop', isStudying);
+      btn.classList.toggle('start', !isStudying);
+      const expectedBtnHtml = `<span>${isStudying ? '⏸' : '▶'}</span><span>${isStudying ? 'Pause Session' : 'Start Session'}</span>`;
+      if (btn.innerHTML !== expectedBtnHtml) {
+        btn.innerHTML = expectedBtnHtml;
+      }
     }
 
-    let flame = card.querySelector('.member-card-flame');
-    if (isStudying && !flame) {
-      flame = document.createElement('span');
-      flame.className = 'member-card-flame';
-      flame.title = 'Active Focus!';
-      flame.textContent = '🔥';
-      card.insertBefore(flame, card.firstChild);
-    } else if (!isStudying && flame) {
-      flame.remove();
+    // Update progress ring
+    const r = 18, circ = 2 * Math.PI * r;
+    const dash = Math.max(0, circ - (progressPct / 100) * circ);
+    const progressColor = progressPct > 80 ? '#f87171' : progressPct > 50 ? '#fb923c' : '#4ade80';
+    const ringCircles = card.querySelectorAll('.grp-mc-ring-wrap circle');
+    if (ringCircles.length >= 2) {
+      const ringCircle = ringCircles[1];
+      if (ringCircle.getAttribute('stroke') !== progressColor) {
+        ringCircle.setAttribute('stroke', progressColor);
+      }
+      const newOffset = dash.toFixed(1);
+      if (ringCircle.getAttribute('stroke-dashoffset') !== newOffset) {
+        ringCircle.setAttribute('stroke-dashoffset', newOffset);
+      }
+    }
+    const ringPct = card.querySelector('.grp-mc-ring-pct');
+    if (ringPct) {
+      const pctStr = `${progressPct}%`;
+      if (ringPct.textContent !== pctStr) {
+        ringPct.textContent = pctStr;
+        ringPct.style.color = progressColor;
+      }
+    }
+
+    // Glow effect
+    let glow = card.querySelector('.grp-member-glow');
+    if (isStudying && !glow) {
+      glow = document.createElement('div');
+      glow.className = 'grp-member-glow';
+      card.insertBefore(glow, card.firstChild);
+    } else if (!isStudying && glow) {
+      glow.remove();
+    }
+
+    // Avatar ring
+    const avatar = card.querySelector('.grp-mc-avatar');
+    if (avatar) {
+      const targetBorder = isStudying ? '#c084fc' : 'var(--border)';
+      if (avatar.style.borderColor !== targetBorder) {
+        avatar.style.borderColor = targetBorder;
+        avatar.style.boxShadow = isStudying ? '0 0 14px rgba(192,132,252,0.45)' : '';
+      }
+    }
+
+    // Active dot
+    let activeDot = card.querySelector('.grp-mc-active-dot');
+    if (isStudying && !activeDot) {
+      activeDot = document.createElement('span');
+      activeDot.className = 'grp-mc-active-dot';
+      card.querySelector('.grp-mc-avatar')?.appendChild(activeDot);
+    } else if (!isStudying && activeDot) {
+      activeDot.remove();
     }
   });
+}
+
+function updateGroupHeaderStats() {
+  const g = window.activeGroup;
+  if (!g || !g.members) return;
+
+  const studyingCount = g.members.filter(m => !!m.timerBid).length;
+  const totalCount = g.members.length;
+  let totalTodaySec = 0;
+  g.members.forEach(m => { totalTodaySec += getMemberDayTotalSec(m, new Date()); });
+  const totalTodayHrs = (totalTodaySec / 3600).toFixed(1);
+  const avgHrs = totalCount > 0 ? (totalTodaySec / totalCount / 3600).toFixed(1) : '0';
+
+  const metaEl = document.getElementById('grpActiveMetaEl');
+  if (metaEl) {
+    const expectedMeta = `
+      <span class="grp-live-dot"></span>
+      <span>${studyingCount} of ${totalCount} members studying</span>
+      <span class="grp-meta-sep">·</span>
+      <span>${totalTodayHrs} hrs today</span>
+    `;
+    if (metaEl.innerHTML.replace(/\s+/g, ' ') !== expectedMeta.replace(/\s+/g, ' ')) {
+      metaEl.innerHTML = expectedMeta;
+    }
+  }
+
+  const statActiveEl = document.getElementById('grpStatActiveNow');
+  if (statActiveEl && statActiveEl.textContent !== String(studyingCount)) statActiveEl.textContent = String(studyingCount);
+
+  const statMembersEl = document.getElementById('grpStatTotalMembers');
+  if (statMembersEl && statMembersEl.textContent !== String(totalCount)) statMembersEl.textContent = String(totalCount);
+
+  const statHrsEl = document.getElementById('grpStatTotalHrs');
+  if (statHrsEl && statHrsEl.textContent !== totalTodayHrs) statHrsEl.textContent = totalTodayHrs;
+
+  const statAvgEl = document.getElementById('grpStatAvgHrs');
+  if (statAvgEl && statAvgEl.textContent !== avgHrs) statAvgEl.textContent = avgHrs;
 }
 
 function toggleGroupStudySession() {
@@ -5574,46 +6081,81 @@ function renderActiveGroupUI(container) {
   const studyingCount = g.members.filter(m => !!m.timerBid).length;
   const totalCount = g.members.length;
 
-  const actionButtons = userIsOwner
-    ? `<button class="hbtn" style="background:var(--bg2);color:var(--ink);border-color:var(--border)" onclick="openGroupManagementModal('${g.id}')">⚙️ Group Settings</button>
-       <button class="hbtn" style="background:var(--bg2);color:var(--ink);border-color:var(--border)" onclick="handleLeaveGroup()">🚪 Leave Group</button>
-       <button class="hbtn" style="background:#d94f3d;color:#fff;border-color:#d94f3d" onclick="handleDeleteGroup('${g.id}')">🗑️ Delete Group</button>`
-    : `<button class="hbtn" style="background:var(--bg2);color:var(--ink);border-color:var(--border)" onclick="openGroupManagementModal('${g.id}')">👥 Members</button>
-       <button class="hbtn" style="background:var(--bg2);color:var(--ink);border-color:var(--border)" onclick="handleLeaveGroup()">🚪 Leave Group</button>`;
+  let totalTodaySec = 0;
+  g.members.forEach(m => { totalTodaySec += getMemberDayTotalSec(m, new Date()); });
+  const totalTodayHrs = (totalTodaySec / 3600).toFixed(1);
+
+  const ownerActions = userIsOwner
+    ? `<button class="grp-action-pill" onclick="openGroupManagementModal('${g.id}')">⚙️ Settings</button>
+       <button class="grp-action-pill danger" onclick="handleDeleteGroup('${g.id}')">🗑️ Delete</button>`
+    : `<button class="grp-action-pill" onclick="openGroupManagementModal('${g.id}')">👥 Members</button>`;
 
   container.innerHTML = `
-    <div class="group-card">
-      <div class="group-header-row">
-        <div>
-          <div class="group-title-label">${esc(g.name)} ${userIsOwner ? '<span style="font-size:10px;background:rgba(200,149,32,0.15);color:var(--gold);border:1px solid var(--gold);padding:2px 8px;border-radius:6px;font-weight:800;vertical-align:middle;margin-left:6px">👑 Admin</span>' : ''}</div>
-          <div style="font-size:11px;color:var(--ink3);margin-top:4px">Created by ${userIsOwner ? 'you' : 'group admin'}</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-          <div class="group-code-badge" title="Share this code with friends to join">
-            Invite Code: <strong style="margin-left:4px">${g.code}</strong>
-            <button onclick="copyGroupCode('${g.code}')" style="background:none;border:none;color:var(--blue);cursor:pointer;font-size:12px;padding:0;font-weight:700;margin-left:8px">📋 Copy</button>
+    <div class="grp-active-wrap">
+      <!-- Group Header Band -->
+      <div class="grp-active-header">
+        <div class="grp-active-left">
+          <div class="grp-active-emblem">${g.name.charAt(0).toUpperCase()}</div>
+          <div>
+            <div class="grp-active-name">
+              ${esc(g.name)}
+              ${userIsOwner ? '<span class="grp-admin-pill">👑 Admin</span>' : ''}
+            </div>
+            <div class="grp-active-meta" id="grpActiveMetaEl">
+              <span class="grp-live-dot"></span>
+              <span>${studyingCount} of ${totalCount} members studying</span>
+              <span class="grp-meta-sep">·</span>
+              <span>${totalTodayHrs} hrs today</span>
+            </div>
           </div>
-          ${actionButtons}
+        </div>
+        <div class="grp-active-right">
+          <div class="grp-invite-badge" title="Share with friends">
+            <span class="grp-invite-lbl">INVITE CODE</span>
+            <span class="grp-invite-code">${g.code}</span>
+            <button class="grp-copy-btn" onclick="copyGroupCode('${g.code}')">📋</button>
+          </div>
+          <div class="grp-header-actions">
+            ${ownerActions}
+            <button class="grp-action-pill" onclick="handleLeaveGroup()">🚪 Leave</button>
+          </div>
         </div>
       </div>
 
-      <!-- Image 1 Top Header Summary: Active & Inactive member counter -->
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px">
-        <div style="font-size:15px;font-weight:800;color:var(--ink)">
-          <span style="color:#c084fc">${studyingCount} members</span> Studying
-          <span style="font-size:12px;color:var(--ink3);font-weight:600;margin-left:6px">• ${totalCount - studyingCount} Idle</span>
+      <!-- Stats Strip -->
+      <div class="grp-stats-strip">
+        <div class="grp-stat-pill">
+          <span class="grp-stat-num" id="grpStatActiveNow" style="color:#4ade80">${studyingCount}</span>
+          <span class="grp-stat-lbl">Active Now</span>
         </div>
-        <div style="font-size:11px;font-weight:700;color:var(--ink3);background:var(--bg2);padding:4px 10px;border-radius:8px;border:1px solid var(--border)">
-          💡 Click any member card to view details & statistics
+        <div class="grp-stat-sep"></div>
+        <div class="grp-stat-pill">
+          <span class="grp-stat-num" id="grpStatTotalMembers" style="color:#38bdf8">${totalCount}</span>
+          <span class="grp-stat-lbl">Members</span>
+        </div>
+        <div class="grp-stat-sep"></div>
+        <div class="grp-stat-pill">
+          <span class="grp-stat-num" id="grpStatTotalHrs" style="color:#c084fc">${totalTodayHrs}</span>
+          <span class="grp-stat-lbl">Hrs Today (Group)</span>
+        </div>
+        <div class="grp-stat-sep"></div>
+        <div class="grp-stat-pill">
+          <span class="grp-stat-num" id="grpStatAvgHrs" style="color:#fbbf24">${totalCount > 0 ? (totalTodaySec / totalCount / 3600).toFixed(1) : '0'}</span>
+          <span class="grp-stat-lbl">Avg Hrs / Member</span>
         </div>
       </div>
 
+      <!-- Tip -->
+      <div class="grp-tip-banner">💡 Click any member card to see detailed stats &amp; study history</div>
+
+      <!-- Member Grid -->
       <div class="member-grid" id="memberGridEl">
         ${renderMemberGridHtml()}
       </div>
     </div>
   `;
 }
+
 
 function openGroupManagementModal(groupId) {
   let g = null;
@@ -5763,71 +6305,99 @@ function renderMemberGridHtml() {
   if (!g || !g.members) return '';
 
   return g.members.map(m => {
-    const isStudying = !!m.timerBid;
+    const allocatedSec = getMemberAllocatedSec(m);
+    let isStudying = !!m.timerBid;
     let timerText = '00:00:00';
-    let subjectText = isStudying ? (m.subject || 'Study Block') : 'Idle';
-    let topicText = isStudying ? (m.topic || 'General study') : 'Tap to view member details';
+    let total = m.timerBase || 0;
+    let progressPct = 0;
 
     if (isStudying && m.timerStart) {
       const start = new Date(m.timerStart).getTime();
       const elapsed = Math.floor((Date.now() - start) / 1000);
-      const total = Math.max(0, (m.timerBase || 0) + elapsed);
+      total = Math.max(0, (m.timerBase || 0) + elapsed);
+      if (total >= allocatedSec) {
+        total = allocatedSec;
+        isStudying = false;
+      }
       const th = Math.floor(total / 3600), tm = Math.floor((total % 3600) / 60), ts = total % 60;
       timerText = `${String(th).padStart(2, '0')}:${String(tm).padStart(2, '0')}:${String(ts).padStart(2, '0')}`;
     }
+    if (allocatedSec > 0) progressPct = Math.min(100, Math.round((total / allocatedSec) * 100));
 
-    const cardClass = isStudying ? 'member-card studying' : 'member-card';
-    const statusClass = isStudying ? 'member-status-lbl studying' : 'member-status-lbl idle';
-    const statusText = isStudying ? `<span class="pulse-dot"></span>Studying` : 'Idle';
-    const flameBadge = isStudying ? `<span class="member-card-flame" title="Active Focus!">🔥</span>` : '';
+    const dayTotal = getMemberDayTotalSec(m, new Date());
+    const dayHrs = (dayTotal / 3600).toFixed(1);
+
+    const subjectText = isStudying ? (m.subject || 'Study Block') : (total > 0 && m.subject ? m.subject : '');
+    const topicText = isStudying ? (m.topic || '') : '';
 
     // Avatar
-    let avatarMarkup = '';
-    if (m.image) {
-      avatarMarkup = `<img src="${esc(m.image)}" class="member-avatar-img ${isStudying ? 'studying' : ''}" alt="${esc(m.name)}" />`;
-    } else {
-      const initial = m.name ? m.name.charAt(0).toUpperCase() : '👤';
-      avatarMarkup = `<div class="member-avatar-img ${isStudying ? 'studying' : ''}" style="background:var(--bg2);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--ink)">${initial}</div>`;
-    }
+    const avatarInner = m.image
+      ? `<img src="${esc(m.image)}" alt="${esc(m.name)}" style="width:100%;height:100%;border-radius:50%;object-fit:cover" />`
+      : `<span style="font-size:18px;font-weight:900;color:var(--ink)">${m.name ? m.name.charAt(0).toUpperCase() : '?'}</span>`;
+
+    const avatarRingColor = isStudying ? '#c084fc' : 'var(--border)';
+    const avatarGlow = isStudying ? 'box-shadow:0 0 14px rgba(192,132,252,0.45)' : '';
+
+    // Progress circle
+    const r = 18, circ = 2 * Math.PI * r;
+    const dash = circ - (progressPct / 100) * circ;
+    const progressColor = progressPct > 80 ? '#f87171' : progressPct > 50 ? '#fb923c' : '#4ade80';
 
     return `
-      <div class="${cardClass}" onclick="openMemberDetails('${m.userId}')" data-user-id="${m.userId}" data-timer-start="${m.timerStart || ''}" data-timer-base="${m.timerBase || 0}">
-        ${flameBadge}
-        <div class="member-card-header" style="border-bottom:none;padding-bottom:0">
-          <div style="display:flex;align-items:center;gap:10px;overflow:hidden">
-            ${avatarMarkup}
-            <div>
-              <div class="member-name">${esc(m.name)}${m.isSelf ? ' <span style="font-size:11px;color:var(--blue);font-weight:600">(You)</span>' : ''}</div>
-              <div class="${statusClass}" style="margin-top:2px;display:inline-block">${statusText}</div>
+      <div class="grp-member-card ${isStudying ? 'studying' : ''}" onclick="openMemberDetails('${m.userId}')" data-user-id="${m.userId}" data-timer-start="${m.timerStart || ''}" data-timer-base="${m.timerBase || 0}">
+        ${isStudying ? '<div class="grp-member-glow"></div>' : ''}
+        
+        <!-- Top row: Avatar + Name + Status -->
+        <div class="grp-mc-top">
+          <div class="grp-mc-avatar" style="border-color:${avatarRingColor};${avatarGlow}">
+            ${avatarInner}
+            ${isStudying ? '<span class="grp-mc-active-dot"></span>' : ''}
+          </div>
+          <div class="grp-mc-info">
+            <div class="grp-mc-name">
+              ${esc(m.name)}
+              ${m.isSelf ? '<span class="grp-mc-you">(You)</span>' : ''}
             </div>
+            <div class="grp-mc-status ${isStudying ? 'studying' : 'idle'}">
+              ${isStudying ? '<span class="pulse-dot"></span> Studying' : '⏸ Idle'}
+            </div>
+            <div class="grp-mc-subject" style="${subjectText ? '' : 'display:none'}">${esc(subjectText)}</div>
+            <div class="grp-mc-topic" style="${topicText ? '' : 'display:none'}">${esc(topicText)}</div>
+          </div>
+
+          <!-- Progress ring -->
+          <div class="grp-mc-ring-wrap" title="${progressPct}% of session">
+            <svg width="44" height="44" viewBox="0 0 44 44">
+              <circle cx="22" cy="22" r="${r}" fill="none" stroke="var(--border)" stroke-width="3"/>
+              <circle cx="22" cy="22" r="${r}" fill="none" stroke="${progressColor}" stroke-width="3"
+                stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${dash.toFixed(1)}"
+                stroke-linecap="round" transform="rotate(-90 22 22)" style="transition:stroke-dashoffset 1s linear"/>
+            </svg>
+            <div class="grp-mc-ring-pct" style="color:${progressColor}">${progressPct}%</div>
           </div>
         </div>
 
-        <div style="margin-top:6px;padding-top:8px;border-top:1px solid var(--border)">
-          <div style="font-size:12px;color:var(--ink2);font-weight:700;display:flex;align-items:center;gap:6px">
-            <span>📚</span>
-            <span class="member-subj-text" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(subjectText)}</span>
-          </div>
-          <div class="member-topic-text" style="font-size:11px;color:var(--ink3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${esc(topicText)}">
-            ${esc(topicText)}
-          </div>
-        </div>
-
-        <div style="font-size:22px;font-weight:800;font-family:monospace;letter-spacing:-0.02em;margin-top:8px;color:${isStudying ? '#c084fc' : 'var(--ink3)'};display:flex;justify-content:space-between;align-items:center" class="member-timer-val">
-          <span class="member-timer-display">${timerText}</span>
-          <span style="font-size:11px;font-weight:700;color:var(--ink3);font-family:sans-serif">Stats ➔</span>
+        <!-- Timer -->
+        <div class="grp-mc-timer ${isStudying ? 'active' : ''}">
+          <span class="grp-mc-timer-val member-timer-display">${timerText}</span>
+          <span class="grp-mc-timer-day">Today: ${dayHrs}h</span>
         </div>
 
         ${m.isSelf ? `
-          <button onclick="event.stopPropagation(); toggleGroupStudySession();" class="hbtn member-session-btn" style="width:100%;margin-top:8px;background:${isStudying ? '#d94f3d' : '#c084fc'};color:#fff;border-color:${isStudying ? '#d94f3d' : '#c084fc'};font-weight:800;height:30px;font-size:12px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;flex-shrink:0">
-            <span>${isStudying ? '⏸️' : '▶️'}</span>
+          <button onclick="event.stopPropagation(); toggleGroupStudySession();" class="grp-mc-session-btn ${isStudying ? 'stop' : 'start'} member-session-btn">
+            <span>${isStudying ? '⏸' : '▶'}</span>
             <span>${isStudying ? 'Pause Session' : 'Start Session'}</span>
           </button>
-        ` : ''}
+        ` : `
+          <div class="grp-mc-footer-row">
+            <span style="font-size:11px;color:var(--ink3)">Click for details →</span>
+          </div>
+        `}
       </div>
     `;
   }).join('');
 }
+
 
 window.selectedGroupMember = null;
 window.statsCurrentDate = new Date();
@@ -5910,13 +6480,18 @@ function getMemberDayStats(m, targetDateObj) {
   });
 
   // If member is currently studying today
-  const isStudying = !!m.timerBid;
+  const allocatedSec = getMemberAllocatedSec(m);
+  let isStudying = !!m.timerBid;
   const isToday = (new Date().getFullYear() === targetY && new Date().getMonth() === targetM && new Date().getDate() === targetD);
   if (isStudying && isToday && m.timerStart) {
     const start = new Date(m.timerStart).getTime();
     if (!earliestStart || start < earliestStart) earliestStart = start;
     const elapsed = Math.floor((Date.now() - start) / 1000);
-    const liveSec = Math.max(0, (m.timerBase || 0) + elapsed);
+    let liveSec = Math.max(0, (m.timerBase || 0) + elapsed);
+    if (liveSec >= allocatedSec) {
+      liveSec = allocatedSec;
+      isStudying = false;
+    }
     dayTotalSec = Math.max(dayTotalSec, liveSec);
     if (liveSec > maxBlockSec) maxBlockSec = liveSec;
 
@@ -5967,7 +6542,8 @@ function openMemberDetails(userId) {
   const todayStats = getMemberDayStats(m, new Date());
 
   // Compute live session stats
-  const isStudying = !!m.timerBid;
+  const allocatedSec = getMemberAllocatedSec(m);
+  let isStudying = !!m.timerBid;
   let timerText = '00:00:00';
   let startTimeText = '---';
   let endTimeText = isStudying ? 'Studying' : (todayStats.dayTotalSec > 0 ? 'Finished' : 'Idle');
@@ -5976,7 +6552,12 @@ function openMemberDetails(userId) {
     const start = new Date(m.timerStart);
     startTimeText = start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const elapsed = Math.floor((Date.now() - start.getTime()) / 1000);
-    const total = Math.max(0, (m.timerBase || 0) + elapsed);
+    let total = Math.max(0, (m.timerBase || 0) + elapsed);
+    if (total >= allocatedSec) {
+      total = allocatedSec;
+      isStudying = false;
+      endTimeText = 'Finished';
+    }
     const th = Math.floor(total / 3600), tm = Math.floor((total % 3600) / 60), ts = total % 60;
     timerText = `${String(th).padStart(2, '0')}:${String(tm).padStart(2, '0')}:${String(ts).padStart(2, '0')}`;
   } else if (todayStats.earliestStart) {
@@ -6041,10 +6622,60 @@ function openMemberDetails(userId) {
   openModal('memberDetailOverlay');
 }
 
-function triggerMemberNudge() {
+async function triggerMemberNudge() {
   const m = window.selectedGroupMember;
-  if (!m) return;
-  alert(`⚡ Nudge sent to ${m.name}! "Keep pushing hard! 💪"`);
+  const g = window.activeGroup;
+  if (!m || !g) return;
+  if (m.isSelf) { showToast('⚡ You can\'t nudge yourself!', 'info'); return; }
+
+  const btn = document.querySelector('[onclick="triggerMemberNudge()"]');
+  if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
+
+  try {
+    const res = await fetch('/api/study-group', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'nudge', targetUserId: m.userId, groupId: g.id })
+    });
+    if (res.ok) {
+      showToast(`⚡ Nudge sent to ${m.name}!`, 'success');
+    } else {
+      const d = await res.json();
+      showToast(d.message || 'Failed to send nudge', 'error');
+    }
+  } catch (e) {
+    showToast('Failed to send nudge', 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = '<span>😤</span> Nudge'; }
+  }
+}
+
+function showNudgeToast(senderName) {
+  const el = document.createElement('div');
+  el.className = 'nudge-toast';
+  el.innerHTML = `
+    <div class="nudge-toast-icon">⚡</div>
+    <div class="nudge-toast-body">
+      <div class="nudge-toast-title">You got nudged!</div>
+      <div class="nudge-toast-msg">${esc(senderName)} says: Keep going! 💪</div>
+    </div>
+  `;
+  document.body.appendChild(el);
+  // Trigger animation
+  requestAnimationFrame(() => el.classList.add('visible'));
+  setTimeout(() => {
+    el.classList.remove('visible');
+    setTimeout(() => el.remove(), 400);
+  }, 4000);
+}
+
+function showToast(msg, type = 'info') {
+  const el = document.createElement('div');
+  el.className = `nudge-toast ${type}`;
+  el.innerHTML = `<div class="nudge-toast-body" style="padding:4px 0"><div class="nudge-toast-msg">${esc(msg)}</div></div>`;
+  document.body.appendChild(el);
+  requestAnimationFrame(() => el.classList.add('visible'));
+  setTimeout(() => { el.classList.remove('visible'); setTimeout(() => el.remove(), 400); }, 3000);
 }
 
 function openSelectedMemberStats() {
@@ -6266,22 +6897,9 @@ async function pollGroupTimers() {
 function startGroupTimerTicks() {
   if (groupTickInterval) clearInterval(groupTickInterval);
   groupTickInterval = setInterval(() => {
-    const cards = document.querySelectorAll(".member-card");
-    cards.forEach(card => {
-      const startStr = card.dataset.timerStart;
-      if (!startStr) return;
-
-      const start = new Date(startStr).getTime();
-      const base = parseInt(card.dataset.timerBase) || 0;
-      const elapsed = Math.floor((Date.now() - start) / 1000);
-      const total = Math.max(0, base + elapsed);
-
-      const th = Math.floor(total / 3600), tm = Math.floor((total % 3600) / 60), ts = total % 60;
-      const tStr = `${String(th).padStart(2, '0')}:${String(tm).padStart(2, '0')}:${String(ts).padStart(2, '0')}`;
-
-      const el = card.querySelector(".member-timer-val");
-      if (el) el.textContent = tStr;
-    });
+    if (window.isInGroup && window.activeGroup) {
+      updateMemberGridDOM();
+    }
   }, 1000);
 }
 
@@ -6448,9 +7066,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       const { bid: rtBid, start, base } = JSON.parse(rtRaw);
       const elapsed = Math.floor((Date.now() - start) / 1000);
       const p = gp(rtBid);
-      // Use whichever is larger: server's saved value or computed real elapsed
-      p.timeSpent = Math.max(p.timeSpent || 0, base + elapsed);
-      _resumeData = { bid: rtBid };
+      const resumeDay = days.find(d => d.blocks.some(b => b.id === rtBid));
+      const otherBlocksSec = getDayLoggedSec(resumeDay?.id, rtBid);
+      const maxAllowed = Math.max(0, MAX_DAY_SECONDS - otherBlocksSec);
+      p.timeSpent = Math.min(Math.max(p.timeSpent || 0, base + elapsed), maxAllowed);
+      if (otherBlocksSec + p.timeSpent < MAX_DAY_SECONDS) {
+        _resumeData = { bid: rtBid };
+      } else {
+        localStorage.removeItem('_runningTimer');
+      }
     } catch { }
   }
   // Also clear stale sessionStorage key from old approach
