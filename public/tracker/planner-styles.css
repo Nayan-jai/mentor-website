@@ -6247,4 +6247,70 @@ body[data-tracker-mode="easy"] #dayDots {
   color: var(--ink2);
   line-height: 1.4;
 }
+
+/* Centered Screen Nudge Overlay Alert */
+.nudge-toast.center-toast {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  bottom: auto;
+  right: auto;
+  transform: translate(-50%, -50%) scale(0.8);
+  opacity: 0;
+  min-width: 300px;
+  max-width: 90vw;
+  padding: 24px 32px;
+  background: var(--card, #13151b);
+  border: 2px solid #c084fc;
+  border-radius: 24px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(192, 132, 252, 0.45);
+  z-index: 999999;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  pointer-events: none;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+}
+
+.nudge-toast.center-toast.visible {
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+}
+
+.nudge-toast.center-toast .nudge-toast-icon {
+  font-size: 44px;
+  line-height: 1;
+  animation: nudgeBounceCenter 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.nudge-toast.center-toast .nudge-toast-body {
+  text-align: center;
+  align-items: center;
+}
+
+.nudge-toast.center-toast .nudge-toast-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #c084fc;
+  letter-spacing: -0.01em;
+}
+
+.nudge-toast.center-toast .nudge-toast-msg {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink, #f3f4f6);
+  margin-top: 4px;
+}
+
+@keyframes nudgeBounceCenter {
+  0%   { transform: scale(0.3) rotate(-15deg); }
+  50%  { transform: scale(1.35) rotate(12deg); }
+  75%  { transform: scale(0.9) rotate(-6deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
 

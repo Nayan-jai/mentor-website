@@ -6760,9 +6760,51 @@ async function triggerMemberNudge() {
   }
 }
 
+// Synthesized Web Audio chime for nudge alerts (works on iOS, Android, and Desktop)
+function playNudgeSound() {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    if (ctx.state === 'suspended') {
+      ctx.resume().catch(() => {});
+    }
+
+    const playTone = (freq, start, duration) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + start);
+      gain.gain.setValueAtTime(0, ctx.currentTime + start);
+      gain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + start + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + start + duration);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(ctx.currentTime + start);
+      osc.stop(ctx.currentTime + start + duration);
+    };
+
+    // Ascending notification chime: D5 -> A5 -> D6
+    playTone(587.33, 0, 0.35);
+    playTone(880.00, 0.12, 0.45);
+    playTone(1174.66, 0.25, 0.65);
+  } catch (e) {}
+}
+
 function showNudgeToast(senderName) {
+  // 1. Physical vibration for supported devices (Android, etc.)
+  if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+    try {
+      navigator.vibrate([250, 100, 250, 100, 250]);
+    } catch (e) {}
+  }
+
+  // 2. Web Audio chime alert (iOS, Android, Desktop)
+  playNudgeSound();
+
+  // 3. Centered screen toast alert
   const el = document.createElement('div');
-  el.className = 'nudge-toast';
+  el.className = 'nudge-toast center-toast';
   el.innerHTML = `
     <div class="nudge-toast-icon">⚡</div>
     <div class="nudge-toast-body">
@@ -6771,8 +6813,11 @@ function showNudgeToast(senderName) {
     </div>
   `;
   document.body.appendChild(el);
-  // Trigger animation
+
+  // Trigger smooth reveal animation
   requestAnimationFrame(() => el.classList.add('visible'));
+
+  // Disappear after 4 seconds
   setTimeout(() => {
     el.classList.remove('visible');
     setTimeout(() => el.remove(), 400);
