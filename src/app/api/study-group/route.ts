@@ -171,15 +171,19 @@ export async function GET(request: NextRequest) {
     }
 
     const group = membership.group;
+    const mappedMembers = group.members.map(mapMember);
+    const userPendingNudge = mappedMembers.find((m: any) => m.isSelf)?.pendingNudge || null;
+
     return NextResponse.json({
       joined: true,
+      pendingNudge: userPendingNudge,
       ownedGroups,
       group: {
         id: group.id,
         code: group.code,
         name: group.name,
         ownerId: group.ownerId,
-        members: group.members.map(mapMember),
+        members: mappedMembers,
       },
     });
   } catch (err) {
@@ -384,12 +388,14 @@ export async function POST(request: NextRequest) {
 
       const sender = await prisma.user.findUnique({
         where: { id: session.user.id },
-        select: { name: true },
+        select: { name: true, email: true },
       });
+
+      const senderName = sender?.name || session.user.name || (sender?.email ? sender.email.split("@")[0] : null) || (session.user.email ? session.user.email.split("@")[0] : null) || "A group member";
 
       await prisma.studyGroupMember.updateMany({
         where: { userId: targetUserId, groupId },
-        data: { pendingNudge: sender?.name || "Someone" },
+        data: { pendingNudge: senderName },
       });
 
       return NextResponse.json({ message: "Nudge sent" });

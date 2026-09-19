@@ -59,6 +59,9 @@ export async function GET(request: NextRequest) {
 
     // Check for expired timers exceeding allocated time and auto-stop them
     const expiredIds: string[] = [];
+    let pendingNudge: string | null = null;
+    const nudgeMemberIds: string[] = [];
+
     const formattedMembers = members.map((m) => {
       let isExpired = false;
       let finalTimerBid = m.timerBid;
@@ -80,6 +83,11 @@ export async function GET(request: NextRequest) {
         }
       }
 
+      if (m.userId === session.user.id && m.pendingNudge) {
+        pendingNudge = m.pendingNudge;
+        nudgeMemberIds.push(m.id);
+      }
+
       return {
         userId: m.userId,
         isSelf: m.userId === session.user.id,
@@ -92,21 +100,40 @@ export async function GET(request: NextRequest) {
         topic: m.topic,
         updatedAt: m.updatedAt.toISOString(),
         studyTracker: m.user.studyTracker,
+        pendingNudge: m.userId === session.user.id ? m.pendingNudge : null,
       };
     });
 
+    const cleanupPromises: Promise<any>[] = [];
+
     if (expiredIds.length > 0) {
-      await prisma.studyGroupMember.updateMany({
-        where: { id: { in: expiredIds } },
-        data: {
-          timerBid: null,
-          timerStart: null,
-        },
-      }).catch(() => {});
+      cleanupPromises.push(
+        prisma.studyGroupMember.updateMany({
+          where: { id: { in: expiredIds } },
+          data: {
+            timerBid: null,
+            timerStart: null,
+          },
+        }).catch(() => {})
+      );
+    }
+
+    if (nudgeMemberIds.length > 0) {
+      cleanupPromises.push(
+        prisma.studyGroupMember.updateMany({
+          where: { id: { in: nudgeMemberIds } },
+          data: { pendingNudge: null },
+        }).catch(() => {})
+      );
+    }
+
+    if (cleanupPromises.length > 0) {
+      await Promise.all(cleanupPromises);
     }
 
     return NextResponse.json({
       joined: true,
+      pendingNudge,
       members: formattedMembers,
     });
   } catch (err) {
@@ -160,11 +187,18 @@ export async function POST(request: NextRequest) {
           },
         },
       },
+      orderBy: { updatedAt: "desc" },
     });
 
-    return NextResponse.json({
-      joined: true,
-      members: members.map((m) => ({
+    let pendingNudge: string | null = null;
+    const nudgeMemberIds: string[] = [];
+
+    const formattedMembers = members.map((m) => {
+      if (m.userId === session.user.id && m.pendingNudge) {
+        pendingNudge = m.pendingNudge;
+        nudgeMemberIds.push(m.id);
+      }
+      return {
         userId: m.userId,
         isSelf: m.userId === session.user.id,
         name: m.user.name || m.user.email.split("@")[0],
@@ -176,7 +210,21 @@ export async function POST(request: NextRequest) {
         topic: m.topic,
         updatedAt: m.updatedAt.toISOString(),
         studyTracker: m.user.studyTracker,
-      })),
+        pendingNudge: m.userId === session.user.id ? m.pendingNudge : null,
+      };
+    });
+
+    if (nudgeMemberIds.length > 0) {
+      await prisma.studyGroupMember.updateMany({
+        where: { id: { in: nudgeMemberIds } },
+        data: { pendingNudge: null },
+      }).catch(() => {});
+    }
+
+    return NextResponse.json({
+      joined: true,
+      pendingNudge,
+      members: formattedMembers,
     });
   } catch (err) {
     console.error("Failed to update study group timer:", err);

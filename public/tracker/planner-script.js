@@ -5023,6 +5023,18 @@ function setAppTheme(themeKey) {
   } catch (e) {}
 
   renderAll();
+  if (conf.activeTab === 'syllabus') {
+    try { renderSyllabus(); } catch(e) {}
+  }
+  if (conf.activeTab === 'manage') {
+    try { renderManage(); highlightDayInManage(curDay); } catch(e) {}
+  }
+  if (conf.activeTab === 'revision') {
+    try { renderRevision(); } catch(e) {}
+  }
+  if (conf.activeTab === 'group') {
+    try { renderGroup(); } catch(e) {}
+  }
   sc();
 }
 
@@ -5462,20 +5474,26 @@ let groupPollInterval = null;
 let groupTickInterval = null;
 
 async function pollGroupTimers() {
-  if (!window.isInGroup || !window.activeGroup) return;
+  if (!window.isInGroup) return;
   try {
-    const res = await fetch("/api/study-group");
+    const res = await fetch("/api/study-group/timer");
     if (res.ok) {
       const data = await res.json();
-      if (data.joined && data.group) {
-        // Check for incoming nudge on self before overwriting activeGroup
-        const selfMember = data.group.members.find(m => m.isSelf);
-        if (selfMember && selfMember.pendingNudge) {
-          showNudgeToast(selfMember.pendingNudge);
+      if (data.joined && data.members) {
+        // Check for incoming nudge on self
+        if (data.pendingNudge) {
+          showNudgeToast(data.pendingNudge);
+        } else {
+          const selfMember = data.members.find(m => m.isSelf);
+          if (selfMember && selfMember.pendingNudge) {
+            showNudgeToast(selfMember.pendingNudge);
+          }
         }
-        window.activeGroup = data.group;
-        updateMemberGridDOM();
-        updateGroupHeaderStats();
+        if (window.activeGroup) {
+          window.activeGroup.members = data.members;
+          updateMemberGridDOM();
+          updateGroupHeaderStats();
+        }
       }
     }
   } catch (e) { }
@@ -5512,6 +5530,14 @@ async function renderGroup() {
     const ownedContainer = document.getElementById('ownedGroupsContent');
     if (data.joined) {
       window.activeGroup = data.group;
+      if (data.pendingNudge) {
+        showNudgeToast(data.pendingNudge);
+      } else {
+        const selfMember = data.group?.members?.find(m => m.isSelf);
+        if (selfMember && selfMember.pendingNudge) {
+          showNudgeToast(selfMember.pendingNudge);
+        }
+      }
       renderActiveGroupUI(container);
       if (ownedContainer) ownedContainer.innerHTML = '';
 
@@ -5780,33 +5806,56 @@ async function quickJoinOwnedGroup(code) {
 }
 
 async function pushGroupTimerState(bid) {
-  if (!window.activeGroup) return;
+  if (!window.isInGroup) return;
   try {
-    let subject = null;
-    let topic = null;
+    let payload = {};
     if (bid) {
+      const runningTimer = (typeof timers !== 'undefined') ? timers[bid] : null;
+      let block = null;
       for (let d of (days || [])) {
-        const b = (d.blocks || []).find(blk => blk.id === bid);
-        if (b) {
-          const s = sj(b.subjectId);
-          subject = s.name;
-          topic = b.topic || '';
-          break;
+        block = (d.blocks || []).find(blk => blk.id === bid);
+        if (block) break;
+      }
+      if (block) {
+        const s = sj(block.subjectId);
+        const startTime = (runningTimer && runningTimer.running && runningTimer.start) 
+          ? new Date(runningTimer.start).toISOString() 
+          : new Date().toISOString();
+        payload = {
+          timerBid: bid,
+          timerStart: startTime,
+          timerBase: gp(bid).timeSpent || 0,
+          subject: s ? s.name : null,
+          topic: block.topic || 'No topic set'
+        };
+      }
+    } else {
+      payload = { timerBid: null };
+    }
+
+    const res = await fetch('/api/study-group/timer', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.joined && data.members) {
+        if (data.pendingNudge) {
+          showNudgeToast(data.pendingNudge);
+        } else {
+          const selfMember = data.members.find(m => m.isSelf);
+          if (selfMember && selfMember.pendingNudge) {
+            showNudgeToast(selfMember.pendingNudge);
+          }
+        }
+        if (window.activeGroup) {
+          window.activeGroup.members = data.members;
+          updateMemberGridDOM();
+          updateGroupHeaderStats();
         }
       }
     }
-    fetch("/api/study-group", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        action: "update_timer",
-        timerBid: bid || null,
-        timerStart: bid ? new Date().toISOString() : null,
-        timerBase: bid ? (gp(bid).timeSpent || 0) : 0,
-        subject,
-        topic
-      })
-    }).catch(() => { });
   } catch (e) { }
 }
 
@@ -6877,31 +6926,7 @@ function renderMemberStats(m) {
   }
 }
 
-async function pollGroupTimers() {
-  if (!window.isInGroup) return;
-  try {
-    const res = await fetch("/api/study-group/timer");
-    if (res.ok) {
-      const data = await res.json();
-      if (data.joined && data.members) {
-        window.activeGroup.members = data.members;
-        const grid = document.getElementById("memberGridEl");
-        if (grid) grid.innerHTML = renderMemberGridHtml();
-      }
-    }
-  } catch (err) {
-    console.error("Group timer polling failed:", err);
-  }
-}
 
-function startGroupTimerTicks() {
-  if (groupTickInterval) clearInterval(groupTickInterval);
-  groupTickInterval = setInterval(() => {
-    if (window.isInGroup && window.activeGroup) {
-      updateMemberGridDOM();
-    }
-  }, 1000);
-}
 
 async function handleCreateGroup() {
   const name = document.getElementById("newGroupName")?.value?.trim();
@@ -6953,6 +6978,8 @@ async function handleLeaveGroup() {
     });
     if (res.ok) {
       renderGroup();
+    } else {
+      alert("Error leaving group");
     }
   } catch (err) {
     alert("Error leaving group");
@@ -6983,50 +7010,6 @@ function copyGroupCode(code) {
   });
 }
 
-async function pushGroupTimerState(bid) {
-  if (!window.isInGroup) return;
-  try {
-    let payload = {};
-    if (bid) {
-      const runningTimer = timers[bid];
-      if (runningTimer && runningTimer.running) {
-        let block = null;
-        for (let d of days) {
-          block = d.blocks.find(b => b.id === bid);
-          if (block) break;
-        }
-        if (block) {
-          const s = sj(block.subjectId);
-          payload = {
-            timerBid: bid,
-            timerStart: new Date(runningTimer.start).toISOString(),
-            timerBase: gp(bid).timeSpent || 0,
-            subject: s.name,
-            topic: block.topic || 'No topic set'
-          };
-        }
-      }
-    } else {
-      payload = { timerBid: null };
-    }
-
-    const res = await fetch('/api/study-group/timer', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    if (res.ok) {
-      const data = await res.json();
-      if (data.joined && data.members) {
-        window.activeGroup.members = data.members;
-        updateMemberGridDOM();
-      }
-    }
-  } catch (err) {
-    console.error("Failed to sync group timer:", err);
-  }
-}
-
 document.addEventListener('DOMContentLoaded', async () => {
   loadLocalSync();
   applyTheme();
@@ -7052,6 +7035,17 @@ document.addEventListener('DOMContentLoaded', async () => {
       window.isInGroup = groupData.joined;
       if (groupData.joined) {
         window.activeGroup = groupData.group;
+        if (groupData.pendingNudge) {
+          showNudgeToast(groupData.pendingNudge);
+        } else {
+          const selfMember = groupData.group?.members?.find(m => m.isSelf);
+          if (selfMember && selfMember.pendingNudge) {
+            showNudgeToast(selfMember.pendingNudge);
+          }
+        }
+        if (!groupPollInterval) {
+          groupPollInterval = setInterval(pollGroupTimers, 4000);
+        }
       }
     }
   } catch (err) {
