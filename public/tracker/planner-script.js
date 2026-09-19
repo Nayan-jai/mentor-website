@@ -68,10 +68,17 @@ const DEF_DAYS = [
 ];
 let PREMADE_SYLLABI = {};
 
+const VALID_TRACKER_THEMES = [
+  'neonquest', 'stopwatch', 'cyberpunk', 'luminous', 'slate',
+  'obsidian', 'sapphire', 'emerald', 'amber', 'purple', 'light'
+];
+
 /* ══════════════════════════════════════════
    STATE
 ══════════════════════════════════════════ */
-let subj = [], days = [], prog = {}, conf = { startDate: null, dark: true, targetDate: null, revisionActive: false, activeTab: 'daily', theme: 'luminous' };
+let _initialTheme = (typeof localStorage !== 'undefined' && localStorage.getItem('app-user-theme')) || 'luminous';
+if (!VALID_TRACKER_THEMES.includes(_initialTheme)) _initialTheme = 'luminous';
+let subj = [], days = [], prog = {}, conf = { startDate: null, dark: _initialTheme !== 'light', targetDate: null, revisionActive: false, activeTab: 'daily', theme: _initialTheme };
 let curDay = 0;
 let timers = {};
 let editSubjId = null, editDayId = null, bpDayId = null, bpSelSubjId = null;
@@ -298,6 +305,16 @@ function loadLocalSync() {
   try { const d = JSON.parse(localStorage.getItem(SK)); if (d && d.subj && d.days) { subj = d.subj; days = d.days; } else defReset(); } catch { defReset(); }
   try { prog = JSON.parse(localStorage.getItem(SP)) || {}; } catch { prog = {}; }
   try { const c = JSON.parse(localStorage.getItem(SC)); if (c) conf = { ...conf, ...c }; } catch { }
+
+  const savedTheme = localStorage.getItem('app-user-theme');
+  if (savedTheme && VALID_TRACKER_THEMES.includes(savedTheme)) {
+    conf.theme = savedTheme;
+    conf.dark = savedTheme !== 'light';
+  } else if (!conf.theme || !VALID_TRACKER_THEMES.includes(conf.theme)) {
+    conf.theme = 'luminous';
+    conf.dark = true;
+  }
+
   if (days && days.length > 0) {
     if (!conf.startDate) { conf.startDate = formatDateLocal(new Date()); }
     checkPlanExpirationAndSetCurDay();
@@ -313,11 +330,26 @@ async function load() {
         subj = serverData.subj;
         days = serverData.days;
         prog = serverData.prog || {};
+
+        const localTheme = localStorage.getItem('app-user-theme') || conf.theme;
         conf = { ...conf, ...(serverData.conf || {}) };
+        if (localTheme && VALID_TRACKER_THEMES.includes(localTheme)) {
+          conf.theme = localTheme;
+          conf.dark = localTheme !== 'light';
+        } else if (serverData.conf && serverData.conf.theme && VALID_TRACKER_THEMES.includes(serverData.conf.theme)) {
+          conf.theme = serverData.conf.theme;
+          conf.dark = conf.theme !== 'light';
+          try { localStorage.setItem('app-user-theme', conf.theme); } catch (e) {}
+        } else {
+          conf.theme = 'luminous';
+          conf.dark = true;
+        }
 
         localStorage.setItem(SK, JSON.stringify({ subj, days }));
         localStorage.setItem(SP, JSON.stringify(prog));
         localStorage.setItem(SC, JSON.stringify(conf));
+
+        applyTheme();
       }
     }
   } catch (err) {
@@ -334,8 +366,9 @@ function defReset() {
   if (!conf) conf = {};
   conf.syllabusType = 'custom';
   conf.examName = 'My Study Plan';
-  if (!conf.theme) conf.theme = 'luminous';
-  conf.dark = true;
+  const savedTheme = localStorage.getItem('app-user-theme');
+  conf.theme = (savedTheme && VALID_TRACKER_THEMES.includes(savedTheme)) ? savedTheme : 'luminous';
+  conf.dark = conf.theme !== 'light';
 }
 
 let syncTimeout = null;
@@ -3899,7 +3932,10 @@ function renderManage() {
       <span class="srow-meta">${s.defaultHrs}h</span>
     </div>`).join('') || '<div style="padding:14px;font-size:13px;color:var(--ink3)">No subjects.</div>';
   renderDayListM(); populateDFilter();
-  setAppTheme(conf.theme || localStorage.getItem('app-user-theme') || 'luminous');
+  const curT = (localStorage.getItem('app-user-theme') && VALID_TRACKER_THEMES.includes(localStorage.getItem('app-user-theme'))) ? localStorage.getItem('app-user-theme') : ((conf.theme && VALID_TRACKER_THEMES.includes(conf.theme)) ? conf.theme : 'luminous');
+  document.querySelectorAll('.theme-card-opt').forEach(card => {
+    card.classList.toggle('active', card.id === `theme-card-${curT}`);
+  });
 }
 function renderDayListM() {
   const search = (document.getElementById('dSearch')?.value || '').toLowerCase();
@@ -4958,12 +4994,12 @@ document.addEventListener('keydown', e => {
 
 // Theme & Menu Engine
 function setAppTheme(themeKey) {
-  if (!themeKey) {
+  if (!themeKey || !VALID_TRACKER_THEMES.includes(themeKey)) {
     const savedTheme = localStorage.getItem('app-user-theme');
-    if (savedTheme && ['neonquest', 'stopwatch', 'cyberpunk', 'luminous', 'slate', 'obsidian', 'sapphire', 'emerald', 'amber', 'purple', 'light'].includes(savedTheme)) {
+    if (savedTheme && VALID_TRACKER_THEMES.includes(savedTheme)) {
       themeKey = savedTheme;
     } else {
-      themeKey = conf.theme || 'luminous';
+      themeKey = (conf.theme && VALID_TRACKER_THEMES.includes(conf.theme)) ? conf.theme : 'luminous';
     }
   }
 
@@ -5010,6 +5046,11 @@ function setAppTheme(themeKey) {
   try {
     localStorage.setItem('app-user-theme', themeKey);
     localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    const scRaw = localStorage.getItem(SC);
+    const scObj = scRaw ? JSON.parse(scRaw) : {};
+    scObj.theme = themeKey;
+    scObj.dark = !isLight;
+    localStorage.setItem(SC, JSON.stringify(scObj));
   } catch (e) {}
 
   try {
@@ -5027,19 +5068,39 @@ function setAppTheme(themeKey) {
     try { renderSyllabus(); } catch(e) {}
   }
   if (conf.activeTab === 'manage') {
-    try { renderManage(); highlightDayInManage(curDay); } catch(e) {}
+    try {
+      const btnAdv = document.getElementById('btnModeAdvanced');
+      const btnEasy = document.getElementById('btnModeEasy');
+      if (btnAdv && btnEasy) {
+        const isEasy = conf.trackerMode === 'easy';
+        btnAdv.style.background = !isEasy ? 'var(--blue)' : 'var(--bg2)';
+        btnAdv.style.color = !isEasy ? '#fff' : 'var(--ink)';
+        btnAdv.style.borderColor = !isEasy ? 'var(--blue)' : 'var(--border)';
+        btnEasy.style.background = isEasy ? 'var(--blue)' : 'var(--bg2)';
+        btnEasy.style.color = isEasy ? '#fff' : 'var(--ink)';
+        btnEasy.style.borderColor = isEasy ? 'var(--blue)' : 'var(--border)';
+      }
+      document.querySelectorAll('.theme-card-opt').forEach(card => {
+        card.classList.toggle('active', card.id === `theme-card-${themeKey}`);
+      });
+    } catch(e) {}
   }
   if (conf.activeTab === 'revision') {
     try { renderRevision(); } catch(e) {}
   }
   if (conf.activeTab === 'group') {
-    try { renderGroup(); } catch(e) {}
+    try {
+      if (window.activeGroup) {
+        updateMemberGridDOM();
+        updateGroupHeaderStats();
+      }
+    } catch(e) {}
   }
   sc();
 }
 
 function toggleTheme() {
-  const currentTheme = conf.theme || localStorage.getItem('app-user-theme') || 'luminous';
+  const currentTheme = localStorage.getItem('app-user-theme') || conf.theme || 'luminous';
   const newTheme = currentTheme === 'light' ? 'luminous' : 'light';
   setAppTheme(newTheme);
   closeHeaderMenu();
@@ -5047,7 +5108,7 @@ function toggleTheme() {
 
 function applyTheme() {
   const savedTheme = localStorage.getItem('app-user-theme');
-  const currentTheme = savedTheme || conf.theme || 'luminous';
+  const currentTheme = (savedTheme && VALID_TRACKER_THEMES.includes(savedTheme)) ? savedTheme : ((conf.theme && VALID_TRACKER_THEMES.includes(conf.theme)) ? conf.theme : 'luminous');
   setAppTheme(currentTheme);
 }
 

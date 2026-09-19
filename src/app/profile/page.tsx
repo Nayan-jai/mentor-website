@@ -481,8 +481,15 @@ export default function ProfilePage() {
                 const nextTheme = theme === "dark" ? "light" : "dark";
                 setTheme(nextTheme);
                 try {
-                  localStorage.setItem("app-user-theme", nextTheme);
                   localStorage.setItem("theme", nextTheme);
+                  if (nextTheme === "light") {
+                    localStorage.setItem("app-user-theme", "light");
+                  } else {
+                    const prev = localStorage.getItem("app-user-theme");
+                    if (!prev || prev === "light") {
+                      localStorage.setItem("app-user-theme", "luminous");
+                    }
+                  }
                 } catch (e) {}
               }}
               className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-semibold transition-all duration-200 border border-slate-200 dark:border-slate-700"

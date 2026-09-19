@@ -4,47 +4,17 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { useTheme } from "next-themes";
-import { ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
+
+const VALID_TRACKER_THEMES = [
+  "neonquest", "stopwatch", "cyberpunk", "luminous", "slate",
+  "obsidian", "sapphire", "emerald", "amber", "purple", "light"
+];
 
 export default function StudyTrackerPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { theme, setTheme, resolvedTheme } = useTheme();
+  const { setTheme } = useTheme();
   const iframeRef = useRef<HTMLIFrameElement>(null);
-
-  const applyThemeToIframe = () => {
-    if (!iframeRef.current?.contentDocument) return;
-    const doc = iframeRef.current.contentDocument;
-    
-    let savedTheme: string | null = null;
-    try {
-      savedTheme = localStorage.getItem("app-user-theme") || localStorage.getItem("theme");
-    } catch (e) {}
-
-    const themeKey = savedTheme || "luminous";
-    const isLight = themeKey === "light";
-    const isDark = !isLight;
-    
-    if (doc.body) {
-      doc.body.classList.toggle("dark", isDark);
-      doc.body.classList.toggle("light", isLight);
-      if (savedTheme) {
-        doc.body.setAttribute("data-theme", savedTheme);
-      } else if (!doc.body.hasAttribute("data-theme")) {
-        doc.body.setAttribute("data-theme", "luminous");
-      }
-    }
-    if (doc.documentElement) {
-      doc.documentElement.classList.toggle("dark", isDark);
-      doc.documentElement.classList.toggle("light", isLight);
-      if (savedTheme) {
-        doc.documentElement.setAttribute("data-theme", savedTheme);
-      } else if (!doc.documentElement.hasAttribute("data-theme")) {
-        doc.documentElement.setAttribute("data-theme", "luminous");
-      }
-    }
-  };
 
   useEffect(() => {
     if (status === "loading") return;
@@ -54,29 +24,26 @@ export default function StudyTrackerPage() {
   }, [session, status, router]);
 
   useEffect(() => {
-    applyThemeToIframe();
-
-    // Ensure iframe maintains dark mode when tracker script renders DOM
-    const interval = setInterval(applyThemeToIframe, 300);
-    return () => clearInterval(interval);
-  }, [theme, resolvedTheme]);
-
-  useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       if (event.data?.type === "NAVIGATE_BACK") {
         router.push("/dashboard/student");
       } else if (event.data?.type === "TOGGLE_THEME") {
-        const nextTheme = event.data.theme || (theme === "dark" ? "light" : "dark");
-        setTheme(nextTheme);
-        try {
-          localStorage.setItem("app-user-theme", nextTheme);
-          localStorage.setItem("theme", nextTheme);
-        } catch (e) {}
+        const nextTheme = event.data.theme;
+        if (nextTheme && VALID_TRACKER_THEMES.includes(nextTheme)) {
+          try {
+            localStorage.setItem("app-user-theme", nextTheme);
+          } catch (e) {}
+          if (nextTheme === "light") {
+            setTheme("light");
+          } else {
+            setTheme("dark");
+          }
+        }
       }
     };
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
-  }, [router, setTheme, theme]);
+  }, [router, setTheme]);
 
   if (status === "loading" || !session || session.user.role !== "STUDENT") {
     return (
@@ -91,7 +58,6 @@ export default function StudyTrackerPage() {
       {/* Iframe fills all height — unified single header inside tracker */}
       <iframe
         ref={iframeRef}
-        onLoad={applyThemeToIframe}
         src="/tracker/index.html"
         className="flex-1 w-full border-none"
         title="Study Planner"

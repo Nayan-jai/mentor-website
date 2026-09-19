@@ -20,8 +20,15 @@ export default function ThemeToggle() {
     const nextTheme = isDark ? "light" : "dark";
     setTheme(nextTheme);
     try {
-      localStorage.setItem("app-user-theme", nextTheme);
       localStorage.setItem("theme", nextTheme);
+      if (nextTheme === "light") {
+        localStorage.setItem("app-user-theme", "light");
+      } else {
+        const prev = localStorage.getItem("app-user-theme");
+        if (!prev || prev === "light") {
+          localStorage.setItem("app-user-theme", "luminous");
+        }
+      }
     } catch (e) {}
   };
 

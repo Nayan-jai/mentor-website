@@ -34,10 +34,43 @@
     }
   </script>
   <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInitTracker" async></script>
-  <script src="https://script.supademo.com/supademo.js"></script>
+  <script>
+    (function() {
+      try {
+        var valid = ['neonquest', 'stopwatch', 'cyberpunk', 'luminous', 'slate', 'obsidian', 'sapphire', 'emerald', 'amber', 'purple', 'light'];
+        var saved = localStorage.getItem('app-user-theme');
+        if (!saved || !valid.includes(saved)) {
+          var cfg = JSON.parse(localStorage.getItem('study_planner_config') || '{}');
+          if (cfg.theme && valid.includes(cfg.theme)) saved = cfg.theme;
+        }
+        var finalTheme = (saved && valid.includes(saved)) ? saved : 'luminous';
+        document.documentElement.setAttribute('data-theme', finalTheme);
+        var isLight = finalTheme === 'light';
+        document.documentElement.classList.toggle('dark', !isLight);
+        document.documentElement.classList.toggle('light', isLight);
+      } catch(e){}
+    })();
+  </script>
 </head>
 
-<body data-theme="luminous" class="dark">
+<body class="dark">
+  <script>
+    (function() {
+      try {
+        var valid = ['neonquest', 'stopwatch', 'cyberpunk', 'luminous', 'slate', 'obsidian', 'sapphire', 'emerald', 'amber', 'purple', 'light'];
+        var saved = localStorage.getItem('app-user-theme');
+        if (!saved || !valid.includes(saved)) {
+          var cfg = JSON.parse(localStorage.getItem('study_planner_config') || '{}');
+          if (cfg.theme && valid.includes(cfg.theme)) saved = cfg.theme;
+        }
+        var finalTheme = (saved && valid.includes(saved)) ? saved : 'luminous';
+        document.body.setAttribute('data-theme', finalTheme);
+        var isLight = finalTheme === 'light';
+        document.body.classList.toggle('dark', !isLight);
+        document.body.classList.toggle('light', isLight);
+      } catch(e){}
+    })();
+  </script>
   <div id="google_translate_element_tracker" style="display:none"></div>
 
   <!-- ════════ HEADER ════════ -->
