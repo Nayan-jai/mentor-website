@@ -348,6 +348,34 @@
       transform: translateY(2px);
     }
 
+    .btn-offline {
+      background: linear-gradient(135deg, #7c3aed, #4f46e5);
+      color: #ffffff;
+      min-height: 44px;
+      padding: 12px 28px;
+      border-radius: 10px;
+      border: none;
+      border-bottom: 4px solid #3730a3;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+      font-size: clamp(9px, 2vw, 11px);
+      box-shadow: 0 4px 15px rgba(124, 58, 237, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+
+    .btn-offline:hover {
+      background: linear-gradient(135deg, #8b5cf6, #4338ca);
+      box-shadow: 0 6px 20px rgba(124, 58, 237, 0.55);
+    }
+
+    .btn-offline:active {
+      transform: translateY(2px);
+    }
+
     /* ACTION BUTTONS DESIGN */
     .btn-action {
       display: inline-flex;
@@ -409,7 +437,7 @@
         margin: 6px 0 2px 0;
       }
 
-      .btn-action, .btn-retry {
+      .btn-action, .btn-retry, .btn-offline {
         flex: 1;
         min-height: 38px;
         padding: 8px 4px;
@@ -506,6 +534,9 @@
   <footer>
     <button id="btnRetry" onclick="checkConnectionAndReload()" class="btn-retry font-pixel">
       RETRY CONNECTION
+    </button>
+    <button onclick="window.location.href='/dashboard/student/study-tracker'" class="btn-offline font-pixel">
+      📖 USE TRACKER OFFLINE
     </button>
   </footer>
 

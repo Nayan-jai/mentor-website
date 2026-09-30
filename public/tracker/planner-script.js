@@ -322,6 +322,9 @@ function loadLocalSync() {
 }
 
 async function load() {
+  // Offline: skip server fetch entirely, localStorage already has latest data
+  if (!navigator.onLine) return;
+
   try {
     const res = await fetch("/api/student/study-tracker");
     if (res.ok) {
@@ -371,11 +374,51 @@ function defReset() {
   conf.dark = conf.theme !== 'light';
 }
 
+// ── Offline mode ────────────────────────────────────────────────────
+let _pendingSync = false;
+
+function _setOfflineBanner(offline) {
+  const b = document.getElementById('offlineBanner');
+  if (!b) return;
+  b.style.display = offline ? 'flex' : 'none';
+}
+
+function _onOnline() {
+  _setOfflineBanner(false);
+  if (_pendingSync) {
+    _pendingSync = false;
+    const status = document.getElementById('offlineSyncStatus');
+    if (status) status.textContent = '';
+    // Push queued data to server now
+    fetch("/api/student/study-tracker", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ subj, days, prog, conf }),
+    }).catch(() => {});
+  }
+}
+
+function _onOffline() {
+  _setOfflineBanner(true);
+}
+
+window.addEventListener('online', _onOnline);
+window.addEventListener('offline', _onOffline);
+// ───────────────────────────────────────────────────────────────
+
 let syncTimeout = null;
 function syncToServer() {
   localStorage.setItem(SK, JSON.stringify({ subj, days }));
   localStorage.setItem(SP, JSON.stringify(prog));
   localStorage.setItem(SC, JSON.stringify(conf));
+
+  if (!navigator.onLine) {
+    // Mark that we have unsynced changes; banner already shown by 'offline' event
+    _pendingSync = true;
+    const status = document.getElementById('offlineSyncStatus');
+    if (status) status.textContent = '● Unsaved to server';
+    return;
+  }
 
   if (syncTimeout) clearTimeout(syncTimeout);
   syncTimeout = setTimeout(async () => {
@@ -5582,6 +5625,7 @@ let groupTickInterval = null;
 
 async function pollGroupTimers() {
   if (!window.isInGroup) return;
+  if (!navigator.onLine) return; // skip silently while offline
   try {
     const res = await fetch("/api/study-group/timer");
     if (res.ok) {
@@ -7163,6 +7207,9 @@ function copyGroupCode(code) {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+  // Set initial offline/online banner state
+  if (!navigator.onLine) _setOfflineBanner(true);
+
   loadLocalSync();
   applyTheme();
   await loadSyllabusTemplates();

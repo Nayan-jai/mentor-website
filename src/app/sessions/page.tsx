@@ -154,10 +154,31 @@ function SessionsContent() {
     }
   }, [searchParams, recordedSessions]);
 
+  // Lock screen to landscape on small touch devices (mobile/tablet)
+  const handleOpenVideo = (video: RecordedSession) => {
+    setFocusMode("fit");
+    setActiveModalVideo(video);
+    if (
+      typeof window !== "undefined" &&
+      window.innerWidth <= 1024 &&
+      navigator.maxTouchPoints > 0 &&
+      screen.orientation?.lock
+    ) {
+      screen.orientation.lock("landscape").catch(() => {/* browser may deny on desktop */});
+    }
+  };
+
+  const handleCloseVideo = () => {
+    setActiveModalVideo(null);
+    if (typeof screen !== "undefined" && screen.orientation?.unlock) {
+      screen.orientation.unlock();
+    }
+  };
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && activeModalVideo) {
-        setActiveModalVideo(null);
+        handleCloseVideo();
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -743,10 +764,7 @@ function SessionsContent() {
                     >
                       {/* Top Media Container: Lecture Thumbnail with Play Overlay */}
                       <div
-                        onClick={() => {
-                          setFocusMode("fit");
-                          setActiveModalVideo(video);
-                        }}
+                        onClick={() => handleOpenVideo(video)}
                         className="relative aspect-video w-full bg-slate-950 overflow-hidden cursor-pointer group/thumb"
                       >
                         <img
@@ -939,7 +957,7 @@ function SessionsContent() {
 
               <button
                 type="button"
-                onClick={() => setActiveModalVideo(null)}
+                onClick={handleCloseVideo}
                 className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold shadow-md transition-all"
                 title="Close Full Screen (Esc)"
               >
@@ -964,7 +982,7 @@ function SessionsContent() {
             />
             {/* Hide and disable top-left YouTube channel popup and title */}
             <div
-              className="absolute top-0 left-0 w-80 sm:w-[440px] h-16 sm:h-20 bg-black z-30 pointer-events-auto select-none"
+              className="absolute top-0 left-0 w-44 sm:w-56 h-14 sm:h-16 bg-black z-30 pointer-events-auto select-none"
               onClick={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
