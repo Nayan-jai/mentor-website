@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -154,24 +154,40 @@ function SessionsContent() {
     }
   }, [searchParams, recordedSessions]);
 
+  const videoModalRef = useRef<HTMLDivElement>(null);
+
   // Lock screen to landscape on small touch devices (mobile/tablet)
+  // Chrome requires fullscreen BEFORE orientation.lock will work
   const handleOpenVideo = (video: RecordedSession) => {
     setFocusMode("fit");
     setActiveModalVideo(video);
-    if (
+
+    const isSmallTouch =
       typeof window !== "undefined" &&
       window.innerWidth <= 1024 &&
-      navigator.maxTouchPoints > 0 &&
-      screen.orientation?.lock
-    ) {
-      screen.orientation.lock("landscape").catch(() => {/* browser may deny on desktop */});
-    }
+      navigator.maxTouchPoints > 0;
+
+    if (!isSmallTouch) return;
+
+    // Wait for React to render the modal, then go fullscreen + lock landscape
+    setTimeout(() => {
+      const el = videoModalRef.current ?? document.documentElement;
+      const fsReq =
+        el.requestFullscreen?.() ??
+        (el as any).webkitRequestFullscreen?.() ??
+        Promise.resolve();
+
+      Promise.resolve(fsReq)
+        .then(() => screen.orientation?.lock?.("landscape"))
+        .catch(() => {/* denied or unsupported — fail silently */});
+    }, 50);
   };
 
   const handleCloseVideo = () => {
     setActiveModalVideo(null);
-    if (typeof screen !== "undefined" && screen.orientation?.unlock) {
-      screen.orientation.unlock();
+    screen.orientation?.unlock?.();
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {});
     }
   };
 
@@ -892,7 +908,7 @@ function SessionsContent() {
       {/* DIRECT FULLSCREEN VIDEO PLAYER POPUP */}
       {/* ========================================================= */}
       {activeModalVideo && (
-        <div className="fixed inset-0 z-50 bg-black flex flex-col w-screen h-screen animate-in fade-in duration-200">
+        <div ref={videoModalRef} className="fixed inset-0 z-50 bg-black flex flex-col w-screen h-screen animate-in fade-in duration-200">
           {/* Top Fullscreen Header */}
           <div className="flex items-center justify-between px-4 sm:px-6 py-3 border-b border-neutral-800 text-white shrink-0 bg-neutral-950/95 backdrop-blur-md z-20">
             <div className="flex items-center gap-3 min-w-0 pr-4">
