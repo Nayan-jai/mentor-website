@@ -143,7 +143,9 @@ function SessionsContent() {
   }, []);
 
   // Automatically open shared lecture if lecture ID is provided in the URL
+  // Only for logged-in users — guests see the page but not the modal
   useEffect(() => {
+    if (!session?.user) return;
     const lectureId = searchParams?.get("lecture") || searchParams?.get("v");
     if (lectureId && recordedSessions.length > 0) {
       const target = recordedSessions.find((s) => s.id === lectureId);
@@ -152,7 +154,7 @@ function SessionsContent() {
         setActiveModalVideo(target);
       }
     }
-  }, [searchParams, recordedSessions]);
+  }, [searchParams, recordedSessions, session?.user]);
 
   const videoModalRef = useRef<HTMLDivElement>(null);
 

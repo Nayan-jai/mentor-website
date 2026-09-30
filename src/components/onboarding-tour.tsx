@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import {
   Sparkles,
   Volume2,
@@ -136,7 +137,9 @@ export default function OnboardingTour({ forceOpen = false, onClose }: Onboardin
   const pathname = usePathname();
   const router = useRouter();
 
+  const { data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
+  const [showTourPrompt, setShowTourPrompt] = useState(false);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
@@ -224,22 +227,27 @@ export default function OnboardingTour({ forceOpen = false, onClose }: Onboardin
 
   // Initialize or restore active tour session (auto-starts max 2 times for first-time logged in users)
   useEffect(() => {
+    // Only auto-prompt for logged-in users on their first visit
+    const isLoggedIn = !!session?.user;
+    if (!isLoggedIn) return;
+
     const isTourActive = typeof window !== 'undefined' && sessionStorage.getItem('tour_active') === 'true';
     const savedStepStr = typeof window !== 'undefined' ? sessionStorage.getItem('tour_step_index') : null;
     const tourViewsCount = typeof window !== 'undefined' ? parseInt(localStorage.getItem('onboarding_tour_views_count') || '0', 10) : 2;
 
-    const shouldAutoStart = tourViewsCount < 2;
+    const shouldAutoStart = tourViewsCount < 1;
 
-    if (forceOpen || isTourActive || shouldAutoStart) {
-      if (shouldAutoStart && !isTourActive && !forceOpen) {
-        localStorage.setItem('onboarding_tour_views_count', (tourViewsCount + 1).toString());
-      }
+    if (forceOpen || isTourActive) {
       setIsOpen(true);
       const savedStep = savedStepStr !== null ? parseInt(savedStepStr, 10) : 0;
       const initialStep = isNaN(savedStep) ? 0 : Math.min(Math.max(0, savedStep), DEFAULT_TOUR_STEPS.length - 1);
       setCurrentStepIndex(initialStep);
       sessionStorage.setItem('tour_active', 'true');
       sessionStorage.setItem('tour_step_index', initialStep.toString());
+    } else if (shouldAutoStart) {
+      // Show consent popup — don't launch tour directly
+      localStorage.setItem('onboarding_tour_views_count', '1');
+      setTimeout(() => setShowTourPrompt(true), 1500);
     }
 
     const handleStartEvent = () => {
@@ -260,7 +268,7 @@ export default function OnboardingTour({ forceOpen = false, onClose }: Onboardin
       window.removeEventListener('start_onboarding_tour', handleStartEvent);
       window.removeEventListener('toggle_element_inspector', handleToggleInspector);
     };
-  }, [forceOpen]);
+  }, [forceOpen, session?.user]);
 
   const currentStep = DEFAULT_TOUR_STEPS[currentStepIndex];
 
@@ -627,6 +635,44 @@ export default function OnboardingTour({ forceOpen = false, onClose }: Onboardin
 
   return (
     <>
+      {/* Guided Tour Consent Popup — shown once to first-time logged-in users */}
+      {showTourPrompt && !isOpen && (
+        <div className="fixed inset-0 z-[99999] flex items-end sm:items-center justify-center p-4 sm:p-0">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowTourPrompt(false)} />
+          <div className="relative z-10 w-full max-w-sm mx-auto bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl p-6 flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 to-sky-500 flex items-center justify-center flex-shrink-0">
+                <Sparkles className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-white text-sm">Welcome! Take a quick tour?</h3>
+                <p className="text-slate-400 text-xs mt-0.5">We&apos;ll walk you through the key features — takes about 2 minutes.</p>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  setShowTourPrompt(false);
+                  sessionStorage.setItem('tour_active', 'true');
+                  sessionStorage.setItem('tour_step_index', '0');
+                  setCurrentStepIndex(0);
+                  setIsOpen(true);
+                }}
+                className="flex-1 bg-gradient-to-r from-cyan-500 to-sky-500 hover:from-cyan-400 hover:to-sky-400 text-white text-sm font-semibold py-2.5 px-4 rounded-xl transition-all"
+              >
+                ✨ Yes, show me around
+              </button>
+              <button
+                onClick={() => setShowTourPrompt(false)}
+                className="px-4 py-2.5 rounded-xl border border-slate-700 text-slate-400 hover:text-white hover:border-slate-500 text-sm transition-all"
+              >
+                Skip
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Toast Notification when element is selected */}
       {copiedSelector && (
         <div className="fixed top-20 right-6 z-[100005] px-4 py-2.5 rounded-2xl bg-cyan-950/90 border border-cyan-500/40 text-cyan-300 text-xs font-semibold shadow-2xl flex items-center space-x-2 animate-bounce">
