@@ -1182,8 +1182,8 @@ select {
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   box-shadow: var(--sh2);
-  z-index: 150;
-  min-width: 160px;
+  z-index: 1000;
+  min-width: 180px;
   overflow: hidden;
   animation: slideDown .15s ease-out;
 }
@@ -3260,7 +3260,8 @@ select {
   }
 
   .header {
-    position: relative;
+    /* keep sticky so the absolute-positioned dropdown can escape the header box */
+    overflow: visible;
   }
 
   .header-inner {
@@ -3509,7 +3510,7 @@ select {
   }
 
   .header-menu {
-    display: none !important;
+    display: none;
   }
 }
 
