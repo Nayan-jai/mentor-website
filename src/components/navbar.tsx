@@ -127,7 +127,7 @@ export default function Navbar() {
                   </Link>
                 )}
                 {session.user?.role === "ADMIN" && (
-                  <Link href="/profile" className="group nav-link flex items-center gap-1.5 xl:gap-2 px-2 xl:px-3 py-1.5 text-xs xl:text-sm 2xl:text-base font-semibold tracking-wide whitespace-nowrap">
+                  <Link href="/dashboard/admin" className="group nav-link flex items-center gap-1.5 xl:gap-2 px-2 xl:px-3 py-1.5 text-xs xl:text-sm 2xl:text-base font-semibold tracking-wide whitespace-nowrap">
                     <ShieldCheck className="w-4 h-4 text-indigo-400 transition-transform duration-200 group-hover:scale-110 shrink-0" /> Admin Console
                   </Link>
                 )}
@@ -192,6 +192,7 @@ export default function Navbar() {
                   : []),
                 ...(session?.user?.role === "ADMIN"
                   ? [
+                      { key: "admin-console", href: "/dashboard/admin", label: "Admin Console", icon: ShieldCheck, color: "text-indigo-400" },
                       { key: "users", href: "/dashboard/admin/users", label: "Manage Users", icon: Users, color: "text-cyan-400" },
                       { key: "admin-sessions", href: "/dashboard/admin/sessions", label: "Manage Sessions", icon: CalendarCheck, color: "text-purple-400" },
                       { key: "analytics", href: "/dashboard/admin/analytics", label: "Analytics", icon: LineChart, color: "text-emerald-400" },

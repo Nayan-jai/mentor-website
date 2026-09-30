@@ -111,7 +111,7 @@ function isHistoricalDay(dayObj) {
   if (!dayObj) return false;
   if (hasDayProgress(dayObj)) return true;
 
-  const today = new Date();
+  const today = parseDateLocal(getISTDateString(new Date()));
   today.setHours(0, 0, 0, 0);
   const dDate = dayObj.dateOverride ? parseDateLocal(dayObj.dateOverride) : null;
   if (dDate) {
@@ -316,7 +316,7 @@ function loadLocalSync() {
   }
 
   if (days && days.length > 0) {
-    if (!conf.startDate) { conf.startDate = formatDateLocal(new Date()); }
+    if (!conf.startDate) { conf.startDate = getISTDateString(new Date()); }
     checkPlanExpirationAndSetCurDay();
   }
 }
@@ -356,7 +356,7 @@ async function load() {
     console.error("Error loading study tracker from server:", err);
   }
 
-  if (!conf.startDate) { conf.startDate = formatDateLocal(new Date()); }
+  if (!conf.startDate) { conf.startDate = getISTDateString(new Date()); }
   checkPlanExpirationAndSetCurDay();
 }
 
@@ -395,8 +395,23 @@ function sd() { syncToServer(); }
 function sp() { syncToServer(); }
 function sc() { syncToServer(); }
 function gp(bid) { if (!prog[bid]) prog[bid] = { subtopics: {}, customTasks: [], notes: '', timeSpent: 0 }; return prog[bid]; }
+function getISTDateString(d = new Date()) {
+  const dt = (d instanceof Date) ? d : new Date(d);
+  // Tracker day rollover at 5:00 AM IST (+05:30): subtract 5 hours so 12:00 AM - 4:59 AM counts toward previous day
+  const effectiveDate = new Date(dt.getTime() - (5 * 3600 * 1000));
+  try {
+    return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' }).format(effectiveDate);
+  } catch (e) {
+    const utc = effectiveDate.getTime() + (effectiveDate.getTimezoneOffset() * 60000);
+    const ist = new Date(utc + (3600000 * 5.5));
+    const y = ist.getFullYear();
+    const m = String(ist.getMonth() + 1).padStart(2, '0');
+    const r = String(ist.getDate()).padStart(2, '0');
+    return `${y}-${m}-${r}`;
+  }
+}
 function parseDateLocal(strOrDate) {
-  if (!strOrDate) return new Date();
+  if (!strOrDate) return parseDateLocal(getISTDateString(new Date()));
   if (strOrDate instanceof Date) return new Date(strOrDate);
   const parts = strOrDate.split('T')[0].split('-');
   if (parts.length === 3) {
@@ -405,13 +420,28 @@ function parseDateLocal(strOrDate) {
   return new Date(strOrDate);
 }
 function formatDateLocal(d) {
+  if (!d) return '';
+  if (typeof d === 'string') {
+    const parts = d.split('T')[0].split('-');
+    if (parts.length === 3) return `${parts[0]}-${parts[1].padStart(2, '0')}-${parts[2].padStart(2, '0')}`;
+    d = new Date(d);
+  }
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, '0');
   const r = String(d.getDate()).padStart(2, '0');
   return `${y}-${m}-${r}`;
 }
-function getDd(i) { const d = days[i]; if (d?.dateOverride) return parseDateLocal(d.dateOverride); const dt = parseDateLocal(conf.startDate); dt.setDate(dt.getDate() + i); return dt; }
-function isToday(d) { const t = new Date(); return d.getFullYear() === t.getFullYear() && d.getMonth() === t.getMonth() && d.getDate() === t.getDate(); }
+function getDd(i) {
+  const d = days[i];
+  if (d?.dateOverride) return parseDateLocal(d.dateOverride);
+  const dt = parseDateLocal(conf.startDate || getISTDateString(new Date()));
+  dt.setDate(dt.getDate() + i);
+  return dt;
+}
+function isToday(d) {
+  if (!d) return false;
+  return formatDateLocal(d) === getISTDateString(new Date());
+}
 function fd(d) { return d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' }); }
 function gid() { return 'b' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5); }
 function getSolidColor(c) {
@@ -1015,7 +1045,7 @@ function dPlannedHrs(i) { return days[i]?.blocks.reduce((s, b) => s + (b.targetH
 ══════════════════════════════════════════ */
 function renderStats() {
   const tot = days.length, done = days.filter((_, i) => dPct(i) === 100).length;
-  let streak = 0; const today = new Date(); today.setHours(0, 0, 0, 0);
+  let streak = 0; const today = parseDateLocal(getISTDateString(new Date())); today.setHours(0, 0, 0, 0);
   for (let i = 0; i < days.length; i++) { const dd = getDd(i); if (dd > today) break; if (dPct(i) === 100) streak++; else streak = 0; }
   const totalSec = days.reduce((s, d) => s + d.blocks.reduce((ss, b) => ss + (gp(b.id).timeSpent || 0), 0), 0);
   const th = Math.floor(totalSec / 3600), tm = Math.floor((totalSec % 3600) / 60);
@@ -1460,10 +1490,10 @@ function toggleEasySubjectTimer(subjectId) {
   renderDaily();
 }
 
-let lastCheckedDateStr = new Date().toDateString();
+let lastCheckedDateStr = getISTDateString(new Date());
 
 function checkDailyRollover() {
-  const todayStr = new Date().toDateString();
+  const todayStr = getISTDateString(new Date());
   if (todayStr !== lastCheckedDateStr) {
     lastCheckedDateStr = todayStr;
     const ti = days.findIndex((_, i) => isToday(getDd(i)));
@@ -1486,7 +1516,7 @@ function renderEasyModeTick() {
   // Update dynamic overall stats during tick
   const done = days.filter((_, i) => dPct(i) === 100).length;
   const tot = days.length || 61;
-  const today = new Date(); today.setHours(0,0,0,0);
+  const today = parseDateLocal(getISTDateString(new Date())); today.setHours(0,0,0,0);
   let streak = 0;
   for (let i = 0; i < days.length; i++) { const dd = getDd(i); if (dd > today) break; if (dPct(i) === 100) streak++; else streak = 0; }
   
@@ -1924,7 +1954,7 @@ function renderCyberpunkTick() {
   // Update dynamic overall stats
   const done = days.filter((_, i) => dPct(i) === 100).length;
   const tot = days.length || 61;
-  const today = new Date(); today.setHours(0,0,0,0);
+  const today = parseDateLocal(getISTDateString(new Date())); today.setHours(0,0,0,0);
   let streak = 0;
   for (let i = 0; i < days.length; i++) { const dd = getDd(i); if (dd > today) break; if (dPct(i) === 100) streak++; else streak = 0; }
 
@@ -2015,7 +2045,7 @@ function renderCyberpunkView() {
   const tot = days.length || 61;
   const progressPercent = tot ? Math.round(done / tot * 100) : 0;
 
-  const today = new Date(); today.setHours(0,0,0,0);
+  const today = parseDateLocal(getISTDateString(new Date())); today.setHours(0,0,0,0);
   let streak = 0;
   for (let i = 0; i < days.length; i++) { const dd = getDd(i); if (dd > today) break; if (dPct(i) === 100) streak++; else streak = 0; }
 
@@ -3179,7 +3209,7 @@ function refreshBlock(dayId, bid) {
 }
 
 /* Timer */
-function toggleTimer(bid, dayId) {
+function toggleTimer(bid, dayId, customStartTime = null) {
   if (timers[bid]?.running) {
     const el = Math.floor((Date.now() - timers[bid].start) / 1000);
     clearInterval(timers[bid].interval);
@@ -3216,15 +3246,20 @@ function toggleTimer(bid, dayId) {
         if (otherDay) { refreshBlock(otherDay.id, id); }
       }
     });
-    timers[bid] = { running: true, start: Date.now(), interval: null, ticks: 0 };
+
+    const startTime = customStartTime || Date.now();
+    timers[bid] = { running: true, start: startTime, interval: null, ticks: 0 };
     if (!gp(bid).startTime) gp(bid).startTime = new Date(timers[bid].start).toISOString();
     gp(bid).lastStart = new Date(timers[bid].start).toISOString();
     sp();
     // Save absolute start so page refresh can resume without beforeunload
     localStorage.setItem('_runningTimer', JSON.stringify({ bid, start: timers[bid].start, base: gp(bid).timeSpent || 0 }));
     try { pushGroupTimerState(bid); } catch { }
-    const d = days.find(x => x.id === dayId), b = d?.blocks.find(x => x.id === bid);
-    timers[bid].interval = setInterval(() => {
+
+    const tickFn = () => {
+      if (!timers[bid]?.running) return;
+
+      const d = days.find(x => x.id === dayId), b = d?.blocks.find(x => x.id === bid);
       const ex = Math.floor((Date.now() - timers[bid].start) / 1000);
       const tot = (gp(bid).timeSpent || 0) + ex;
 
@@ -3260,6 +3295,8 @@ function toggleTimer(bid, dayId) {
         localStorage.removeItem('_runningTimer');
         try { pushGroupTimerState(null); } catch { }
 
+        const overflowSec = tot - targetSec;
+
         // Find next subject block in current day whose target time has not been completed
         const curDayObj = days.find(x => x.id === dayId);
         let nextBlock = null;
@@ -3285,8 +3322,9 @@ function toggleTimer(bid, dayId) {
             const audio = new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3");
             audio.play().catch(() => {});
           } catch (e) {}
-          // Switch to next subject and start its timer
-          toggleTimer(nextBlock.id, dayId);
+          // Switch to next subject and carry over remaining overflow elapsed time
+          const nextStartTime = Date.now() - (overflowSec * 1000);
+          toggleTimer(nextBlock.id, dayId, nextStartTime);
         } else {
           refreshAllViews();
         }
@@ -3314,7 +3352,15 @@ function toggleTimer(bid, dayId) {
         snapProg[bid].timeSpent = (snapProg[bid].timeSpent || 0) + snapSecs;
         fetch('/api/student/study-tracker', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ subj, days, prog: snapProg, conf }) }).catch(() => { });
       }
-    }, 1000);
+    };
+
+    // Run first tick immediately to handle immediate overflow transitions
+    tickFn();
+
+    if (timers[bid]?.running) {
+      timers[bid].interval = setInterval(tickFn, 1000);
+    }
+
     const btn = document.getElementById('tbtn-' + bid); if (btn) { btn.textContent = '⏸ Pause'; btn.className = 'timer-start running'; }
     const easyBtn = document.getElementById('easyBtn-' + bid); if (easyBtn) { easyBtn.innerHTML = '<span>Pause</span><span style="font-size:10px">⏸</span>'; easyBtn.style.background = '#fbbf24'; }
     if (conf.theme === 'cyberpunk') { renderCyberpunkView(); }
@@ -7158,20 +7204,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.error("Error fetching group status on load:", err);
   }
   // ── Restore running timer after refresh ────────────────────────────────
-  // Read BEFORE any render/sync so stale server data gets corrected first.
   const rtRaw = localStorage.getItem('_runningTimer');
   let _resumeData = null;
   if (rtRaw) {
     try {
       const { bid: rtBid, start, base } = JSON.parse(rtRaw);
-      const elapsed = Math.floor((Date.now() - start) / 1000);
-      const p = gp(rtBid);
       const resumeDay = days.find(d => d.blocks.some(b => b.id === rtBid));
-      const otherBlocksSec = getDayLoggedSec(resumeDay?.id, rtBid);
-      const maxAllowed = Math.max(0, MAX_DAY_SECONDS - otherBlocksSec);
-      p.timeSpent = Math.min(Math.max(p.timeSpent || 0, base + elapsed), maxAllowed);
-      if (otherBlocksSec + p.timeSpent < MAX_DAY_SECONDS) {
-        _resumeData = { bid: rtBid };
+      if (resumeDay) {
+        _resumeData = { bid: rtBid, start, base, dayId: resumeDay.id };
       } else {
         localStorage.removeItem('_runningTimer');
       }
@@ -7184,7 +7224,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   updateRevisionTabVisibility();
   renderAll();
   if (nameInput && conf.examName) nameInput.value = conf.examName;
-  if (startDateInput) startDateInput.value = conf.startDate || formatDateLocal(new Date());
+  if (startDateInput) startDateInput.value = conf.startDate || getISTDateString(new Date());
   if (dateInput && conf.targetDate) dateInput.value = conf.targetDate;
   switchView(conf.activeTab || 'daily');
   syncToServer();
@@ -7201,17 +7241,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
   if (_resumeData) {
-    const resumeDay = days.find(d => d.blocks.some(b => b.id === _resumeData.bid));
-    if (resumeDay) toggleTimer(_resumeData.bid, resumeDay.id);
+    toggleTimer(_resumeData.bid, _resumeData.dayId, _resumeData.start);
   }
   // Show tutorial on first visit only
   maybeShowTutorial();
 
-  // Sync days with current day when page becomes visible or focused (minimizing/restoring window, switching tabs)
-  const syncToCurrentDay = () => {
+  // Sync days with current day and catch up background timers when page becomes visible or focused (lock screen, minimizing, switching tabs)
+  const syncToCurrentDayAndCatchupTimer = () => {
     if (!days || days.length === 0) return;
     if (!conf.startDate) {
-      conf.startDate = formatDateLocal(new Date());
+      conf.startDate = getISTDateString(new Date());
     }
     for (let i = 0; i < days.length; i++) {
       if (isToday(getDd(i))) {
@@ -7222,11 +7261,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         break;
       }
     }
+
+    // Immediately catch up running timer and switch subjects if target was reached while locked/background
+    const runningBid = Object.keys(timers).find(bid => timers[bid]?.running);
+    if (runningBid) {
+      const runningDay = days.find(d => d.blocks.some(b => b.id === runningBid));
+      if (runningDay && timers[runningBid]) {
+        const startTs = timers[runningBid].start;
+        clearInterval(timers[runningBid].interval);
+        timers[runningBid].running = false;
+        toggleTimer(runningBid, runningDay.id, startTs);
+      }
+    }
   };
-  window.addEventListener('focus', syncToCurrentDay);
+  window.addEventListener('focus', syncToCurrentDayAndCatchupTimer);
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
-      syncToCurrentDay();
+      syncToCurrentDayAndCatchupTimer();
     }
   });
 });

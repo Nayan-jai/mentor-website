@@ -22,6 +22,25 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   trailingSlash: true,
+  async redirects() {
+    return [
+      {
+        source: '/session',
+        destination: '/sessions/',
+        permanent: true,
+      },
+      {
+        source: '/resource',
+        destination: '/resources/',
+        permanent: true,
+      },
+      {
+        source: '/admin',
+        destination: '/dashboard/admin/',
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {
