@@ -161,35 +161,47 @@ function SessionsContent() {
   const handleOpenVideo = (video: RecordedSession) => {
     setFocusMode("fit");
     setActiveModalVideo(video);
-
-    const isSmallTouch =
-      typeof window !== "undefined" &&
-      window.innerWidth <= 1024 &&
-      navigator.maxTouchPoints > 0;
-
-    if (!isSmallTouch) return;
-
-    // Wait for React to render the modal, then go fullscreen + lock landscape
-    setTimeout(() => {
-      const el = videoModalRef.current ?? document.documentElement;
-      const fsReq =
-        el.requestFullscreen?.() ??
-        (el as any).webkitRequestFullscreen?.() ??
-        Promise.resolve();
-
-      Promise.resolve(fsReq)
-        .then(() => screen.orientation?.lock?.("landscape"))
-        .catch(() => {/* denied or unsupported — fail silently */});
-    }, 50);
+    // fullscreen + orientation lock is handled in the useEffect below
+    // (runs after React renders the modal so videoModalRef.current is populated)
   };
 
   const handleCloseVideo = () => {
     setActiveModalVideo(null);
-    screen.orientation?.unlock?.();
+    (screen.orientation as any)?.unlock?.();
     if (document.fullscreenElement) {
       document.exitFullscreen().catch(() => {});
     }
   };
+
+  // After modal renders, request fullscreen + lock landscape on small touch devices
+  useEffect(() => {
+    if (!activeModalVideo) return;
+
+    const isSmallTouch =
+      window.innerWidth <= 1024 && navigator.maxTouchPoints > 0;
+
+    if (isSmallTouch) {
+      const el = videoModalRef.current ?? document.documentElement;
+      const fsReq =
+        el.requestFullscreen?.() ||
+        (el as any).webkitRequestFullscreen?.() ||
+        Promise.resolve();
+
+      Promise.resolve(fsReq)
+        .then(() => (screen.orientation as any)?.lock?.("landscape"))
+        .catch(() => {/* denied or unsupported — fail silently */});
+    }
+  }, [activeModalVideo]);
+
+  // Release orientation lock + fullscreen on unmount (covers browser back button)
+  useEffect(() => {
+    return () => {
+      (screen.orientation as any)?.unlock?.();
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
