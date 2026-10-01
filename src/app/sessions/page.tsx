@@ -137,10 +137,14 @@ function SessionsContent() {
     }
   }, [searchParams]);
 
+  useEffect(() => { fetchSessions(); }, []);
+
+  // Lazy-load recorded sessions only when that tab is first opened
   useEffect(() => {
-    fetchSessions();
-    fetchRecordedSessions();
-  }, []);
+    if (activeTab === "recorded" && recordedSessions.length === 0 && !loadingRecorded) {
+      fetchRecordedSessions();
+    }
+  }, [activeTab]);
 
   // Automatically open shared lecture if lecture ID is provided in the URL
   // Only for logged-in users — guests see the page but not the modal
@@ -460,17 +464,6 @@ function SessionsContent() {
     return matchesCat && matchesSearch;
   });
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-          <div className="text-sm font-semibold text-slate-600 dark:text-slate-400">Loading Sessions Hub...</div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300 pt-20 pb-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
@@ -555,7 +548,12 @@ function SessionsContent() {
         {/* ========================================================= */}
         {activeTab === "live" && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {sessions.length === 0 ? (
+            {loading ? (
+              <div className="col-span-full text-center py-16 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400">
+                <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+                Loading sessions...
+              </div>
+            ) : sessions.length === 0 ? (
               <div className="col-span-full text-center py-16 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400">
                 No live or scheduled sessions available at the moment.
               </div>
@@ -800,6 +798,8 @@ function SessionsContent() {
                         <img
                           src={`https://img.youtube.com/vi/${video.videoId}/hqdefault.jpg`}
                           alt={video.title}
+                          width={480}
+                          height={360}
                           className="w-full h-full object-cover group-hover/thumb:scale-105 transition-transform duration-500"
                           loading="lazy"
                         />
