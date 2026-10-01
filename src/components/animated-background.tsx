@@ -12,11 +12,6 @@ const ORBIT_RADII_Y = [22, 28, 34, 40, 46]; // vh
 const CENTER_X = 50; // vw
 const CENTER_Y = 38; // vh
 
-function generateStarBoxShadow(n: number, size = 2000) {
-  let v = `${Math.random() * size}px ${Math.random() * size}px #FFF`;
-  for (let i = 1; i < n; i++) v += `, ${Math.random() * size}px ${Math.random() * size}px #FFF`;
-  return v;
-}
 
 // Deterministic orbit assignment per word (seeded, no hydration mismatch)
 const ORBIT_IDX = words.map((_, i) => i % ORBIT_RADII.length);
@@ -26,6 +21,7 @@ const FONT_SIZE  = words.map(w => Math.max(2.0, 3.2 - ((w.length - 4) / 8) * 1.0
 
 export function AnimatedBackground() {
   const [mounted, setMounted] = useState(false);
+  const [isDark, setIsDark] = useState(true);
   const [shadows, setShadows] = useState({ sm: '', md: '', lg: '' });
   const [positions, setPositions] = useState(
     words.map((_, i) => {
@@ -38,11 +34,19 @@ export function AnimatedBackground() {
   const rafRef = useRef<number>(0);
 
   useEffect(() => {
-    setShadows({
-      sm: generateStarBoxShadow(700),
-      md: generateStarBoxShadow(200),
-      lg: generateStarBoxShadow(100),
-    });
+    const html = document.documentElement;
+    const sync = () => setIsDark(html.classList.contains('dark'));
+    sync();
+    const mo = new MutationObserver(sync);
+    mo.observe(html, { attributeFilter: ['class'] });
+
+    const starColor = html.classList.contains('dark') ? '#FFF' : '#6366f1';
+    const makeShadow = (n: number, size = 2000) => {
+      let v = `${Math.random() * size}px ${Math.random() * size}px ${starColor}`;
+      for (let i = 1; i < n; i++) v += `, ${Math.random() * size}px ${Math.random() * size}px ${starColor}`;
+      return v;
+    };
+    setShadows({ sm: makeShadow(700), md: makeShadow(200), lg: makeShadow(100) });
     setMounted(true);
 
     const start = performance.now();
@@ -52,17 +56,13 @@ export function AnimatedBackground() {
         const r  = ORBIT_RADII[ORBIT_IDX[i]];
         const ry = ORBIT_RADII_Y[ORBIT_IDX[i]];
         const a  = BASE_ANGLE[i] + SPEED[i] * t;
-        const z  = Math.sin(a); // -1 (far) to 1 (near)
-        return {
-          x: CENTER_X + r  * Math.cos(a),
-          y: CENTER_Y + ry * Math.sin(a),
-          z,
-        };
+        const z  = Math.sin(a);
+        return { x: CENTER_X + r * Math.cos(a), y: CENTER_Y + ry * Math.sin(a), z };
       }));
       rafRef.current = requestAnimationFrame(tick);
     };
     rafRef.current = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafRef.current);
+    return () => { cancelAnimationFrame(rafRef.current); mo.disconnect(); };
   }, []);
 
   if (!mounted) return null;
@@ -97,9 +97,9 @@ export function AnimatedBackground() {
                 top:        `${y}vh`,
                 transform:  `translate(-50%, -50%) scale(${scale})`,
                 fontSize:   `${FONT_SIZE[i]}vw`,
-                color:      '#fff',
+                color:      isDark ? '#fff' : '#3730a3',
                 fontWeight: 800,
-                opacity,
+                opacity:    isDark ? opacity : opacity * 0.55,
                 filter:     `blur(${blur}px)`,
                 textShadow: '0 2px 8px #0008',
                 pointerEvents: 'none',

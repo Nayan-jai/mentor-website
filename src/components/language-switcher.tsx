@@ -118,13 +118,13 @@ export default function LanguageSwitcher() {
     <div className="relative inline-flex items-center notranslate" translate="no">
       <div id="google_translate_element" className="hidden" style={{ display: "none" }}></div>
 
-      <div className="flex items-center bg-gray-950/80 hover:bg-gray-900 border border-indigo-500/30 rounded-full p-0.5 transition-all duration-200 shadow-inner text-xs font-medium notranslate" translate="no">
+      <div className="flex items-center bg-slate-100 dark:bg-gray-950/80 hover:bg-slate-200/80 dark:hover:bg-gray-900 border border-slate-300/80 dark:border-indigo-500/30 rounded-full p-0.5 transition-all duration-200 shadow-sm dark:shadow-inner text-xs font-medium notranslate" translate="no">
         <button
           onClick={() => changeLanguage("en")}
           className={`flex items-center gap-1 px-2.5 py-1 rounded-full transition-all duration-200 notranslate ${
             currentLang === "en"
-              ? "bg-gradient-to-r from-sky-600 to-indigo-600 text-white shadow-md font-bold"
-              : "text-gray-300 hover:text-white"
+              ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md font-bold"
+              : "text-slate-600 dark:text-gray-300 hover:text-slate-900 dark:hover:text-white"
           }`}
           translate="no"
           title="Switch to English"
@@ -138,7 +138,7 @@ export default function LanguageSwitcher() {
           className={`flex items-center gap-1 px-2.5 py-1 rounded-full transition-all duration-200 notranslate ${
             currentLang === "hi"
               ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md font-bold"
-              : "text-gray-300 hover:text-white"
+              : "text-slate-600 dark:text-gray-300 hover:text-slate-900 dark:hover:text-white"
           }`}
           translate="no"
           title="हिन्दी में बदलें (Switch to Hindi)"

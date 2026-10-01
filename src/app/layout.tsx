@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "@/components/providers";
 import Navbar from "@/components/navbar";
 import OnboardingTour from "@/components/onboarding-tour";
+import { StarfieldCanvas } from "@/components/starfield-canvas";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
 
@@ -48,6 +49,7 @@ export default function RootLayout({
       </head>
       <body className={`${inter.className} h-full relative`} suppressHydrationWarning>
         <Providers>
+          <StarfieldCanvas />
           <OnboardingTour />
           <div className="flex flex-col min-h-screen relative z-[1]">
             <Navbar />

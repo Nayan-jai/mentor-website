@@ -140,10 +140,10 @@ export default function BrandLogo({ variant = "navbar", className = "" }: BrandL
         </svg>
       </div>
       <div className="flex flex-col notranslate" translate="no">
-        <span className="text-base font-extrabold tracking-[0.25em] bg-gradient-to-r from-white via-slate-100 to-sky-300 bg-clip-text text-transparent leading-none">
+        <span className="text-base font-extrabold tracking-[0.25em] text-slate-900 dark:text-white leading-none">
           MENTOR
         </span>
-        <span className="text-[9px] font-semibold tracking-[0.2em] text-sky-400/80 uppercase mt-0.5 leading-none">
+        <span className="text-[9px] font-bold tracking-[0.2em] text-blue-600 dark:text-sky-400 uppercase mt-0.5 leading-none">
           LEARNING LAB
         </span>
       </div>

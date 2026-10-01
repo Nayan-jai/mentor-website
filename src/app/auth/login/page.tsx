@@ -103,10 +103,10 @@ function LoginPage() {
   }
 
   return (
-    <div className="w-screen min-h-screen flex flex-col bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300 p-0 m-0">
+    <div className="w-full min-h-screen flex flex-col bg-transparent text-slate-900 dark:text-slate-100 transition-colors duration-300 p-0 m-0 relative">
       <div className="flex-1 flex flex-col justify-center md:justify-start">
         <div className="w-full flex justify-center">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl w-full p-8 sm:p-16 flex flex-col lg:flex-row min-h-[480px] max-w-6xl mx-auto my-8 lg:my-12" style={{maxHeight: 'calc(100vh - 64px)'}}>
+          <div className="bg-white/80 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-3xl shadow-2xl w-full p-8 sm:p-16 flex flex-col lg:flex-row min-h-[480px] max-w-6xl mx-auto my-8 lg:my-12" style={{maxHeight: 'calc(100vh - 64px)'}}>
             {/* Left: Form */}
             <div className="flex-1 flex flex-col justify-center min-h-0">
               {status === "loading" ? (

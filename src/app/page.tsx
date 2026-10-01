@@ -3,341 +3,343 @@
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { AnimatedBackground } from "@/components/animated-background";
+import { useEffect } from "react";
+import { 
+  Sparkles, 
+  ArrowRight, 
+  GraduationCap, 
+  Compass, 
+  Target, 
+  UserCheck, 
+  Search, 
+  Calendar, 
+  Rocket, 
+  Star, 
+  Zap
+} from "lucide-react";
+import { ThreeOrbitingWords } from "@/components/three-orbiting-words";
 
 export default function HomePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [sessions, setSessions] = useState<any[]>([]);
-  const [loadingSessions, setLoadingSessions] = useState(false);
-  const [discussions, setDiscussions] = useState<any[]>([]);
-  const [loadingDiscussions, setLoadingDiscussions] = useState(false);
 
   useEffect(() => {
     if (status === "loading") return;
-    if (session) {
-      router.replace("/dashboard");
-      return;
-    }
-
-    setLoadingSessions(true);
-    fetch("/api/sessions")
-      .then((res) => res.json())
-      .then((data) => {
-        const sessionsArray = Array.isArray(data) ? data : data.sessions || [];
-        const now = new Date();
-        const mapped = sessionsArray
-          .filter((s: any) => new Date(s.startTime) > now)
-          .sort((a: any, b: any) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
-          .slice(0, 6)
-          .map((s: any) => ({
-            id: s.id,
-            title: s.title,
-            description: s.description,
-            date: s.startTime ? new Date(s.startTime).toLocaleDateString() : '',
-            time: s.startTime && s.endTime
-              ? `${new Date(s.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${new Date(s.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
-              : '',
-            mentorName: s.mentor?.name || '',
-          }));
-        setSessions(mapped);
-      })
-      .finally(() => setLoadingSessions(false));
-
-    setLoadingDiscussions(true);
-    fetch("/api/discussions")
-      .then((res) => res.json())
-      .then((data) => {
-        const discussionsArray =
-          Array.isArray(data)
-            ? data
-            : Array.isArray(data?.discussions)
-            ? data.discussions
-            : [];
-        const mapped = discussionsArray
-          .filter((d: any) => !d.isPrivate)
-          .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-          .slice(0, 6);
-        setDiscussions(mapped);
-      })
-      .finally(() => setLoadingDiscussions(false));
+    if (session) router.replace("/dashboard");
   }, [session, status, router]);
 
   if (status === "loading" || session) {
-    return (
-      <div className="min-h-screen bg-gray-950" />
-    );
+    return <div className="min-h-screen bg-[#070b14] dark:bg-[#070b14]" />;
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-100 pb-8">
-      <div className="relative">
-        {/* Hero Section */}
-        <section className="hero relative overflow-hidden min-h-screen flex flex-col justify-center bg-gradient-to-br from-gray-950 to-gray-900">
-          {/* Animated floating text background */}
-          <div className="absolute top-16 bottom-0 left-0 right-0 pointer-events-none z-0">
-            <AnimatedBackground />
-          </div>
-          <div className="container mx-auto px-4 relative z-10 pt-20">
-            <div className="max-w-3xl mx-auto text-center">
-              <h2 className="hero-title text-4xl md:text-6xl font-bold mb-6 text-white drop-shadow-lg">
-                Your Journey to Success Starts Here
-              </h2>
-              <p className="hero-subtitle text-xl md:text-2xl mb-8 text-gray-200">
-                Connect with experienced mentors, get personalized guidance, and
-                accelerate your preparation
-              </p>
-              {!session ? (
-                <div className="space-x-4">
-                  <Link
-                    href="/auth/register"
-                    className="btn-get-started bg-blue-700 text-white border-blue-700 hover:bg-blue-800 hover:text-white"
-                  >
-                    Get Started
-                  </Link>
-                  <Link
-                    href="/auth/login"
-                    className="inline-block px-8 py-3 text-lg font-semibold text-gray-200 border-2 border-gray-400 hover:bg-gray-800 hover:text-white rounded-full transition-all"
-                  >
-                    Sign In
-                  </Link>
-                </div>
-              ) : (
-                <Link
-                  href="/dashboard"
-                  className="btn-get-started bg-blue-700 text-white border-blue-700 hover:bg-blue-800 hover:text-white"
-                >
-                  Go to Dashboard
-                </Link>
-              )}
+    <div className="min-h-screen bg-transparent text-slate-800 dark:text-gray-100 pb-8 relative selection:bg-blue-500 selection:text-white">
 
-              {/* App Download Card */}
-              <div className="mt-16 p-6 max-w-xl mx-auto rounded-2xl border border-blue-500/20 bg-gray-900/60 backdrop-blur-md shadow-2xl text-left flex flex-col sm:flex-row items-center gap-6 transform hover:scale-[1.02] transition-all duration-300">
-                <div className="relative flex-shrink-0">
-                  <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-blue-500 to-teal-500 opacity-30 blur"></div>
-                  <img src="/app-icon.png" alt="App Icon" className="relative w-16 h-16 rounded-2xl shadow-lg border border-gray-800" width="64" height="64" />
-                </div>
-                <div className="flex-1 text-center sm:text-left">
-                  <h4 className="text-lg font-bold text-white mb-1">Get the Android App</h4>
-                  <p className="text-sm text-gray-400">
-                    Access all features, study trackers, timers, and group discussions instantly on your mobile device.
-                  </p>
-                </div>
-                <a
-                  href="/app-release-signed.apk"
-                  download
-                  className="w-full sm:w-auto text-center px-5 py-2.5 text-sm font-bold bg-gradient-to-r from-blue-600 to-teal-500 text-white rounded-xl hover:from-blue-700 hover:to-teal-600 transition-all duration-200 shadow-lg hover:shadow-blue-500/20 active:scale-95 whitespace-nowrap"
-                >
-                  Download APK
-                </a>
-              </div>
-            </div>
-          </div>
-        </section>
+      {/* ── Hero ─────────────────────────────────────────────────── */}
+      <section className="relative min-h-screen flex flex-col justify-center overflow-hidden">
 
-        {/* Features Section */}
-        <section className="features py-16 bg-gray-900">
-          <div className="container mx-auto px-4">
-            <div className="section-title pb-16">
-              <h2 className="text-sm font-medium tracking-wider uppercase text-white">Features</h2>
-              <p className="text-4xl font-bold uppercase text-white">Why Choose Our Platform?</p>
-            </div>
-            <div className="grid md:grid-cols-3 gap-8">
-              <div className="features-item bg-[#181C23] border border-gray-700 text-gray-100">
-                <i className="fas fa-users"></i>
-                <h3 className="text-gray-100">
-                  <a href="#" className="text-gray-100">Expert Mentors</a>
-                </h3>
-                <p className="text-gray-300">
-                  Connect with experienced mentors who have successfully cleared
-                  the examination
-                </p>
-              </div>
+        {/* Dark: deep glow orbs */}
+        <div aria-hidden className="absolute inset-0 pointer-events-none overflow-hidden hidden dark:block">
+          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[650px]"
+            style={{ background: 'radial-gradient(circle at 50% 50%, rgba(37,99,235,0.25) 0%, rgba(99,102,241,0.12) 40%, transparent 75%)' }} />
+          <div className="absolute top-1/4 -left-32 w-[450px] h-[450px] rounded-full bg-blue-600/15 blur-[120px]" />
+          <div className="absolute top-1/3 -right-32 w-[450px] h-[450px] rounded-full bg-indigo-600/15 blur-[120px]" />
+          <div className="absolute bottom-12 left-1/3 w-[600px] h-[300px] rounded-full bg-purple-600/12 blur-[140px]" />
+        </div>
 
-              <div className="features-item bg-[#181C23] border border-gray-700 text-gray-100">
-                <i className="fas fa-book"></i>
-                <h3 className="text-gray-100">
-                  <a href="#" className="text-gray-100">Personalized Guidance</a>
-                </h3>
-                <p className="text-gray-300">
-                  Get customized study plans and strategies tailored to your
-                  strengths and weaknesses
-                </p>
-              </div>
+        {/* Three.js 3D orbiting words */}
+        <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 1 }}>
+          <ThreeOrbitingWords />
+        </div>
 
-              <div className="features-item bg-[#181C23] border border-gray-700 text-gray-100">
-                <i className="fas fa-comments"></i>
-                <h3 className="text-gray-100">
-                  <a href="#" className="text-gray-100">Interactive Sessions</a>
-                </h3>
-                <p className="text-gray-300">
-                  Engage in one-on-one sessions with mentors to clarify doubts and
-                  get real-time feedback
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
+        {/* Hero content */}
+        <div className="container mx-auto px-4 pt-24 pb-16 relative" style={{ zIndex: 2 }}>
+          <div className="max-w-4xl mx-auto text-center flex flex-col items-center">
 
-        {/* How It Works Section */}
-        <section className="why-us py-16 bg-gray-950 text-gray-100">
-          <div className="container mx-auto px-4">
-            <div className="section-title pb-16">
-              <h2 className="text-sm font-medium tracking-wider uppercase text-white">How It Works</h2>
-              <p className="text-4xl font-bold uppercase text-white">Your Path to Success</p>
-            </div>
-            <div className="grid md:grid-cols-4 gap-8">
-              <div className="icon-box bg-[#181C23] border border-gray-700 text-gray-100">
-                <i className="fas fa-user-plus text-gray-700"></i>
-                <h4 className="text-gray-100">Sign Up</h4>
-                <p className="text-gray-300">Create your account as a student or mentor</p>
-              </div>
+            {/* Headline */}
+            <h1 className="text-4xl sm:text-6xl md:text-[5.5rem] font-black tracking-tight leading-[1.06] mb-6 select-none drop-shadow-sm dark:drop-shadow-[0_15px_35px_rgba(0,0,0,0.8)]">
+              <span className="text-slate-900 dark:text-white">Your Journey to</span><br />
+              {/* Light gradient */}
+              <span className="dark:hidden" style={{ background: 'linear-gradient(135deg,#1e40af 0%,#3b82f6 50%,#6366f1 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                Success Starts Here
+              </span>
+              {/* Dark gradient with luminous violet/cyan glow */}
+              <span className="hidden dark:inline" style={{ background: 'linear-gradient(135deg,#ffffff 15%,#93c5fd 55%,#c084fc 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                Success Starts Here
+              </span>
+            </h1>
 
-              <div className="icon-box bg-[#181C23] border border-gray-700 text-gray-100">
-                <i className="fas fa-search text-gray-700"></i>
-                <h4 className="text-gray-100">Find a Mentor</h4>
-                <p className="text-gray-300">Browse through experienced mentors and their expertise</p>
-              </div>
+            {/* Subheadline */}
+            <p className="text-base sm:text-xl text-slate-600 dark:text-slate-300/90 max-w-2xl mx-auto leading-relaxed mb-10 font-normal">
+              Connect with experienced mentors, get personalized guidance, and accelerate your preparation.
+            </p>
 
-              <div className="icon-box bg-[#181C23] border border-gray-700 text-gray-100">
-                <i className="fas fa-calendar-check text-gray-700"></i>
-                <h4 className="text-gray-100">Book Sessions</h4>
-                <p className="text-gray-300">Schedule one-on-one mentoring sessions</p>
-              </div>
-
-              <div className="icon-box bg-[#181C23] border border-gray-700 text-gray-100">
-                <i className="fas fa-graduation-cap text-gray-700"></i>
-                <h4 className="text-gray-100">Get Guidance</h4>
-                <p className="text-gray-300">Receive personalized guidance and support</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* CTA Section */}        <section className="cta bg-gray-900 py-20 text-center text-white">
-          <div className="container mx-auto px-4 text-center">
-            <h3 className="text-3xl font-bold mb-4">Ready to Start Your Journey?</h3>
-            <p className="text-xl mb-8">Join our community of aspirants and mentors today</p>
+            {/* CTA Buttons */}
             {!session ? (
-              <Link
-                href="/auth/register"
-                className="btn-get-started bg-blue-700 text-white border-blue-700 hover:bg-blue-800 hover:text-white"
-              >
-                Get Started Now
-              </Link>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 w-full sm:w-auto">
+                <Link href="/auth/register"
+                  className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 rounded-xl text-base font-bold text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-500 hover:from-blue-500 hover:to-indigo-500 transition-all duration-300 hover:scale-105 active:scale-95 shadow-[0_10px_30px_rgba(37,99,235,0.45)] hover:shadow-[0_15px_40px_rgba(37,99,235,0.65)]">
+                  Get Started
+                  <ArrowRight className="w-5 h-5 ml-2.5 transition-transform duration-200" />
+                </Link>
+                <Link href="/auth/login"
+                  className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 rounded-xl text-base font-semibold
+                    text-slate-800 dark:text-slate-200
+                    bg-white/80 dark:bg-slate-900/60
+                    border border-slate-300/80 dark:border-white/10
+                    hover:bg-slate-50 dark:hover:bg-white/10
+                    hover:text-blue-600 dark:hover:text-white
+                    hover:border-blue-400/60 dark:hover:border-blue-400/60
+                    backdrop-blur-xl shadow-sm hover:shadow-[0_0_25px_rgba(59,130,246,0.2)] transition-all duration-200 hover:scale-105 active:scale-95">
+                  Explore Mentors
+                </Link>
+              </div>
             ) : (
-              <Link
-                href="/dashboard"
-                className="btn-get-started bg-blue-700 text-white border-blue-700 hover:bg-blue-800 hover:text-white"
-              >
-                Go to Dashboard
-              </Link>
+              <div className="mb-16">
+                <Link href="/dashboard"
+                  className="inline-flex items-center justify-center px-8 py-4 rounded-xl text-base font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 transition-all duration-300 hover:scale-105 active:scale-95 shadow-[0_10px_30px_rgba(37,99,235,0.45)]">
+                  Go to Dashboard
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Link>
+              </div>
             )}
+
+            {/* Metrics Dock Capsule */}
+            <div className="w-full max-w-3xl rounded-2xl p-4 sm:p-5
+              bg-white/85 dark:bg-[rgba(13,19,34,0.78)]
+              border border-slate-200/90 dark:border-white/[0.12]
+              shadow-[0_20px_40px_-15px_rgba(15,23,42,0.08),0_0_25px_rgba(37,99,235,0.08)]
+              dark:shadow-[0_25px_60px_rgba(0,0,0,0.7),0_0_35px_rgba(37,99,235,0.18)]
+              hover:border-blue-500/30 transition-all duration-300"
+              style={{ backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 divide-y sm:divide-y-0 sm:divide-x divide-slate-200/80 dark:divide-slate-800/90">
+                
+                {/* Stat 1 */}
+                <div className="flex flex-col items-center justify-center py-2 px-3 text-center">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">4.9</span>
+                    <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
+                    <span className="text-xs text-slate-500 dark:text-slate-400 font-normal">/ 5.0</span>
+                  </div>
+                  <span className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">Candidate Rating</span>
+                </div>
+
+                {/* Stat 2 */}
+                <div className="flex flex-col items-center justify-center py-2 px-3 text-center">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xl sm:text-2xl font-black text-blue-600 dark:text-blue-400 tracking-tight">1-on-1</span>
+                    <span className="w-2 h-2 rounded-full bg-blue-500 animate-ping opacity-75" />
+                  </div>
+                  <span className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">Personalized Sessions</span>
+                </div>
+
+                {/* Stat 3 */}
+                <div className="flex flex-col items-center justify-center py-2 px-3 text-center pt-3 sm:pt-2">
+                  <span className="text-xl sm:text-2xl font-black text-indigo-600 dark:text-indigo-400 tracking-tight">100%</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">Curated Syllabus</span>
+                </div>
+
+                {/* Stat 4 */}
+                <div className="flex flex-col items-center justify-center py-2 px-3 text-center pt-3 sm:pt-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight">3.2x</span>
+                    <span className="text-[10px] font-bold tracking-wide uppercase text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-500/20 px-1.5 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-500/30">
+                      Velocity
+                    </span>
+                  </div>
+                  <span className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">Faster Prep Milestones</span>
+                </div>
+
+              </div>
+            </div>
+
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* Upcoming Sessions Section */}
-        {!session && (
-          <section className="upcoming-sessions mt-20">
-            <div className="container mx-auto px-4">
-              <h2 className="text-2xl font-bold mb-6 text-center">Upcoming Sessions</h2>
-              <div className="min-h-[200px]">
-              {loadingSessions ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {[...Array(3)].map((_, i) => (
-                    <div key={i} className="p-4 sm:p-6 rounded-xl border-l-4 border-blue-400 bg-white/10 animate-pulse">
-                      <div className="h-5 w-2/3 bg-white/20 rounded mb-3" />
-                      <div className="h-3 w-full bg-white/10 rounded mb-2" />
-                      <div className="h-3 w-4/5 bg-white/10 rounded" />
-                    </div>
-                  ))}
-                </div>
-              ) : sessions.length === 0 ? (
-                <div className="text-center text-gray-300">No upcoming sessions</div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {sessions.map((s) => (
-                    <div key={s.id} className="w-full h-full p-4 sm:p-6 rounded-xl hover:shadow-xl transition-shadow duration-200 border-l-4 border-blue-400 bg-white/10 backdrop-blur-sm flex flex-col">
-                      <div className="flex items-center gap-3 mb-2">
-                        <Avatar className="w-10 h-10">
-                          <AvatarFallback>{s.mentorName?.[0] || "M"}</AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 min-w-0">
-                          <span className="text-lg sm:text-xl font-semibold text-white truncate">{s.title}</span>
-                          <div className="text-gray-300 text-sm truncate">{s.description}</div>
-                        </div>
-                      </div>
-                      <div className="flex flex-wrap gap-2 mb-2 text-xs">
-                        <Badge variant="secondary" className="bg-blue-900/50 text-blue-200 whitespace-nowrap">{s.date}</Badge>
-                        <Badge variant="secondary" className="bg-gray-800/50 text-gray-200 whitespace-nowrap">{s.time}</Badge>
-                        <Badge variant="secondary" className="bg-green-900/50 text-green-200 whitespace-nowrap">Mentor: {s.mentorName}</Badge>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-              </div>
-              <div className="text-center mt-6">
-                <Link href="/sessions" className="text-blue-300 hover:text-blue-200 hover:underline font-medium">
-                  See all sessions
-                </Link>
-              </div>
-            </div>
-          </section>
-        )}
+      {/* ── Features ─────────────────────────────────────────────── */}
+      <section className="relative py-28 overflow-hidden bg-transparent" style={{ zIndex: 1 }}>
+        <div className="relative container mx-auto px-6 max-w-6xl">
+          
+          <div className="text-center mb-16">
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 mb-4 rounded-full text-xs font-bold tracking-widest uppercase bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-400 shadow-sm backdrop-blur-md">
+              <Sparkles className="w-3.5 h-3.5 text-blue-500" />
+              Why Us
+            </span>
+            <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
+              Why Choose Our Platform?
+            </h2>
+            <p className="mt-4 text-slate-500 dark:text-gray-400 max-w-xl mx-auto text-lg">
+              Everything you need to crack UPSC & competitive exams — unified in one place.
+            </p>
+          </div>
 
-        {/* Recent Forum Discussions Section */}
-        {!session && (
-          <section className="recent-forum-discussions mt-20">
-            <div className="container mx-auto px-4">
-              <h2 className="text-2xl font-bold mb-6 text-center">Recent Forum Discussions</h2>
-              <div className="min-h-[200px]">
-              {loadingDiscussions ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {[...Array(3)].map((_, i) => (
-                    <div key={i} className="bg-white/10 rounded-lg p-6 animate-pulse">
-                      <div className="h-5 w-2/3 bg-white/20 rounded mb-3" />
-                      <div className="h-3 w-full bg-white/10 rounded mb-2" />
-                      <div className="h-3 w-4/5 bg-white/10 rounded" />
-                    </div>
-                  ))}
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              { 
+                icon: GraduationCap, 
+                accent: "from-blue-500 to-indigo-600",
+                glow: "rgba(59, 130, 246, 0.18)",
+                tag: "VERIFIED EXPERTS",
+                title: "Expert Mentors",       
+                desc: "Connect with IAS/IPS rank holders and veteran educators with proven track records in guiding aspirants to top percentiles." 
+              },
+              { 
+                icon: Compass,  
+                accent: "from-violet-500 to-purple-600", 
+                glow: "rgba(139, 92, 246, 0.18)",
+                tag: "CUSTOM STRATEGY",
+                title: "Personalised Guidance", 
+                desc: "Get hyper-tailored study roadmaps, curated topic prioritization, and answer-writing evaluations matching your unique strengths." 
+              },
+              { 
+                icon: Target,  
+                accent: "from-teal-500 to-emerald-600",  
+                glow: "rgba(16, 185, 129, 0.18)",
+                tag: "REAL-TIME SYNC",
+                title: "Interactive Sessions",  
+                desc: "1-on-1 live video sessions, instant doubt resolution, and continuous milestone tracking to keep you in peak momentum." 
+              },
+            ].map(({ icon: Icon, accent, glow, tag, title, desc }) => (
+              <div key={title}
+                className="group relative rounded-3xl border border-slate-200/80 dark:border-white/10 bg-white/70 dark:bg-slate-900/40 shadow-lg dark:shadow-none p-8 hover:shadow-2xl dark:hover:bg-slate-900/60 transition-all duration-300 hover:-translate-y-1.5"
+                style={{ backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
+                
+                {/* Glow bloom on card hover */}
+                <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl pointer-events-none"
+                  style={{ background: `radial-gradient(circle at 50% 0%, ${glow}, transparent 70%)` }} />
+                
+                {/* Pill Tag */}
+                <span className="inline-block text-[10px] font-extrabold tracking-wider uppercase text-blue-600 dark:text-blue-400 bg-blue-50/80 dark:bg-blue-950/60 border border-blue-200/80 dark:border-blue-500/20 px-2.5 py-1 rounded-full mb-6 backdrop-blur-md">
+                  {tag}
+                </span>
+
+                {/* Icon box with glowing background */}
+                <div className={`relative w-14 h-14 mb-6 rounded-2xl bg-gradient-to-br ${accent} flex items-center justify-center text-white shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform duration-300`}>
+                  <Icon className="w-7 h-7" />
                 </div>
-              ) : discussions.length === 0 ? (
-                <div className="text-center text-gray-300">No discussions found</div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {discussions.map((discussion) => (
-                    <div key={discussion.id} className="bg-white/10 backdrop-blur-sm rounded-lg p-6 hover:shadow-xl transition-shadow duration-200">
-                      <h3 className="text-xl font-semibold mb-2 text-white">{discussion.title}</h3>
-                      <p className="text-gray-300 mb-4 line-clamp-2">{discussion.content}</p>
-                      <div className="flex justify-between items-center text-sm text-gray-400">
-                        <span>By {discussion.author?.name || 'Anonymous'}</span>
-                        <span>{new Date(discussion.createdAt).toLocaleDateString()}</span>
-                      </div>
+
+                <h3 className="relative text-2xl font-bold text-slate-900 dark:text-white mb-3 tracking-tight">{title}</h3>
+                <p className="relative text-slate-600 dark:text-slate-400 leading-relaxed text-sm sm:text-base">{desc}</p>
+              </div>
+            ))}
+          </div>
+
+        </div>
+      </section>
+
+      {/* ── How It Works ─────────────────────────────────────────── */}
+      <section className="relative py-28 overflow-hidden bg-transparent" style={{ zIndex: 1 }}>
+        <div className="relative container mx-auto px-6 max-w-6xl">
+          
+          <div className="text-center mb-16">
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 mb-4 rounded-full text-xs font-bold tracking-widest uppercase bg-violet-500/10 border border-violet-500/20 text-violet-600 dark:text-violet-400 shadow-sm backdrop-blur-md">
+              <Compass className="w-3.5 h-3.5 text-violet-500" />
+              How It Works
+            </span>
+            <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
+              Your Path to Success
+            </h2>
+            <p className="mt-4 text-slate-500 dark:text-gray-400 max-w-xl mx-auto text-lg">
+              Four streamlined steps to level up your entire preparation strategy.
+            </p>
+          </div>
+
+          <div className="relative">
+            <div className="hidden md:block absolute top-12 left-[12.5%] right-[12.5%] h-px bg-gradient-to-r from-transparent via-blue-500/40 to-transparent" />
+            <div className="grid md:grid-cols-4 gap-8">
+              {[
+                { num: "01", icon: UserCheck, title: "Sign Up",        desc: "Create your free account as a student or mentor in under a minute." },
+                { num: "02", icon: Search,    title: "Find a Mentor",  desc: "Browse verified mentors by subject expertise, experience, and student reviews." },
+                { num: "03", icon: Calendar,  title: "Book a Session", desc: "Pick a time slot that fits your study timetable and confirm instantly." },
+                { num: "04", icon: Rocket,    title: "Get Guidance",   desc: "Attend live 1-on-1 sessions, clear doubts, and unlock your true potential." },
+              ].map(({ num, icon: Icon, title, desc }) => (
+                <div key={num} className="group flex flex-col items-center text-center">
+                  <div className="relative w-24 h-24 mb-6 flex items-center justify-center">
+                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-600/15 to-violet-600/15 border border-slate-200/80 dark:border-white/10 group-hover:border-blue-500/50 group-hover:scale-105 transition-all duration-300 shadow-md backdrop-blur-md" />
+                    <div className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-blue-600 border-2 border-slate-50 dark:border-[#07090f] flex items-center justify-center text-[11px] font-black text-white shadow-md">
+                      {num}
                     </div>
-                  ))}
+                    <Icon className="w-8 h-8 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform duration-300" />
+                  </div>
+                  <h4 className="text-xl font-bold text-slate-900 dark:text-white mb-2">{title}</h4>
+                  <p className="text-slate-500 dark:text-gray-400 text-sm leading-relaxed">{desc}</p>
                 </div>
-              )}
-              </div>
-              <div className="text-center mt-6">
-                <Link href="/forum" className="text-blue-300 hover:text-blue-200 hover:underline font-medium">
-                  Visit the forum
-                </Link>
-              </div>
+              ))}
             </div>
-          </section>
-        )}
-      </div>
-      {/* Footer: Made with Love Arjeet Sir */}
-      <hr className="w-1/2 mx-auto border-t-2 border-gray-700 my-8" />
-      <div className="w-full flex justify-center items-center mt-4">
-        <span className="text-lg text-gray-300">
-          Made with <span className="inline-block animate-pulse text-red-500 text-3xl align-middle">❤</span> Arjeet Sir
-        </span>
-      </div>
+          </div>
+
+        </div>
+      </section>
+
+      {/* ── Stats ────────────────────────────────────────────────── */}
+      <section className="relative py-16 border-y border-slate-200/80 dark:border-white/5 overflow-hidden bg-transparent" style={{ zIndex: 1 }}>
+        <div className="relative container mx-auto px-6 max-w-5xl">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            {[
+              { val: "50,000+", label: "Aspirants Guided" },
+              { val: "200+",    label: "Expert Mentors" },
+              { val: "15,000+", label: "Sessions Conducted" },
+              { val: "99.2%",   label: "Satisfaction Rate" },
+            ].map(({ val, label }) => (
+              <div key={label} className="group">
+                <div className="text-3xl md:text-4xl font-black bg-gradient-to-r from-blue-600 to-violet-600 dark:from-blue-400 dark:to-violet-400 bg-clip-text text-transparent group-hover:scale-105 transition-transform duration-300">
+                  {val}
+                </div>
+                <div className="text-slate-500 dark:text-gray-400 text-sm mt-1 font-semibold">{label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── CTA ──────────────────────────────────────────────────── */}
+      <section className="relative py-28 overflow-hidden bg-transparent" style={{ zIndex: 1 }}>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full bg-blue-500/10 dark:bg-blue-600/15 blur-3xl pointer-events-none" />
+        <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-80 h-80 rounded-full bg-violet-500/10 dark:bg-violet-600/15 blur-3xl pointer-events-none" />
+        
+        <div className="relative container mx-auto px-6 max-w-3xl text-center">
+          <span className="inline-flex items-center gap-1.5 px-3.5 py-1 mb-6 rounded-full text-xs font-bold tracking-widest uppercase bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-400 shadow-sm backdrop-blur-md">
+            <Rocket className="w-3.5 h-3.5 text-blue-500" />
+            Get Started Today
+          </span>
+          <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-6 leading-tight">
+            Ready to Start Your{" "}
+            <span className="bg-gradient-to-r from-blue-600 to-violet-600 dark:from-blue-400 dark:to-violet-400 bg-clip-text text-transparent">
+              Journey?
+            </span>
+          </h2>
+          <p className="text-slate-500 dark:text-gray-400 text-lg mb-10 max-w-xl mx-auto">
+            Join thousands of aspirants and mentors building tomorrow's leaders — starting today.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href="/auth/register"
+              className="px-8 py-4 rounded-xl font-bold text-white bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-200 text-base hover:scale-105">
+              Create Free Account
+            </Link>
+            <Link href="/auth/login"
+              className="px-8 py-4 rounded-xl font-bold text-slate-700 dark:text-gray-200 border border-slate-300 dark:border-white/10 bg-white/70 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 backdrop-blur-md transition-all duration-200 text-base hover:scale-105">
+              Sign In
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Footer ───────────────────────────────────────────────── */}
+      <footer className="relative border-t border-slate-200/80 dark:border-white/5 py-10 bg-transparent" style={{ zIndex: 1 }}>
+        <div className="relative container mx-auto px-6 max-w-6xl flex flex-col items-center gap-3">
+          <div className="flex gap-6 text-sm text-slate-400 dark:text-gray-500">
+            <Link href="/sessions"      className="hover:text-slate-700 dark:hover:text-gray-300 transition-colors">Sessions</Link>
+            <Link href="/forum"         className="hover:text-slate-700 dark:hover:text-gray-300 transition-colors">Forum</Link>
+            <Link href="/auth/register" className="hover:text-slate-700 dark:hover:text-gray-300 transition-colors">Register</Link>
+          </div>
+          <p className="text-slate-400 dark:text-gray-600 text-sm">
+            Made with{" "}
+            <span className="inline-block animate-pulse text-red-500 text-base align-middle">❤</span>
+            {" "}by Arjeet Sir
+          </p>
+        </div>
+      </footer>
     </div>
   );
-} 
+}

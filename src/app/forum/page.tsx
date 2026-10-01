@@ -102,7 +102,7 @@ export default function ForumPage() {
           </p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900/90 dark:border dark:border-slate-800 rounded-2xl shadow-xl p-6 mb-8 backdrop-blur-md">
+        <div className="bg-white/80 dark:bg-slate-900/60 dark:border dark:border-white/10 rounded-2xl shadow-xl p-6 mb-8 backdrop-blur-xl">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             <div className="md:col-span-2">
               <Input
